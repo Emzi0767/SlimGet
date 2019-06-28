@@ -12,12 +12,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
     <PackageReference Include="Npgsql" Version="4.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
+    <PackageReference Include="NuGet.Packaging" Version="5.1.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Data\Database\" />
   </ItemGroup>
 
 </Project>

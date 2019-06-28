@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -9,11 +8,11 @@ using SlimGet.Models;
 
 namespace SlimGet.Controllers
 {
-    public class ErrorController : Controller
+    public class MetaController : Controller
     {
         private IHostingEnvironment Environment { get; }
 
-        public ErrorController(IHostingEnvironment env)
+        public MetaController(IHostingEnvironment env)
         {
             this.Environment = env;
         }

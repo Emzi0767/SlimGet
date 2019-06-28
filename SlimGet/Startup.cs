@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SlimGet.Data.Configuration;
 using SlimGet.Models;
+using SlimGet.Services;
 
 namespace SlimGet
 {
@@ -42,6 +44,10 @@ namespace SlimGet
                 opts.MaxAge = TimeSpan.FromDays(365);
             });
 
+            services.AddSingleton<ConnectionStringProvider>()
+                .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
+                .AddSingleton<RedisService>();
+
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -56,14 +62,11 @@ namespace SlimGet
                 app.UseHsts();
 
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseMvc(routes => { });
 
-            app.UseMvc(routes =>
-            {
-                //routes.MapRoute(
-                //    name: "default",
-                //    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var db = scope.ServiceProvider.GetRequiredService<SlimGetContext>())
+                db.Database.Migrate();
         }
 
         private async Task RenderStatusCodeAsync(StatusCodeContext ctx)
