@@ -16,6 +16,7 @@ namespace SlimGet.Services
             {
                 EndPoints = { new DnsEndPoint(rcfg.Hostname, rcfg.Port) },
                 ClientName = "SlimGet",
+                DefaultDatabase = rcfg.Index,
                 Password = rcfg.Password,
                 Ssl = rcfg.UseSsl
             });
