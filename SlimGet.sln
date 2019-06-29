@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet", "SlimGet\SlimGet.csproj", "{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimGet", "src\SlimGet\SlimGet.csproj", "{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A53ED2F0-B059-473B-9399-B673F37716AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +20,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6B73761-3D26-4D42-BB4A-B02D57B5A6AB}
