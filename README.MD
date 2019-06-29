@@ -12,6 +12,8 @@ packages, as well as viewing various metadata about them.
 Provided are tools, which allow for issuing and revoking API tokens, allowing users to upload packages, as well as
 manage packages in a limited fashion.
 
+In the future, I might provide more integrated means of managing users and packages.
+
 ## Requirements
 In order to run a SlimGet server, you need the following components installed and available on your system:
 - .NET Core 2.2 runtime with ASP.NET Core installed
