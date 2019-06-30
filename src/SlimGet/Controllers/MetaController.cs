@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -18,9 +18,13 @@ namespace SlimGet.Controllers
             this.Environment = env;
         }
 
-        [Route("/")]
-        public IActionResult Index()
-            => this.Content("ok", "text/plain", Utilities.UTF8);
+        [Route("/test/{rc?}/{ra?}"), ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Test(string rc = "Feed", string ra = "Index")
+        {
+            return this.Environment.IsDevelopment()
+                ? this.Content(this.Url.AbsoluteUrl(ra, rc, this.HttpContext), "text/plain", Utilities.UTF8)
+                : this.Unauthorized() as IActionResult;
+        }
 
         [Route("/error"), ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

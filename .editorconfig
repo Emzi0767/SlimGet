@@ -114,12 +114,12 @@ dotnet_naming_symbols.private_fields.applicable_kinds                    = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities          = private,protected
 
 # Require Async sufix for async methods
-dotnet_naming_rule.suffix_async_methods_with_async.severity    = error
-dotnet_naming_rule.suffix_async_methods_with_async.symbols     = async_methods
-dotnet_naming_rule.suffix_async_methods_with_async.style       = async_suffix_style
-dotnet_naming_symbols.async_methods.applicable_kinds           = method
-dotnet_naming_symbols.async_methods.applicable_accessibilities = *
-dotnet_naming_symbols.async_methods.required_modifiers         = async
+#dotnet_naming_rule.suffix_async_methods_with_async.severity    = error
+#dotnet_naming_rule.suffix_async_methods_with_async.symbols     = async_methods
+#dotnet_naming_rule.suffix_async_methods_with_async.style       = async_suffix_style
+#dotnet_naming_symbols.async_methods.applicable_kinds           = method
+#dotnet_naming_symbols.async_methods.applicable_accessibilities = *
+#dotnet_naming_symbols.async_methods.required_modifiers         = async
 
 # Require I prefix for interfaces methods
 dotnet_naming_rule.prefix_interfaces_with_i.severity        = error

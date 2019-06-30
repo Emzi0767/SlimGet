@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>@ViewData["Title"]</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/slimget.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/slimget.min.css" asp-append-version="true" />
+    </environment>
+</head>
+<body>
+    <div class="slimget-header" id="header">
+        <div class="slimget-header-inner">
+            <a href="@Url.Action("Index", "Gallery")" class="slimget">SlimGet</a>
+            <a href="@Url.Action("Packages", "Gallery")" class="nav-link">Packages</a>
+            <a href="@Url.Action("About", "Gallery")" class="nav-link">About</a>
+        </div>
+    </div>
+
+    <div class="slimget-content" id="main-content">
+        @RenderBody()
+    </div>
+
+    <div class="slimget-footer" id="footer">
+
+    </div>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

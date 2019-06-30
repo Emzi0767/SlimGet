@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -14,21 +14,22 @@ namespace SlimGet
     public class Program
     {
         public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
+            => CreateWebHostBuilder(args).Build().Run();
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+            => WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseKestrel(kopts =>
                 {
+                    var kcfg = kopts.ApplicationServices.GetService<IOptions<ServerConfiguration>>().Value;
+                    kopts.Limits.MaxRequestBodySize = kcfg.MaxRequestSizeBytes;
+
                     kopts.AddServerHeader = false;
                     kopts.Listen(new IPEndPoint(IPAddress.Any, 5000), lopts =>
                     {
-                        var scfg = lopts.ApplicationServices.GetService<IOptions<ServerConfiguration>>().Value.SslCertificate;
+                        var scfg = kcfg.SslCertificate;
 
-                        if (scfg == null || string.IsNullOrWhiteSpace(scfg.Location) || string.IsNullOrWhiteSpace(scfg.PasswordFile))
+                        if (kcfg == null || string.IsNullOrWhiteSpace(scfg.Location) || string.IsNullOrWhiteSpace(scfg.PasswordFile))
                         {
                             lopts.Protocols = HttpProtocols.Http1;
                         }

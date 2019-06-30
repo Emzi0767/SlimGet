@@ -1,19 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SlimGet.Models;
 
 namespace SlimGet.Controllers
 {
-    [AllowAnonymous]
+    [Route("/[controller]/[action]"), AllowAnonymous]
     public class GalleryController : Controller
     {
-        [Route("/v3/index.json"), HttpGet]
-        public IActionResult Index()
+        [HttpGet, Route("/"), Route("/[controller]")]
+        public IActionResult Index() => this.View();
+
+        [HttpGet]
+        public IActionResult Packages() => this.View();
+
+        [HttpGet, Route("{id}")]
+        public IActionResult Packages(string id) => this.View();
+
+        [HttpGet, Route("{id}/{version}")]
+        public IActionResult Packages(string id, string version) => this.View();
+
+        [HttpGet]
+        public IActionResult About()
         {
-            return View();
+            var feedUrl = this.Url.AbsoluteUrl("Index", "Feed", this.HttpContext);
+
+            return this.View(new GalleryAboutModel(new Uri(feedUrl)));
         }
     }
 }

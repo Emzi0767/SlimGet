@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -48,7 +48,10 @@ namespace SlimGet
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
                 .AddSingleton<RedisService>();
 
-            services.AddMvc()
+            services.AddMvc(mvcopts =>
+            {
+                mvcopts.Filters.Add(new ServerHeaderResponseFilter());
+            })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
