@@ -44,7 +44,8 @@ namespace SlimGet
                 opts.MaxAge = TimeSpan.FromDays(365);
             });
 
-            services.AddSingleton<ConnectionStringProvider>()
+            services.AddSingleton<IDatabaseConfigurationProvider, DatabaseConfigurationProvider>()
+                .AddSingleton<ConnectionStringProvider>()
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
                 .AddSingleton<RedisService>();
 

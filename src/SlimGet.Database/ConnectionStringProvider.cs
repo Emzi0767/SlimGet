@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
 using Npgsql;
-using SlimGet.Data.Configuration;
 
 namespace SlimGet.Services
 {
@@ -8,9 +6,9 @@ namespace SlimGet.Services
     {
         public string ConnectionString { get; }
 
-        public ConnectionStringProvider(IOptions<StorageConfiguration> storageConfig)
+        public ConnectionStringProvider(IDatabaseConfigurationProvider dbcfgProvider)
         {
-            var dbc = storageConfig.Value.PostgreSQL;
+            var dbc = dbcfgProvider.GetDatabaseConfiguration();
             var csb = new NpgsqlConnectionStringBuilder
             {
                 Host = dbc.Hostname,

@@ -1,6 +1,6 @@
-﻿namespace SlimGet.Data.Configuration
+namespace SlimGet.Data.Configuration
 {
-    public sealed class DatabaseConfiguration
+    public sealed class DatabaseConfiguration : IDatabaseConfiguration
     {
         public string Hostname { get; set; }
         public int Port { get; set; }

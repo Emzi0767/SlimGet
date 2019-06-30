@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "meta", "meta", "{D976F83A-2
 		README.MD = README.MD
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.Database", "src\SlimGet.Database\SlimGet.Database.csproj", "{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,12 +27,17 @@ Global
 		{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD} = {A53ED2F0-B059-473B-9399-B673F37716AA}
+		{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6B73761-3D26-4D42-BB4A-B02D57B5A6AB}
