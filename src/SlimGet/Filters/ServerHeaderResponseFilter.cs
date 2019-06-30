@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace SlimGet
+namespace SlimGet.Filters
 {
     public sealed class ServerHeaderResponseFilter : IAlwaysRunResultFilter
     {

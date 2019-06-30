@@ -59,6 +59,7 @@ namespace SlimGet
             services.AddMvc(mvcopts =>
             {
                 mvcopts.Filters.Add(new ServerHeaderResponseFilter());
+                mvcopts.Filters.Add(new NuGetHeaderResourceFilter());
             })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
