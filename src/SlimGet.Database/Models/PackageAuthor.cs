@@ -1,4 +1,4 @@
-﻿namespace SlimGet.Data.Database
+namespace SlimGet.Data.Database
 {
     public sealed class PackageAuthor
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using SlimGet.Data.Database;
 
 namespace SlimGet.Services
@@ -19,96 +20,200 @@ namespace SlimGet.Services
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(this.ConnectionString);
-        }
+            => optionsBuilder.UseNpgsql(this.ConnectionString, pgopts => pgopts.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            #region User
+            modelBuilder.Entity<User>()
+                .ToTable("users");
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.Id)
+                .IsRequired()
+                .HasColumnName("id");
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.Email)
+                .IsRequired()
+                .HasColumnName("email");
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.CreatedAt)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired()
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+
+            modelBuilder.Entity<User>()
+                .HasKey(x => x.Id)
+                .HasName("pkey_userid");
+
+            modelBuilder.Entity<User>()
+                .HasAlternateKey(x => x.Email)
+                .HasName("ukey_email");
+            #endregion
+
+            #region Token
+            modelBuilder.Entity<Token>()
+                .ToTable("tokens");
+
+            modelBuilder.Entity<Token>()
+                .Property(x => x.Value)
+                .HasColumnType("uuid")
+                .IsRequired()
+                .HasColumnName("value");
+
+            modelBuilder.Entity<Token>()
+                .Property(x => x.IssuedAt)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired()
+                .HasDefaultValueSql("now()")
+                .HasColumnName("issued_at");
+
+            modelBuilder.Entity<Token>()
+                .Property(x => x.UserId)
+                .IsRequired()
+                .HasColumnName("user_id");
+
+            modelBuilder.Entity<Token>()
+                .HasKey(x => x.Value)
+                .HasName("pkey_token_value");
+
+            modelBuilder.Entity<Token>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.Tokens)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fkey_token_userid");
+            #endregion
+
             #region Package
             modelBuilder.Entity<Package>()
+                .ToTable("packages");
+
+            modelBuilder.Entity<Package>()
                 .Property(x => x.Id)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("id");
+
+            modelBuilder.Entity<Package>()
+                .Property(x => x.IdLowercase)
+                .IsRequired()
+                .HasColumnName("id_lowercase");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.Description)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("description");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.DownloadCount)
                 .IsRequired()
-                .HasDefaultValue(0);
+                .HasDefaultValue(0)
+                .HasColumnName("download_count");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.HasReadme)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("has_readme");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.IsPrerelase)
                 .IsRequired()
-                .HasDefaultValue(false);
+                .HasDefaultValue(false)
+                .HasColumnName("prerelease");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.Language)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("language");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.IsListed)
                 .IsRequired()
-                .HasDefaultValue(true);
+                .HasDefaultValue(true)
+                .HasColumnName("listed");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.MinimumClientVersion)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("min_client_version");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.PublishedAt)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired()
-                .HasDefaultValueSql("now()");
+                .HasDefaultValueSql("now()")
+                .HasColumnName("published_at");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.RequireLicenseAcceptance)
                 .IsRequired()
-                .HasDefaultValue(false);
+                .HasDefaultValue(false)
+                .HasColumnName("require_license_acceptance");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.Summary)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("summary");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.Title)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("title");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.IconUrl)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("icon_url");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.LicenseUrl)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("license_url");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.ProjectUrl)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("project_url");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.RepositoryUrl)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("repository_url");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.RepositoryType)
-                .HasDefaultValue(null);
+                .HasDefaultValue(null)
+                .HasColumnName("repository_type");
 
             modelBuilder.Entity<Package>()
                 .Property(x => x.SemVerLevel)
                 .HasColumnType("integer")
                 .IsRequired()
-                .HasDefaultValue(SemVerLevel.Unknown);
+                .HasDefaultValue(SemVerLevel.Unknown)
+                .HasColumnName("semver_level");
+
+            modelBuilder.Entity<Package>()
+                .Property(x => x.OwnerId)
+                .IsRequired()
+                .HasColumnName("owner_id");
 
             modelBuilder.Entity<Package>()
                 .HasKey(x => x.Id)
-                .HasName("PKEY_PackageId");
+                .HasName("pkey_packageid");
+
+            modelBuilder.Entity<Package>()
+                .HasAlternateKey(x => x.IdLowercase)
+                .HasName("ukey_packageidlower");
+
+            modelBuilder.Entity<Package>()
+                .HasOne(x => x.Owner)
+                .WithMany(x => x.Packages)
+                .HasForeignKey(x => x.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fkey_package_ownerid");
 
             modelBuilder.Entity<Package>()
                 .Ignore(x => x.AuthorNames)
@@ -117,59 +222,75 @@ namespace SlimGet.Services
 
             #region PackageAuthor
             modelBuilder.Entity<PackageAuthor>()
+                .ToTable("package_authors");
+
+            modelBuilder.Entity<PackageAuthor>()
                 .Property(x => x.PackageId)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("package_id");
 
             modelBuilder.Entity<PackageAuthor>()
                 .Property(x => x.Name)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("name");
 
             modelBuilder.Entity<PackageAuthor>()
                 .HasKey(x => new { x.PackageId, x.Name })
-                .HasName("PKEY_Author");
+                .HasName("pkey_author");
 
             modelBuilder.Entity<PackageAuthor>()
                 .HasOne(x => x.Package)
                 .WithMany(x => x.Authors)
                 .HasForeignKey(x => x.PackageId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FKEY_Author_PackageId");
+                .HasConstraintName("fkey_author_packageid");
             #endregion
 
             #region PackageTag
             modelBuilder.Entity<PackageTag>()
+                .ToTable("package_tags");
+
+            modelBuilder.Entity<PackageTag>()
                 .Property(x => x.PackageId)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("package_id");
 
             modelBuilder.Entity<PackageTag>()
                 .Property(x => x.Tag)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("tag");
 
             modelBuilder.Entity<PackageTag>()
                 .HasKey(x => new { x.PackageId, x.Tag })
-                .HasName("PKEY_Tag");
+                .HasName("pkey_tag");
 
             modelBuilder.Entity<PackageTag>()
                 .HasOne(x => x.Package)
                 .WithMany(x => x.Tags)
                 .HasForeignKey(x => x.PackageId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FKEY_Tag_PackageId");
+                .HasConstraintName("fkey_tag_packageid");
             #endregion
 
             #region PackageVersion
             modelBuilder.Entity<PackageVersion>()
+                .ToTable("package_versions");
+
+            modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.PackageId)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("package_id");
 
             modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.Version)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("version");
 
             modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.DownloadCount)
                 .IsRequired()
-                .HasDefaultValue(0);
+                .HasDefaultValue(0)
+                .HasColumnName("download_count");
 
             modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.IsPrerelase)
@@ -180,23 +301,35 @@ namespace SlimGet.Services
                 .Property(x => x.PublishedAt)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired()
-                .HasDefaultValueSql("now()");
+                .HasDefaultValueSql("now()")
+                .HasColumnName("published_at");
 
             modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.IsListed)
                 .IsRequired()
-                .HasDefaultValue(true);
+                .HasDefaultValue(true)
+                .HasColumnName("listed");
+
+            modelBuilder.Entity<PackageVersion>()
+                .Property(x => x.PackageFileName)
+                .IsRequired()
+                .HasColumnName("package_filename");
+
+            modelBuilder.Entity<PackageVersion>()
+                .Property(x => x.ManifestFileName)
+                .IsRequired()
+                .HasColumnName("manifest_filename");
 
             modelBuilder.Entity<PackageVersion>()
                 .HasKey(x => new { x.PackageId, x.Version })
-                .HasName("PKEY_Version");
+                .HasName("pkey_Version");
 
             modelBuilder.Entity<PackageVersion>()
                 .HasOne(x => x.Package)
                 .WithMany(x => x.Versions)
                 .HasForeignKey(x => x.PackageId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FKEY_Version_PackageId");
+                .HasConstraintName("fkey_Version_PackageId");
 
             modelBuilder.Entity<PackageVersion>()
                 .Ignore(x => x.NuGetVersion);
@@ -204,31 +337,43 @@ namespace SlimGet.Services
 
             #region PackageDependency
             modelBuilder.Entity<PackageDependency>()
+                .ToTable("package_dependencies");
+
+            modelBuilder.Entity<PackageDependency>()
                 .Property(x => x.Id)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("id");
 
             modelBuilder.Entity<PackageDependency>()
                 .Property(x => x.VersionRange)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("version_range");
 
             modelBuilder.Entity<PackageDependency>()
                 .Property(x => x.TargetFramework)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("target_framework");
 
             modelBuilder.Entity<PackageDependency>()
                 .Property(x => x.PackageId)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnName("package_id");
+
+            modelBuilder.Entity<PackageDependency>()
+                .Property(x => x.PackageVersion)
+                .IsRequired()
+                .HasColumnName("package_version");
 
             modelBuilder.Entity<PackageDependency>()
                 .HasKey(x => new { x.PackageId, x.PackageVersion, x.Id, x.TargetFramework })
-                .HasName("PKEY_Dependency");
+                .HasName("pkey_dependency");
 
             modelBuilder.Entity<PackageDependency>()
                 .HasOne(x => x.Package)
                 .WithMany(x => x.Dependencies)
                 .HasForeignKey(x => new { x.PackageId, x.PackageVersion })
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FKEY_Dependency_PackageId_PackageVersion");
+                .HasConstraintName("fkey_dependency_packageid_packageversion");
             #endregion
         }
     }
