@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SlimGet.Data.Configuration;
+using SlimGet.Filters;
 using SlimGet.Models;
 using SlimGet.Services;
 
@@ -44,10 +45,16 @@ namespace SlimGet
                 opts.MaxAge = TimeSpan.FromDays(365);
             });
 
-            services.AddSingleton<IDatabaseConfigurationProvider, DatabaseConfigurationProvider>()
+            services.AddSingleton<IEncodingProvider, EncodingProvider>()
+                .AddSingleton<ITokenConfigurationProvider, TokenConfigurationProvider>()
+                .AddSingleton<IDatabaseConfigurationProvider, DatabaseConfigurationProvider>()
                 .AddSingleton<ConnectionStringProvider>()
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
-                .AddSingleton<RedisService>();
+                .AddSingleton<RedisService>()
+                .AddSingleton<TokenService>();
+
+            services.AddAuthentication(TokenAuthenticationHandler.AuthenticationSchemeName)
+                .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(TokenAuthenticationHandler.AuthenticationSchemeName, null);
 
             services.AddMvc(mvcopts =>
             {
@@ -62,6 +69,7 @@ namespace SlimGet
             app.UseExceptionHandler("/error")
                 .UseStatusCodePages(this.RenderStatusCodeAsync)
                 .UseStaticFiles()
+                .UseAuthentication()
                 .UseMvc(routes => { });
 
             if (!env.IsDevelopment())

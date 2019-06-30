@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SlimGet.AuthenticationTokens\SlimGet.AuthenticationTokens.csproj" />
     <ProjectReference Include="..\SlimGet.Database\SlimGet.Database.csproj" />
   </ItemGroup>
 

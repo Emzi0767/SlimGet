@@ -62,7 +62,7 @@ namespace SlimGet.Services
                 .ToTable("tokens");
 
             modelBuilder.Entity<Token>()
-                .Property(x => x.Value)
+                .Property(x => x.Guid)
                 .HasColumnType("uuid")
                 .IsRequired()
                 .HasColumnName("value");
@@ -80,7 +80,7 @@ namespace SlimGet.Services
                 .HasColumnName("user_id");
 
             modelBuilder.Entity<Token>()
-                .HasKey(x => x.Value)
+                .HasKey(x => x.Guid)
                 .HasName("pkey_token_value");
 
             modelBuilder.Entity<Token>()

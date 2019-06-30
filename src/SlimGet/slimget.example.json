@@ -30,6 +30,7 @@
             "Location": "/home/slimget/tls.pfx",
             "PasswordFile": "/home/slimget/tls.pfx.pwd"
         },
-        "MaxRequestSizeBytes": 10485760
+        "MaxRequestSizeBytes": 10485760,
+        "TokenHmacKey": "hunter2"
     }
 }

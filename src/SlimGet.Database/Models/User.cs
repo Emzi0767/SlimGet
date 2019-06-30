@@ -7,7 +7,7 @@ namespace SlimGet.Data.Database
     {
         public string Id { get; set; }
         public string Email { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public List<Token> Tokens { get; set; }
         public List<Package> Packages { get; set; }
