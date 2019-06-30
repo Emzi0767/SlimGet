@@ -1,13 +1,16 @@
+using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using SlimGet.Data.Database;
 
 namespace SlimGet.Services
 {
-    public class SlimGetContext : DbContext
+    public sealed class SlimGetContext : DbContext
     {
         private string ConnectionString { get; }
 
+        public DbSet<User> Users { get; set; }
+        public DbSet<Token> Tokens { get; set; }
         public DbSet<PackageAuthor> Authors { get; set; }
         public DbSet<PackageTag> Tags { get; set; }
         public DbSet<PackageVersion> Versions { get; set; }
@@ -295,7 +298,8 @@ namespace SlimGet.Services
             modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.IsPrerelase)
                 .IsRequired()
-                .HasDefaultValue(false);
+                .HasDefaultValue(false)
+                .HasColumnName("prerelease");
 
             modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.PublishedAt)
@@ -322,14 +326,14 @@ namespace SlimGet.Services
 
             modelBuilder.Entity<PackageVersion>()
                 .HasKey(x => new { x.PackageId, x.Version })
-                .HasName("pkey_Version");
+                .HasName("pkey_version");
 
             modelBuilder.Entity<PackageVersion>()
                 .HasOne(x => x.Package)
                 .WithMany(x => x.Versions)
                 .HasForeignKey(x => x.PackageId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("fkey_Version_PackageId");
+                .HasConstraintName("fkey_version_packageid");
 
             modelBuilder.Entity<PackageVersion>()
                 .Ignore(x => x.NuGetVersion);
