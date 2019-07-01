@@ -65,7 +65,7 @@ namespace SlimGet.Services
                 .Property(x => x.Guid)
                 .HasColumnType("uuid")
                 .IsRequired()
-                .HasColumnName("value");
+                .HasColumnName("guid");
 
             modelBuilder.Entity<Token>()
                 .Property(x => x.IssuedAt)

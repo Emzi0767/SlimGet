@@ -62,13 +62,13 @@ namespace SlimGet.Data.Database.Migrations
                 name: "tokens",
                 columns: table => new
                 {
-                    value = table.Column<Guid>(type: "uuid", nullable: false),
+                    guid = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<string>(nullable: false),
                     issued_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pkey_token_value", x => x.value);
+                    table.PrimaryKey("pkey_token_value", x => x.guid);
                     table.ForeignKey(
                         name: "fkey_token_userid",
                         column: x => x.user_id,

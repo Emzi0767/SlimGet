@@ -10,7 +10,7 @@ using SlimGet.Services;
 namespace SlimGet.Data.Database.Migrations
 {
     [DbContext(typeof(SlimGetContext))]
-    [Migration("20190701100517_InitialSetup")]
+    [Migration("20190701101540_InitialSetup")]
     partial class InitialSetup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,7 +238,7 @@ namespace SlimGet.Data.Database.Migrations
                 {
                     b.Property<Guid>("Guid")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("value")
+                        .HasColumnName("guid")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("IssuedAt")
