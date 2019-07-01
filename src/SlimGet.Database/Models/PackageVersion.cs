@@ -15,7 +15,7 @@ namespace SlimGet.Data.Database
         public string PackageFileName { get; set; }
         public string ManifestFileName { get; set; }
         public string SymbolsFileName { get; set; }
-        public Guid SymbolsIdentifier { get; set; }
+        public Guid? SymbolsIdentifier { get; set; }
 
         public Package Package { get; set; }
         public List<PackageDependency> Dependencies { get; set; }

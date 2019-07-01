@@ -126,7 +126,7 @@ namespace SlimGet.Data.Database.Migrations
                     package_filename = table.Column<string>(nullable: false),
                     manifest_filename = table.Column<string>(nullable: false),
                     symbols_filename = table.Column<string>(nullable: true),
-                    symbols_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    symbols_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {

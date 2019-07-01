@@ -227,7 +227,7 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnName("symbols_filename")
                         .HasDefaultValue(null);
 
-                    b.Property<Guid>("SymbolsIdentifier")
+                    b.Property<Guid?>("SymbolsIdentifier")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("symbols_id")
                         .HasColumnType("uuid")

@@ -9,7 +9,7 @@ using SlimGet.Services;
 namespace SlimGet.Data.Database.Migrations
 {
     [DbContext(typeof(SlimGetContext))]
-    [Migration("20190701152557_InitialSetup")]
+    [Migration("20190701152731_InitialSetup")]
     partial class InitialSetup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -229,7 +229,7 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnName("symbols_filename")
                         .HasDefaultValue(null);
 
-                    b.Property<Guid>("SymbolsIdentifier")
+                    b.Property<Guid?>("SymbolsIdentifier")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("symbols_id")
                         .HasColumnType("uuid")
