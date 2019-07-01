@@ -8,6 +8,7 @@ namespace SlimGet.Data.Database
     {
         public string PackageId { get; set; }
         public string Version { get; set; }
+        public string VersionLowercase { get; set; }
         public long DownloadCount { get; set; }
         public bool IsPrerelase { get; set; }
         public DateTime? PublishedAt { get; set; }

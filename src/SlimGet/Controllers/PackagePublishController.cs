@@ -71,13 +71,12 @@ namespace SlimGet.Controllers
                 foreach (var pp in pruned)
                     this.FileSystem.DeleteWholePackage(pp);
 
-                var (id, version) = (pkgparse.Id, pkgparse.Version.ToNormalizedString());
+                var (id, version) = (pkgparse.Id.ToLowerInvariant(), pkgparse.Version.ToNormalizedString().ToLowerInvariant());
                 return this.Created(this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new
                 {
                     id,
-                    id2 = id,
                     version,
-                    version2 = version
+                    filename = $"{id}.{version}"
                 }), new { message = "Uploaded successfully." });
             }
         }

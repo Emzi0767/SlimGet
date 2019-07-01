@@ -239,6 +239,11 @@ namespace SlimGet.Services
                 .HasColumnName("version");
 
             modelBuilder.Entity<PackageVersion>()
+                .Property(x => x.VersionLowercase)
+                .IsRequired()
+                .HasColumnName("version_lowercase");
+
+            modelBuilder.Entity<PackageVersion>()
                 .Property(x => x.DownloadCount)
                 .IsRequired()
                 .HasDefaultValue(0)

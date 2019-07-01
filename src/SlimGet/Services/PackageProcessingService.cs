@@ -172,6 +172,7 @@ namespace SlimGet.Services
             {
                 PackageId = pkginfo.Id,
                 Version = pkginfo.NormalizedVersion,
+                VersionLowercase = pkginfo.NormalizedVersion.ToLowerInvariant(),
                 DownloadCount = 0,
                 IsPrerelase = packageInfo.IsPrerelase,
                 PublishedAt = DateTime.UtcNow,

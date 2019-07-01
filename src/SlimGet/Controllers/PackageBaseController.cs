@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SlimGet.Data;
 using SlimGet.Data.Configuration;
+using SlimGet.Models;
 using SlimGet.Services;
 
 namespace SlimGet.Controllers
@@ -22,7 +24,15 @@ namespace SlimGet.Controllers
 
         [Route("{id}/index.json"), HttpGet]
         public async Task<IActionResult> EnumerateVersions(string id, CancellationToken cancellationToken)
-            => this.NoContent();
+        {
+            var pkg = await this.Database.Packages.Include(x => x.Versions)
+                .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken);
+
+            if (pkg == null)
+                return this.NotFound();
+
+            return this.Json(new PackageVersionList(pkg.Versions.Select(x => x.Version)));
+        }
 
         [Route("{id}/{version}/{filename}.nupkg"), HttpGet]
         public async Task<IActionResult> Contents(string id, string version, string filename, CancellationToken cancellationToken)
@@ -30,13 +40,19 @@ namespace SlimGet.Controllers
             if (filename != $"{id}.{version}")
                 return this.NotFound();
 
-            var pkg = await this.Database.PackageVersions.FirstOrDefaultAsync(x => x.PackageId == id && x.Version == version, cancellationToken).ConfigureAwait(false);
+            var pkg = await this.Database.Packages.Include(x => x.Versions)
+                .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken);
             if (pkg == null)
                 return this.NotFound();
 
-            var pkginfo = new PackageInfo(pkg.PackageId, pkg.NuGetVersion);
+            var pkgv = pkg.Versions.FirstOrDefault(x => x.VersionLowercase == version);
+            if (pkgv == null)
+                return this.NotFound();
+
+#warning Increment counters
+            var pkginfo = new PackageInfo(pkg.Id, pkgv.NuGetVersion);
             var pkgdata = this.FileSystem.OpenPackageRead(pkginfo);
-            return this.File(pkgdata, "application/octet-stream", $"{id}.{version}.nupkg");
+            return this.File(pkgdata, "application/octet-stream", $"{pkg.Id}.{pkgv.Version}.nupkg");
         }
 
         [Route("{id}/{version}/{id2}.nuspec"), HttpGet]
@@ -45,13 +61,19 @@ namespace SlimGet.Controllers
             if (id != id2)
                 return this.NotFound();
 
-            var pkg = await this.Database.PackageVersions.FirstOrDefaultAsync(x => x.PackageId == id && x.Version == version, cancellationToken).ConfigureAwait(false);
+            var pkg = await this.Database.Packages.Include(x => x.Versions)
+                .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken);
             if (pkg == null)
                 return this.NotFound();
 
-            var pkginfo = new PackageInfo(pkg.PackageId, pkg.NuGetVersion);
+            var pkgv = pkg.Versions.FirstOrDefault(x => x.VersionLowercase == version);
+            if (pkgv == null)
+                return this.NotFound();
+
+#warning Increment counters
+            var pkginfo = new PackageInfo(pkg.Id, pkgv.NuGetVersion);
             var pkgdata = this.FileSystem.OpenManifestRead(pkginfo);
-            return this.File(pkgdata, "application/xml", $"{id}.nuspec");
+            return this.File(pkgdata, "application/xml", $"{pkg.Id}.nuspec");
         }
     }
 }

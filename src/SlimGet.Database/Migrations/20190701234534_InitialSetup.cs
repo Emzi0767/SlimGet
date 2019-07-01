@@ -117,6 +117,7 @@ namespace SlimGet.Data.Database.Migrations
                 {
                     package_id = table.Column<string>(nullable: false),
                     version = table.Column<string>(nullable: false),
+                    version_lowercase = table.Column<string>(nullable: false),
                     download_count = table.Column<long>(nullable: false, defaultValue: 0L),
                     prerelease = table.Column<bool>(nullable: false, defaultValue: false),
                     published_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
