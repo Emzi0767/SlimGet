@@ -24,7 +24,8 @@
             "LatestVersionRetainCount": 10,
             "MaxPackageSizeBytes": 10485760,
             "DeleteEndpointUnlists": true,
-            "ReadOnlyFeed": false
+            "ReadOnlyFeed": false,
+            "EnableSymbols": true
         }
     },
     "Server": {

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SlimGet.Filters
 {
-    public sealed class ServerHeaderResponseFilter : IAlwaysRunResultFilter
+    public sealed class ServerHeaderAppender : IAlwaysRunResultFilter
     {
         private static string HeaderContent { get; } = $"SlimGet/{Utilities.VersionString}";
 

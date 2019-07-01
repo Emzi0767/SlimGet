@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SlimGet.Data.Configuration;
+using SlimGet.Filters;
 using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v2/package"), ApiController, Authorize]
+    [Route("/api/v2/package"), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed))]
     public sealed class PackagePublishController : NuGetControllerBase
     {
         public PackagePublishController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)

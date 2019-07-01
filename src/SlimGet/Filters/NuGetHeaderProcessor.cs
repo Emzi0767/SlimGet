@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SlimGet.Filters
 {
-    public sealed class NuGetHeaderResourceFilter : IResourceFilter
+    public sealed class NuGetHeaderProcessor : IResourceFilter
     {
         public void OnResourceExecuted(ResourceExecutedContext context)
         { }

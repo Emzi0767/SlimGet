@@ -7,5 +7,6 @@ namespace SlimGet.Data.Configuration
         public long MaxPackageSizeBytes { get; set; }
         public bool DeleteEndpointUnlists { get; set; }
         public bool ReadOnlyFeed { get; set; }
+        public bool SymbolsEnabled { get; set; }
     }
 }

@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SlimGet.Data.Configuration;
+using SlimGet.Filters;
 using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v3/symbolstore"), ApiController, AllowAnonymous]
+    [Route("/api/v3/symbolstore"), ApiController, AllowAnonymous, ServiceFilter(typeof(RequireSymbolsEnabled))]
     public sealed class SymbolBaseController : NuGetControllerBase
     {
         public SymbolBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
