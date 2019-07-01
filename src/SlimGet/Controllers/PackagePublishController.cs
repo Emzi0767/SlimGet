@@ -60,6 +60,8 @@ namespace SlimGet.Controllers
                 if (result == RegisterPackageResult.AlreadyExists)
                     return this.Conflict(new { message = "Package with specified ID and version already exists." });
 
+#warning Create redis download counters
+
                 using (var pkgfs = this.FileSystem.OpenPackageWrite(pkgparse.Info))
                     await pkgtmp.CopyToAsync(pkgfs).ConfigureAwait(false);
                 using (var specfs = this.FileSystem.OpenManifestWrite(pkgparse.Info))
