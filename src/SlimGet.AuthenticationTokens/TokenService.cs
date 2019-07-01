@@ -1,9 +1,9 @@
 using System;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using SlimGet.Data;
@@ -95,7 +95,7 @@ namespace SlimGet.Services
             var len = this.TextEncoding.GetByteCount(userId) + Unsafe.SizeOf<long>();
             var stamp = new byte[len];
 
-            MemoryMarshal.Write(stamp, ref issued);
+            BinaryPrimitives.WriteInt64LittleEndian(stamp, issued);
             this.TextEncoding.GetBytes(userId, 0, userId.Length, stamp, 8);
 
             return stamp;
@@ -107,7 +107,7 @@ namespace SlimGet.Services
             try
             {
                 guid.TryWriteBytes(salt);
-                var cycles = MemoryMarshal.Read<ushort>(salt);
+                var cycles = BinaryPrimitives.ReadUInt16LittleEndian(salt);
 
                 // compute hmac
                 byte[] stampHmac = null;
