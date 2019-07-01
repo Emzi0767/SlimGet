@@ -3,13 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using SlimGet.Data.Configuration;
 using SlimGet.Models;
+using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
     [ApiController, AllowAnonymous]
-    public sealed class IndexController : Controller
+    public sealed class IndexController : NuGetControllerBase
     {
+        public IndexController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, storcfg)
+        { }
+
         [Route("/api/v3/index.json"), HttpGet]
         public IActionResult Index()
         {

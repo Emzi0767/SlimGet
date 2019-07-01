@@ -86,7 +86,7 @@ namespace SlimGet
             var json = JsonConvert.SerializeObject(new SimpleErrorModel(Activity.Current?.Id ?? ctx.HttpContext.TraceIdentifier), Formatting.Indented);
 
             ctx.HttpContext.Response.ContentType = "application/json";
-            await ctx.HttpContext.Response.WriteAsync(json, Utilities.UTF8);
+            await ctx.HttpContext.Response.WriteAsync(json, Utilities.UTF8).ConfigureAwait(false);
         }
     }
 }

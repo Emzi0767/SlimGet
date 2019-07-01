@@ -28,7 +28,7 @@ namespace SlimGet.Controllers
         }
 
         // Generates a user and token for testing, unless one exists already
-        [Route("/token/{username?}/{email?}"), HttpGet]
+        [Route("/token/issue/{username?}/{email?}"), HttpGet]
         public async Task<IActionResult> Token(string username = null, string email = null)
         {
             if (!this.Environment.IsDevelopment())
@@ -64,8 +64,24 @@ namespace SlimGet.Controllers
                 await this.Database.Tokens.AddAsync(tok).ConfigureAwait(false);
             }
 
-            await this.Database.SaveChangesAsync();
+            await this.Database.SaveChangesAsync().ConfigureAwait(false);
             return this.Content(this.Tokens.EncodeToken(atok), "text/plain", Utilities.UTF8);
+        }
+
+        // Revokes a token, provided in case of leakage; no validation is performed except GUID parsing
+        [Route("/token/revoke/{token}"), HttpGet]
+        public async Task<IActionResult> RevokeToken(string token)
+        {
+            if (!this.Tokens.TryReadTokenId(token, out var guid))
+                return this.NotFound();
+
+            var tok = this.Database.Tokens.FirstOrDefault(x => x.Guid == guid);
+            if (tok == null)
+                return this.NotFound();
+
+            this.Database.Tokens.Remove(tok);
+            await this.Database.SaveChangesAsync().ConfigureAwait(false);
+            return this.NoContent();
         }
 
         [Route("/whoami")]

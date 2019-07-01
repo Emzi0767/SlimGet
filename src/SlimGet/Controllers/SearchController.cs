@@ -2,12 +2,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using SlimGet.Data.Configuration;
+using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
     [ApiController, AllowAnonymous]
-    public class SearchController : ControllerBase
+    public class SearchController : NuGetControllerBase
     {
+        public SearchController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, storcfg)
+        { }
+
         [Route("/api/v3/query"), HttpGet]
         public async Task<IActionResult> Search(
             [FromQuery(Name = "q")] string query,

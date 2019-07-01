@@ -2,12 +2,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using SlimGet.Data.Configuration;
+using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
     [Route("/api/v3/registration"), ApiController, AllowAnonymous]
-    public class RegistrationsBaseController : ControllerBase
+    public class RegistrationsBaseController : NuGetControllerBase
     {
+        public RegistrationsBaseController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, storcfg)
+        { }
+
         [Route("plain"), HttpGet]
         public IActionResult Dummy() => this.NoContent();
 
