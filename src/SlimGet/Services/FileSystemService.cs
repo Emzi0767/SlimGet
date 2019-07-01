@@ -56,7 +56,7 @@ namespace SlimGet.Services
 
         public Stream OpenPackageRead(PackageInfo package)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString(), "package.nupkg");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "package.nupkg");
             var fi = new FileInfo(pkgPath);
             if (fi.Exists)
             {
@@ -70,7 +70,7 @@ namespace SlimGet.Services
 
         public Stream OpenPackageWrite(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
                 pkgDir.Create();
@@ -83,7 +83,7 @@ namespace SlimGet.Services
 
         public Stream OpenManifestRead(PackageInfo package)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString(), "manifest.nuspec");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "manifest.nuspec");
             var fi = new FileInfo(pkgPath);
             if (fi.Exists)
             {
@@ -97,7 +97,7 @@ namespace SlimGet.Services
 
         public Stream OpenManifestWrite(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
                 pkgDir.Create();
@@ -110,7 +110,7 @@ namespace SlimGet.Services
 
         public Stream OpenSymbolsRead(PackageInfo package)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString(), "symbols.pdb");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "symbols.pdb");
             var fi = new FileInfo(pkgPath);
             if (fi.Exists)
             {
@@ -124,7 +124,7 @@ namespace SlimGet.Services
 
         public Stream OpenSymbolsWrite(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
                 pkgDir.Create();
@@ -137,7 +137,7 @@ namespace SlimGet.Services
 
         public bool DeleteWholePackage(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
                 return false;
@@ -170,7 +170,7 @@ namespace SlimGet.Services
 
         public bool DeletePackage(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
             {
@@ -193,7 +193,7 @@ namespace SlimGet.Services
 
         public bool DeleteManifest(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
             {
@@ -215,7 +215,7 @@ namespace SlimGet.Services
 
         public bool DeleteSymbols(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
             {
@@ -237,7 +237,7 @@ namespace SlimGet.Services
 
         public bool HasPackage(PackageInfo package)
         {
-            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString());
+            var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
             {
@@ -265,7 +265,7 @@ namespace SlimGet.Services
 
         public string GetPackageFileName(PackageInfo package)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString(), "package.nupkg");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "package.nupkg");
             var pkg = new FileInfo(pkgPath);
             var vid = pkg.MakeRelativeTo(this.PackageRoot);
 
@@ -275,7 +275,7 @@ namespace SlimGet.Services
 
         public string GetManifestFileName(PackageInfo package)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString(), "manifest.nuspec");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "manifest.nuspec");
             var pkg = new FileInfo(pkgPath);
             var vid = pkg.MakeRelativeTo(this.PackageRoot);
 
@@ -285,7 +285,7 @@ namespace SlimGet.Services
 
         public string GetSymbolsFileName(PackageInfo package)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToString(), "symbols.pdb");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "symbols.pdb");
             var pkg = new FileInfo(pkgPath);
             var vid = pkg.MakeRelativeTo(this.PackageRoot);
 

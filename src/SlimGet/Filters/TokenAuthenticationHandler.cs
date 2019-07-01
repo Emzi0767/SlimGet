@@ -61,5 +61,11 @@ namespace SlimGet.Filters
             this.LocalLogger.LogInformation("Authenticated user '{0}' via token {1:B}", token.UserId, token.Guid);
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
+
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            AuthenticationSchemeSelector.HandleChallenge(this.Context);
+            return Task.CompletedTask;
+        }
     }
 }

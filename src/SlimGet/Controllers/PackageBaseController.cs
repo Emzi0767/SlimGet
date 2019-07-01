@@ -26,7 +26,7 @@ namespace SlimGet.Controllers
         public async Task<IActionResult> Contents(string id, string version, string id2, string version2, CancellationToken cancellationToken)
             => this.NoContent();
 
-        [Route("{id}/{version}/{id2}.nupkg"), HttpGet]
+        [Route("{id}/{version}/{id2}.nuspec"), HttpGet]
         public async Task<IActionResult> Manifest(string id, string version, string id2, CancellationToken cancellationToken)
             => this.NoContent();
     }

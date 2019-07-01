@@ -10,8 +10,6 @@ namespace SlimGet.Data.Database
         public string IdLowercase { get; set; }
         public string Description { get; set; }
         public long DownloadCount { get; set; }
-        public bool HasReadme { get; set; }
-        public bool IsPrerelase { get; set; }
         public string Language { get; set; }
         public bool IsListed { get; set; }
         public string MinimumClientVersion { get; set; }

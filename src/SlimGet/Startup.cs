@@ -52,10 +52,17 @@ namespace SlimGet
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
                 .AddSingleton<RedisService>()
                 .AddSingleton<TokenService>()
-                .AddSingleton<IFileSystemService, FileSystemService>();
+                .AddSingleton<IFileSystemService, FileSystemService>()
+                .AddSingleton<PackageProcessingService>()
+                .AddSingleton<SymbolProcessingService>()
+                .AddSingleton<RequireDevelopmentEnvironment>()
+                .AddSingleton<RequireWritableFeed>()
+                .AddSingleton<RequireSymbolsEnabled>();
 
-            services.AddAuthentication(TokenAuthenticationHandler.AuthenticationSchemeName)
-                .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(TokenAuthenticationHandler.AuthenticationSchemeName, null);
+            services.AddAuthentication(AuthenticationSchemeSelector.AuthenticationSchemeName)
+                .AddPolicyScheme(AuthenticationSchemeSelector.AuthenticationSchemeName, AuthenticationSchemeSelector.AuthenticationSchemeName, AuthenticationSchemeSelector.ConfigureSelector)
+                .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(TokenAuthenticationHandler.AuthenticationSchemeName, null)
+                .AddScheme<BypassAuthenticationOptions, BypassAuthenticationHandler>(BypassAuthenticationHandler.AuthenticationSchemeName, null);
 
             services.AddMvc(mvcopts =>
             {

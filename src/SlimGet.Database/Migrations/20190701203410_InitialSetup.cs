@@ -29,8 +29,6 @@ namespace SlimGet.Data.Database.Migrations
                     id_lowercase = table.Column<string>(nullable: false),
                     description = table.Column<string>(nullable: true),
                     download_count = table.Column<long>(nullable: false, defaultValue: 0L),
-                    has_readme = table.Column<bool>(nullable: false),
-                    prerelease = table.Column<bool>(nullable: false, defaultValue: false),
                     language = table.Column<string>(nullable: true),
                     listed = table.Column<bool>(nullable: false, defaultValue: true),
                     min_client_version = table.Column<string>(nullable: true),
@@ -147,13 +145,35 @@ namespace SlimGet.Data.Database.Migrations
                     package_version = table.Column<string>(nullable: false),
                     id = table.Column<string>(nullable: false),
                     target_framework = table.Column<string>(nullable: false),
-                    version_range = table.Column<string>(nullable: false)
+                    min_version = table.Column<string>(nullable: true),
+                    min_version_inclusive = table.Column<bool>(nullable: false, defaultValue: false),
+                    max_version = table.Column<string>(nullable: true),
+                    max_version_inclusive = table.Column<bool>(nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pkey_dependency", x => new { x.package_id, x.package_version, x.id, x.target_framework });
                     table.ForeignKey(
                         name: "fkey_dependency_packageid_packageversion",
+                        columns: x => new { x.package_id, x.package_version },
+                        principalTable: "package_versions",
+                        principalColumns: new[] { "package_id", "version" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "package_frameworks",
+                columns: table => new
+                {
+                    package_id = table.Column<string>(nullable: false),
+                    package_version = table.Column<string>(nullable: false),
+                    framework = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pkey_framework", x => new { x.package_id, x.package_version, x.framework });
+                    table.ForeignKey(
+                        name: "fkey_framework_packageid_packageversion",
                         columns: x => new { x.package_id, x.package_version },
                         principalTable: "package_versions",
                         principalColumns: new[] { "package_id", "version" },
@@ -193,6 +213,9 @@ namespace SlimGet.Data.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "package_dependencies");
+
+            migrationBuilder.DropTable(
+                name: "package_frameworks");
 
             migrationBuilder.DropTable(
                 name: "package_tags");

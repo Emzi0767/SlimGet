@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace SlimGet.Models
 {
-    public sealed class FeedServiceModel
+    public sealed class FeedResourceModel
     {
         /// <summary>
         /// Gets the base URL of the resource.
@@ -24,12 +24,12 @@ namespace SlimGet.Models
         [JsonProperty("comment")]
         public string Comment { get; }
 
-        public FeedServiceModel(Uri baseUrl, string type, string comment)
+        public FeedResourceModel(Uri baseUrl, string type, string comment)
         {
             if (string.IsNullOrWhiteSpace(type))
-                throw new ArgumentNullException(nameof(type), "Service type cannot be null or empty.");
+                throw new ArgumentNullException(nameof(type), "Resource type cannot be null or empty.");
 
-            this.BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl), "Service base URL cannot be null.");
+            this.BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl), "Resource base URL cannot be null.");
             this.Type = type;
             this.Comment = !string.IsNullOrWhiteSpace(comment) ? comment : string.Empty;
         }
@@ -46,18 +46,18 @@ namespace SlimGet.Models
         /// <summary>
         /// Gets the services available in the feed.
         /// </summary>
-        [JsonProperty("services")]
-        public IEnumerable<FeedServiceModel> Services { get; }
+        [JsonProperty("resources")]
+        public IEnumerable<FeedResourceModel> Resources { get; }
 
         // @context
 
-        public FeedIndexModel(string version, IEnumerable<FeedServiceModel> services)
+        public FeedIndexModel(string version, IEnumerable<FeedResourceModel> resources)
         {
             if (string.IsNullOrWhiteSpace(version))
                 throw new ArgumentNullException(nameof(version), "Version cannot be null or empty.");
 
             this.Version = version;
-            this.Services = services ?? throw new ArgumentException(nameof(services), "Service collection cannot be null.");
+            this.Resources = resources ?? throw new ArgumentException(nameof(resources), "Resource collection cannot be null.");
         }
     }
 }
