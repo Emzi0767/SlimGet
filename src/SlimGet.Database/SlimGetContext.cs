@@ -337,12 +337,27 @@ namespace SlimGet.Services
                 .HasColumnName("manifest_filename");
 
             modelBuilder.Entity<PackageVersion>()
+                .Property(x => x.SymbolsFileName)
+                .HasDefaultValue(null)
+                .HasColumnName("symbols_filename");
+
+            modelBuilder.Entity<PackageVersion>()
+                .Property(x => x.SymbolsIdentifier)
+                .HasColumnType("uuid")
+                .HasDefaultValue(null)
+                .HasColumnName("symbols_id");
+
+            modelBuilder.Entity<PackageVersion>()
                 .HasKey(x => new { x.PackageId, x.Version })
                 .HasName("pkey_version");
 
             modelBuilder.Entity<PackageVersion>()
                 .HasIndex(x => x.PackageId)
                 .HasName("ix_version_packageid");
+
+            modelBuilder.Entity<PackageVersion>()
+                .HasIndex(x => x.SymbolsIdentifier)
+                .HasName("ix_version_symbolsid");
 
             modelBuilder.Entity<PackageVersion>()
                 .HasOne(x => x.Package)

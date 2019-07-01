@@ -40,6 +40,20 @@ namespace SlimGet.Services
         Stream OpenManifestWrite(PackageInfo package);
 
         /// <summary>
+        /// Opens a symbol file for reading. This stream is read-only, seeking is not guaranteed.
+        /// </summary>
+        /// <param name="package">Package to open the symbol file for.</param>
+        /// <returns>Stream for the symbols.</returns>
+        Stream OpenSymbolsRead(PackageInfo package);
+
+        /// <summary>
+        /// Opens a symbol file for writing. File will be overwritten if it exists, and created otherwise. This stream is write-only, seeking is not guaranteed.
+        /// </summary>
+        /// <param name="package">Package to open the symbol file for.</param>
+        /// <returns>Stream for the symbols.</returns>
+        Stream OpenSymbolsWrite(PackageInfo package);
+
+        /// <summary>
         /// Deletes a package and associated manifest from the filesystem.
         /// </summary>
         /// <param name="package">Package to delete.</param>
@@ -61,6 +75,13 @@ namespace SlimGet.Services
         bool DeleteManifest(PackageInfo package);
 
         /// <summary>
+        /// Deletes package symbols from the filesystem.
+        /// </summary>
+        /// <param name="package">Package the symbols of which to delete.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        bool DeleteSymbols(PackageInfo package);
+
+        /// <summary>
         /// Checks whether this filesystem has the specified package.
         /// </summary>
         /// <param name="package">Package to check for.</param>
@@ -80,5 +101,12 @@ namespace SlimGet.Services
         /// <param name="package">Package to get virtual identifier for.</param>
         /// <returns>Virtual identifier of a manifest, or null if specified package does not exist.</returns>
         string GetManifestFileName(PackageInfo package);
+
+        /// <summary>
+        /// Gets the virtual identifier of symbols in a given filesystem. This is used for debugging and other diagnostic purposes.
+        /// </summary>
+        /// <param name="package">Package to get virtual identifier for.</param>
+        /// <returns>Virtual identifier of symbols, or null if specified package does not exist.</returns>
+        string GetSymbolsFileName(PackageInfo package);
     }
 }

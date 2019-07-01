@@ -124,7 +124,9 @@ namespace SlimGet.Data.Database.Migrations
                     published_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     listed = table.Column<bool>(nullable: false, defaultValue: true),
                     package_filename = table.Column<string>(nullable: false),
-                    manifest_filename = table.Column<string>(nullable: false)
+                    manifest_filename = table.Column<string>(nullable: false),
+                    symbols_filename = table.Column<string>(nullable: true),
+                    symbols_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -162,6 +164,11 @@ namespace SlimGet.Data.Database.Migrations
                 name: "ix_version_packageid",
                 table: "package_versions",
                 column: "package_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_version_symbolsid",
+                table: "package_versions",
+                column: "symbols_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_package_idlower",
