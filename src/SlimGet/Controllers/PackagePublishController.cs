@@ -27,7 +27,7 @@ namespace SlimGet.Controllers
             if (!this.Request.HasFormContentType || this.Request.Form.Files.Count <= 0)
                 return this.BadRequest();
 
-            using (var tmp = this.FileSystem.CreateTemporaryFile())
+            using (var tmp = this.FileSystem.CreateTemporaryFile(TemporaryFileExtension.Nupkg))
             {
                 await this.Request.Form.Files.First().CopyToAsync(tmp, cancellationToken).ConfigureAwait(false);
                 tmp.Position = 0;

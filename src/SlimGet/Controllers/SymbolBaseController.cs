@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -26,7 +28,7 @@ namespace SlimGet.Controllers
             => this.Content("", "text/plain", Utilities.UTF8);
 
         [Route("{file}/{sig}/{file2}"), Route("{t2prefix}/{file}/{sig}/{file2}"), HttpGet]
-        public IActionResult Symbols(string file, string sig, string file2)
+        public async Task<IActionResult> Symbols(string file, string sig, string file2, CancellationToken cancellationToken)
             => this.NoContent();
     }
 }

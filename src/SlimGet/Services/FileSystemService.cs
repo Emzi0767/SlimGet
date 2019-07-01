@@ -43,10 +43,10 @@ namespace SlimGet.Services
             }
         }
 
-        public Stream CreateTemporaryFile()
+        public Stream CreateTemporaryFile(TemporaryFileExtension tmpext)
         {
             var guid = Guid.NewGuid();
-            var fname = $"{guid:D}.tmp";
+            var fname = $"{guid:D}.{ExtensionToString(tmpext)}";
 
             var fi = new FileInfo(Path.Combine(this.Temporary.FullName, fname));
             this.Logger.LogInformation("Creating temporary file '{0}'", fi.FullName);
@@ -291,6 +291,23 @@ namespace SlimGet.Services
 
             this.Logger.LogInformation("Virtual identifier for {0}/{1} symbols is '{2}'", package.Id, package.Version, vid);
             return vid;
+        }
+
+        private static string ExtensionToString(TemporaryFileExtension ext)
+        {
+            switch (ext)
+            {
+                case TemporaryFileExtension.Nupkg:
+                    return "nupkg";
+
+                case TemporaryFileExtension.Nuspec:
+                    return "nuspec";
+
+                case TemporaryFileExtension.Pdb:
+                    return "pdb";
+            }
+
+            return "tmp";
         }
     }
 }

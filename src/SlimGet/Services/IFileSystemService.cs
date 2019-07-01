@@ -8,8 +8,9 @@ namespace SlimGet.Services
         /// <summary>
         /// Returns a seekable, readable+writable stream to hold temporary data.
         /// </summary>
+        /// <param name="tmpext">Extension of the temporary file.</param>
         /// <returns>Stream for a temporary file.</returns>
-        Stream CreateTemporaryFile();
+        Stream CreateTemporaryFile(TemporaryFileExtension tmpext);
 
         /// <summary>
         /// Opens a package file for reading. This stream is read-only, seeking is not guaranteed.
@@ -108,5 +109,31 @@ namespace SlimGet.Services
         /// <param name="package">Package to get virtual identifier for.</param>
         /// <returns>Virtual identifier of symbols, or null if specified package does not exist.</returns>
         string GetSymbolsFileName(PackageInfo package);
+    }
+
+    /// <summary>
+    /// Specifies extension of the temporary file.
+    /// </summary>
+    public enum TemporaryFileExtension
+    {
+        /// <summary>
+        /// Specifies that the temporary file is a .nupkg (NuGet package) file.
+        /// </summary>
+        Nupkg,
+
+        /// <summary>
+        /// Specifies that the temporary file is a .nuspec (NuGet manifest) file.
+        /// </summary>
+        Nuspec,
+
+        /// <summary>
+        /// Specifies that the temporary file is a .pdb (debug symbols) file.
+        /// </summary>
+        Pdb,
+
+        /// <summary>
+        /// Specifies that the temporary file is a .tmp (no specific kind) file.
+        /// </summary>
+        Tmp
     }
 }
