@@ -50,7 +50,7 @@ namespace SlimGet.Services
 
             modelBuilder.Entity<User>()
                 .HasKey(x => x.Id)
-                .HasName("pkey_userid");
+                .HasName("pkey_user_id");
 
             modelBuilder.Entity<User>()
                 .HasAlternateKey(x => x.Email)
@@ -82,6 +82,10 @@ namespace SlimGet.Services
             modelBuilder.Entity<Token>()
                 .HasKey(x => x.Guid)
                 .HasName("pkey_token_value");
+
+            modelBuilder.Entity<Token>()
+                .HasIndex(x => x.UserId)
+                .HasName("ix_token_owner");
 
             modelBuilder.Entity<Token>()
                 .HasOne(x => x.User)
@@ -205,11 +209,19 @@ namespace SlimGet.Services
 
             modelBuilder.Entity<Package>()
                 .HasKey(x => x.Id)
-                .HasName("pkey_packageid");
+                .HasName("pkey_package_id");
 
             modelBuilder.Entity<Package>()
                 .HasAlternateKey(x => x.IdLowercase)
-                .HasName("ukey_packageidlower");
+                .HasName("ukey_package_idlower");
+
+            modelBuilder.Entity<Package>()
+                .HasIndex(x => x.IdLowercase)
+                .HasName("ix_package_idlower");
+
+            modelBuilder.Entity<Package>()
+                .HasIndex(x => x.OwnerId)
+                .HasName("ix_package_owner");
 
             modelBuilder.Entity<Package>()
                 .HasOne(x => x.Owner)
@@ -327,6 +339,10 @@ namespace SlimGet.Services
             modelBuilder.Entity<PackageVersion>()
                 .HasKey(x => new { x.PackageId, x.Version })
                 .HasName("pkey_version");
+
+            modelBuilder.Entity<PackageVersion>()
+                .HasIndex(x => x.PackageId)
+                .HasName("ix_version_packageid");
 
             modelBuilder.Entity<PackageVersion>()
                 .HasOne(x => x.Package)
