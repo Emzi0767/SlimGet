@@ -23,9 +23,10 @@ namespace SlimGet.Controllers
         [HttpGet]
         public IActionResult About()
         {
-            var feedUrl = this.Url.AbsoluteUrl("Index", "Feed", this.HttpContext);
+            var feedUrl = this.Url.AbsoluteUrl("Index", "Index", this.HttpContext);
+            var symbolUrl = this.Url.AbsoluteUrl("Dummy", "SymbolBase", this.HttpContext);
 
-            return this.View(new GalleryAboutModel(new Uri(feedUrl)));
+            return this.View(new GalleryAboutModel(new Uri(feedUrl), new Uri(symbolUrl)));
         }
     }
 }
