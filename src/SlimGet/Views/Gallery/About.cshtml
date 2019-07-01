@@ -10,7 +10,10 @@
     <pre>@Model.NuGetFeedUrl</pre>
 </p>
 
-<p>
-    This feed also offers a symbol server. Use it by adding the following symbol source to your debugger configuration:
-    <pre>@Model.SymbolsUrl</pre>
-</p>
+@if (Model.SymbolsEnabled)
+{
+    <p>
+        This feed also offers a symbol server. Use it by adding the following symbol source to your debugger configuration:
+        <pre>@Model.SymbolsUrl</pre>
+    </p>
+}

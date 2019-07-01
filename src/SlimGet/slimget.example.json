@@ -25,7 +25,7 @@
             "MaxPackageSizeBytes": 10485760,
             "DeleteEndpointUnlists": true,
             "ReadOnlyFeed": false,
-            "EnableSymbols": true
+            "SymbolsEnabled": true
         }
     },
     "Server": {
