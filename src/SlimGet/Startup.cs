@@ -51,7 +51,8 @@ namespace SlimGet
                 .AddSingleton<ConnectionStringProvider>()
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
                 .AddSingleton<RedisService>()
-                .AddSingleton<TokenService>();
+                .AddSingleton<TokenService>()
+                .AddSingleton<IFileSystemService, FileSystemService>();
 
             services.AddAuthentication(TokenAuthenticationHandler.AuthenticationSchemeName)
                 .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(TokenAuthenticationHandler.AuthenticationSchemeName, null);

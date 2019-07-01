@@ -18,12 +18,14 @@ namespace SlimGet.Filters
 
         private SlimGetContext Database { get; }
         private TokenService Tokens { get; }
+        private ILogger<TokenAuthenticationHandler> LocalLogger { get; }
 
         public TokenAuthenticationHandler(IOptionsMonitor<TokenAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, SlimGetContext database, TokenService tokens)
             : base(options, logger, encoder, clock)
         {
             this.Database = database;
             this.Tokens = tokens;
+            this.LocalLogger = logger.CreateLogger<TokenAuthenticationHandler>();
         }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -33,11 +35,17 @@ namespace SlimGet.Filters
 
             var tokenStr = values.First();
             if (!this.Tokens.TryReadTokenId(tokenStr, out var guid))
+            {
+                this.LocalLogger.LogWarning("Failed to authenticate using invalid token '{0}'", tokenStr);
                 return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
+            }
 
             var tokenData = this.Database.Tokens.FirstOrDefault(x => x.Guid == guid);
             if (tokenData == null || !this.Tokens.ValidateToken(tokenStr, tokenData.UserId, tokenData.IssuedAt.Value, guid, out var token))
+            {
+                this.LocalLogger.LogWarning("Failed to authenticate using nonexistent token {0:B}", guid);
                 return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
+            }
 
             var claims = new[]
             {
@@ -49,6 +57,8 @@ namespace SlimGet.Filters
             var identity = new ClaimsIdentity(claims, this.Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, this.Scheme.Name);
+
+            this.LocalLogger.LogInformation("Authenticated user '{0}' via token {1:B}", token.UserId, token.Guid);
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
     }

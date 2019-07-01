@@ -13,8 +13,8 @@ namespace SlimGet.Controllers
     [ApiController, AllowAnonymous]
     public sealed class IndexController : NuGetControllerBase
     {
-        public IndexController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
-            : base(db, redis, storcfg)
+        public IndexController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, fs, storcfg)
         { }
 
         [Route("/api/v3/index.json"), HttpGet]

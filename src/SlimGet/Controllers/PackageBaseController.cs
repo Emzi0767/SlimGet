@@ -11,8 +11,8 @@ namespace SlimGet.Controllers
     [Route("/api/v3/flatcontainer"), ApiController, AllowAnonymous]
     public class PackageBaseController : NuGetControllerBase
     {
-        public PackageBaseController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
-            : base(db, redis, storcfg)
+        public PackageBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, fs, storcfg)
         { }
 
         [Route(""), HttpGet]

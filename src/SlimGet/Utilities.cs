@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -27,5 +28,18 @@ namespace SlimGet
 
         public static Uri ToUri(this string s)
             => new Uri(s);
+
+        public static string MakeRelativeTo(this FileSystemInfo fi, DirectoryInfo dir)
+        {
+            var fifn = fi.FullName;
+            var dirfn = dir.FullName;
+            if (!dirfn.EndsWith(Path.DirectorySeparatorChar) && !dirfn.EndsWith(Path.DirectorySeparatorChar))
+                dirfn += Path.DirectorySeparatorChar;
+
+            var full = new Uri(fifn, UriKind.Absolute);
+            var root = new Uri(dirfn, UriKind.Absolute);
+
+            return root.MakeRelativeUri(full).ToString();
+        }
     }
 }

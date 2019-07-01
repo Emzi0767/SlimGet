@@ -11,8 +11,8 @@ namespace SlimGet.Controllers
     [Route("/api/v3/registration"), ApiController, AllowAnonymous]
     public class RegistrationsBaseController : NuGetControllerBase
     {
-        public RegistrationsBaseController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
-            : base(db, redis, storcfg)
+        public RegistrationsBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, fs, storcfg)
         { }
 
         [Route("plain"), HttpGet]

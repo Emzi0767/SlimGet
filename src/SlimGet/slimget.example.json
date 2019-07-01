@@ -23,7 +23,8 @@
             "EnablePruning": true,
             "LatestVersionRetainCount": 10,
             "MaxPackageSizeBytes": 10485760,
-            "DeleteEndpointUnlists": true
+            "DeleteEndpointUnlists": true,
+            "ReadOnlyFeed": false
         }
     },
     "Server": {

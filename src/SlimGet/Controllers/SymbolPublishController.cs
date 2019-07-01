@@ -11,8 +11,8 @@ namespace SlimGet.Controllers
     [Route("/api/v2/symbolpackage"), ApiController, Authorize]
     public class SymbolPublishController : NuGetControllerBase
     {
-        public SymbolPublishController(SlimGetContext db, RedisService redis, IOptions<StorageConfiguration> storcfg)
-            : base(db, redis, storcfg)
+        public SymbolPublishController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
+            : base(db, redis, fs, storcfg)
         { }
 
         [Route(""), HttpPut]
