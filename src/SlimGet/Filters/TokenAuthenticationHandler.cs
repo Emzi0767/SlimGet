@@ -36,7 +36,7 @@ namespace SlimGet.Filters
                 return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
 
             var tokenData = this.Database.Tokens.FirstOrDefault(x => x.Guid == guid);
-            if (!this.Tokens.ValidateToken(tokenStr, tokenData.UserId, tokenData.IssuedAt.Value, guid, out var token))
+            if (tokenData == null || !this.Tokens.ValidateToken(tokenStr, tokenData.UserId, tokenData.IssuedAt.Value, guid, out var token))
                 return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
 
             var claims = new[]
