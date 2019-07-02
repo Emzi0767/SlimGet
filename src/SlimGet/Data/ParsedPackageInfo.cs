@@ -30,6 +30,9 @@ namespace SlimGet.Data
         public IEnumerable<ParsedDependencyInfo> Dependencies { get; set; }
         public IEnumerable<NuGetFramework> Frameworks { get; set; }
 
+        // Indexed binaries
+        public IEnumerable<ParsedIndexedBinary> Binaries { get; set; }
+
         public PackageInfo Info => new PackageInfo(this.Id, this.Version);
     }
 
@@ -41,5 +44,17 @@ namespace SlimGet.Data
         public NuGetVersion MaxVersion { get; set; }
         public bool IsMinInclusive { get; set; }
         public bool IsMaxInclusive { get; set; }
+    }
+
+    public sealed class ParsedIndexedBinary
+    {
+        public string Name { get; set; }
+        public string Extension { get; set; }
+        public string Location { get; set; }
+        public string Parent { get; set; }
+        public string Entry { get; set; }
+        public string Sha256 { get; set; }
+        public long Length { get; set; }
+        public NuGetFramework Framework { get; set; }
     }
 }

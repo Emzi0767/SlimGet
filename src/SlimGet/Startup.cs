@@ -69,6 +69,8 @@ namespace SlimGet
             {
                 mvcopts.Filters.Add(new ServerHeaderAppender());
                 mvcopts.Filters.Add(new NuGetHeaderProcessor());
+
+                mvcopts.InputFormatters.Add(new RawTextBodyFormatter());
             })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

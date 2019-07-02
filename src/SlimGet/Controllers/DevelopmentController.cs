@@ -1,7 +1,14 @@
+using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using SlimGet.Data;
 using SlimGet.Data.Database;
 using SlimGet.Filters;
@@ -13,12 +20,16 @@ namespace SlimGet.Controllers
     public class DevelopmentController : Controller
     {
         private SlimGetContext Database { get; }
+        private RedisService Redis { get; }
+        private IFileSystemService Filesystem { get; }
         private TokenService Tokens { get; }
 
-        public DevelopmentController(SlimGetContext db, TokenService tokens)
+        public DevelopmentController(SlimGetContext db, TokenService tokens, RedisService redis, IFileSystemService fs)
         {
             this.Database = db;
             this.Tokens = tokens;
+            this.Redis = redis;
+            this.Filesystem = fs;
         }
 
         // Generates a user and token for testing, unless one exists already
@@ -66,5 +77,77 @@ namespace SlimGet.Controllers
         [Route("genroute/{rc?}/{ra?}"), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Test(string rc = "Feed", string ra = "Index")
             => this.Content(this.Url.AbsoluteUrl(ra, rc, this.HttpContext), "text/plain", Utilities.UTF8);
+
+        [Route("eval"), HttpPost]
+        public async Task<IActionResult> Evaluate([FromBody] string code)
+        {
+            var globals = new EvaluationEnvironment(this.HttpContext, this.Database, this.Redis, this.Filesystem, this.Tokens);
+            var sopts = ScriptOptions.Default
+                .WithImports("System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Net.Http", "System.Net.Http.Headers", "System.Reflection", "System.Text",
+                             "System.Threading.Tasks", "SlimGet", "SlimGet.Data", "SlimGet.Data.Configuration", "SlimGet.Data.Database", "SlimGet.Services", "SlimGet.Models", "SlimGet.Filters")
+                .WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
+
+            var sw1 = Stopwatch.StartNew();
+            var cs = CSharpScript.Create(code, sopts, typeof(EvaluationEnvironment));
+            var csc = cs.Compile();
+            sw1.Stop();
+            this.Response.Headers.Add("X-Compilation-Time", sw1.ElapsedMilliseconds.ToString("#,##0"));
+
+            if (csc.Any(xd => xd.Severity == DiagnosticSeverity.Error))
+            {
+                var sb = new StringBuilder();
+                foreach (var xd in csc)
+                {
+                    var ls = xd.Location.GetLineSpan();
+                    sb.AppendLine($"Error at {ls.StartLinePosition.Line:#,##0}, {ls.StartLinePosition.Character:#,##0}: {xd.GetMessage()}");
+                }
+
+                return this.Content(sb.ToString(), "text/plain", Utilities.UTF8);
+            }
+
+            Exception rex = null;
+            ScriptState<object> css = null;
+            var sw2 = Stopwatch.StartNew();
+            try
+            {
+                css = await cs.RunAsync(globals).ConfigureAwait(false);
+                rex = css.Exception;
+            }
+            catch (Exception ex)
+            {
+                rex = ex;
+            }
+            sw2.Stop();
+            this.Response.Headers.Add("X-Execution-Time", sw2.ElapsedMilliseconds.ToString("#,##0"));
+
+            if (rex != null)
+                return this.Content($"Execution failed with exception\n{rex.GetType()}: {rex.Message}\n{rex.StackTrace}", "text/plain", Utilities.UTF8);
+
+            if (css.ReturnValue != null)
+            {
+                this.Response.Headers.Add("X-Result-Type", css.ReturnValue.GetType().ToString());
+                return this.Content(css.ReturnValue.ToString(), "text/plain", Utilities.UTF8);
+            }
+
+            return this.NoContent();
+        }
+
+        public sealed class EvaluationEnvironment
+        {
+            public HttpContext Context { get; }
+            public SlimGetContext Database { get; }
+            public RedisService Redis { get; }
+            public IFileSystemService Filesystem { get; }
+            public TokenService Tokens { get; }
+
+            public EvaluationEnvironment(HttpContext ctx, SlimGetContext db, RedisService redis, IFileSystemService fs, TokenService tokens)
+            {
+                this.Context = ctx;
+                this.Database = db;
+                this.Redis = redis;
+                this.Filesystem = fs;
+                this.Tokens = tokens;
+            }
+        }
     }
 }
