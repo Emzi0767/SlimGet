@@ -3,8 +3,11 @@ SlimGet is a lightweight implementation of a NuGet and symbol server, powered by
 in Docker. It's the software powering my NuGet feed at [nuget.emzi0767.com](https://nuget.emzi0767.com/).
 
 Unlike alternative implementations, SlimGet is designed to host a single, local feed, with no upstream mirrors or
-similar functionality. It was born out of need for a NuGet feed for CI artifacts of my projects, after my usualy go-to
-provider ceased responding to all emails, and broke my builds in the process.
+similar functionality. It's designed only with .NET packages (and debug symbols) in mind, and is therefore not
+guaranteed to work with anything else (e.g. COM interop, native libraries, etc.).
+
+The project was born out of need for a NuGet feed for CI artifacts of my projects, after my usualy go-to provider
+ceased responding to all my support emails, and broke my builds in the process.
 
 The web interface provides a simple, readonly view of the feed, which allows for browsing and downloading hosted
 packages, as well as viewing various metadata about them.

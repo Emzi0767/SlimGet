@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NuGet.Frameworks;
 
 namespace SlimGet.Data.Database
@@ -9,6 +10,7 @@ namespace SlimGet.Data.Database
         public string Framework { get; set; }
 
         public PackageVersion Package { get; set; }
+        public List<PackageBinary> Binaries { get; set; }
 
         public NuGetFramework NuGetFramework => NuGetFramework.Parse(this.Framework);
     }

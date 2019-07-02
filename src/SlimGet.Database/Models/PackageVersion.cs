@@ -13,14 +13,13 @@ namespace SlimGet.Data.Database
         public bool IsPrerelase { get; set; }
         public DateTime? PublishedAt { get; set; }
         public bool IsListed { get; set; }
-        public string PackageFileName { get; set; }
-        public string ManifestFileName { get; set; }
-        public string SymbolsFileName { get; set; }
-        public Guid? SymbolsIdentifier { get; set; }
+        public string PackageFilename { get; set; }
+        public string ManifestFilename { get; set; }
 
         public Package Package { get; set; }
         public List<PackageDependency> Dependencies { get; set; }
         public List<PackageFramework> Frameworks { get; set; }
+        public List<PackageBinary> Binaries { get; set; }
 
         public NuGetVersion NuGetVersion => NuGetVersion.TryParse(this.Version, out var ngv) ? ngv : null;
     }

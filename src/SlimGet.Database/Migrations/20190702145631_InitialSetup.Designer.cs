@@ -9,7 +9,7 @@ using SlimGet.Services;
 namespace SlimGet.Data.Database.Migrations
 {
     [DbContext(typeof(SlimGetContext))]
-    [Migration("20190701234534_InitialSetup")]
+    [Migration("20190702145631_InitialSetup")]
     partial class InitialSetup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -141,6 +141,56 @@ namespace SlimGet.Data.Database.Migrations
                     b.ToTable("package_authors");
                 });
 
+            modelBuilder.Entity("SlimGet.Data.Database.PackageBinary", b =>
+                {
+                    b.Property<string>("PackageId")
+                        .HasColumnName("package_id");
+
+                    b.Property<string>("PackageVersion")
+                        .HasColumnName("package_version");
+
+                    b.Property<string>("Framework")
+                        .HasColumnName("framework");
+
+                    b.Property<string>("Name")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnName("sha256_hash");
+
+                    b.Property<long>("Length")
+                        .HasColumnName("length");
+
+                    b.Property<string>("SymbolsFilename")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("symbols_filename")
+                        .HasDefaultValue(null);
+
+                    b.Property<Guid?>("SymbolsIdentifier")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("symbols_id")
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(null);
+
+                    b.Property<string>("SymbolsName")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("symbols_name")
+                        .HasDefaultValue(null);
+
+                    b.HasKey("PackageId", "PackageVersion", "Framework", "Name")
+                        .HasName("pkey_binary_packageid_packageversion_framework");
+
+                    b.HasIndex("Hash")
+                        .HasName("ix_binary_hash")
+                        .HasAnnotation("Npgsql:IndexMethod", "hash");
+
+                    b.HasIndex("SymbolsIdentifier")
+                        .HasName("ix_binary_symbolsid");
+
+                    b.ToTable("package_binaries");
+                });
+
             modelBuilder.Entity("SlimGet.Data.Database.PackageDependency", b =>
                 {
                     b.Property<string>("PackageId")
@@ -237,11 +287,11 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnName("prerelease")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("ManifestFileName")
+                    b.Property<string>("ManifestFilename")
                         .IsRequired()
                         .HasColumnName("manifest_filename");
 
-                    b.Property<string>("PackageFileName")
+                    b.Property<string>("PackageFilename")
                         .IsRequired()
                         .HasColumnName("package_filename");
 
@@ -252,17 +302,6 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<string>("SymbolsFileName")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("symbols_filename")
-                        .HasDefaultValue(null);
-
-                    b.Property<Guid?>("SymbolsIdentifier")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("symbols_id")
-                        .HasColumnType("uuid")
-                        .HasDefaultValue(null);
-
                     b.Property<string>("VersionLowercase")
                         .IsRequired()
                         .HasColumnName("version_lowercase");
@@ -272,9 +311,6 @@ namespace SlimGet.Data.Database.Migrations
 
                     b.HasIndex("PackageId")
                         .HasName("ix_version_packageid");
-
-                    b.HasIndex("SymbolsIdentifier")
-                        .HasName("ix_version_symbolsid");
 
                     b.ToTable("package_versions");
                 });
@@ -347,6 +383,21 @@ namespace SlimGet.Data.Database.Migrations
                         .WithMany("Authors")
                         .HasForeignKey("PackageId")
                         .HasConstraintName("fkey_author_packageid")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SlimGet.Data.Database.PackageBinary", b =>
+                {
+                    b.HasOne("SlimGet.Data.Database.PackageVersion", "Package")
+                        .WithMany("Binaries")
+                        .HasForeignKey("PackageId", "PackageVersion")
+                        .HasConstraintName("fkey_binary_packageid_packageversion")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SlimGet.Data.Database.PackageFramework", "PackageFramework")
+                        .WithMany("Binaries")
+                        .HasForeignKey("PackageId", "PackageVersion", "Framework")
+                        .HasConstraintName("fkey_binary_framework")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

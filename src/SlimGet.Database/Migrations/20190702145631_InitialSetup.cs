@@ -123,9 +123,7 @@ namespace SlimGet.Data.Database.Migrations
                     published_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     listed = table.Column<bool>(nullable: false, defaultValue: true),
                     package_filename = table.Column<string>(nullable: false),
-                    manifest_filename = table.Column<string>(nullable: false),
-                    symbols_filename = table.Column<string>(nullable: true),
-                    symbols_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    manifest_filename = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -181,15 +179,52 @@ namespace SlimGet.Data.Database.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "package_binaries",
+                columns: table => new
+                {
+                    package_id = table.Column<string>(nullable: false),
+                    package_version = table.Column<string>(nullable: false),
+                    framework = table.Column<string>(nullable: false),
+                    name = table.Column<string>(nullable: false),
+                    length = table.Column<long>(nullable: false),
+                    sha256_hash = table.Column<string>(nullable: false),
+                    symbols_filename = table.Column<string>(nullable: true),
+                    symbols_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    symbols_name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pkey_binary_packageid_packageversion_framework", x => new { x.package_id, x.package_version, x.framework, x.name });
+                    table.ForeignKey(
+                        name: "fkey_binary_packageid_packageversion",
+                        columns: x => new { x.package_id, x.package_version },
+                        principalTable: "package_versions",
+                        principalColumns: new[] { "package_id", "version" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fkey_binary_framework",
+                        columns: x => new { x.package_id, x.package_version, x.framework },
+                        principalTable: "package_frameworks",
+                        principalColumns: new[] { "package_id", "package_version", "framework" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_binary_hash",
+                table: "package_binaries",
+                column: "sha256_hash")
+                .Annotation("Npgsql:IndexMethod", "hash");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_binary_symbolsid",
+                table: "package_binaries",
+                column: "symbols_id");
+
             migrationBuilder.CreateIndex(
                 name: "ix_version_packageid",
                 table: "package_versions",
                 column: "package_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_version_symbolsid",
-                table: "package_versions",
-                column: "symbols_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_package_idlower",
@@ -213,16 +248,19 @@ namespace SlimGet.Data.Database.Migrations
                 name: "package_authors");
 
             migrationBuilder.DropTable(
-                name: "package_dependencies");
+                name: "package_binaries");
 
             migrationBuilder.DropTable(
-                name: "package_frameworks");
+                name: "package_dependencies");
 
             migrationBuilder.DropTable(
                 name: "package_tags");
 
             migrationBuilder.DropTable(
                 name: "tokens");
+
+            migrationBuilder.DropTable(
+                name: "package_frameworks");
 
             migrationBuilder.DropTable(
                 name: "package_versions");

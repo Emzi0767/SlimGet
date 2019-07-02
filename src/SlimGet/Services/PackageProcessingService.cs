@@ -179,8 +179,8 @@ namespace SlimGet.Services
                 IsPrerelase = packageInfo.IsPrerelase,
                 PublishedAt = DateTime.UtcNow,
                 IsListed = true,
-                PackageFileName = packageFileName,
-                ManifestFileName = manifestFileName
+                PackageFilename = packageFileName,
+                ManifestFilename = manifestFileName
             };
             await database.PackageVersions.AddAsync(pkgv, cancellationToken).ConfigureAwait(false);
 
