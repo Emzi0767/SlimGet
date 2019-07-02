@@ -108,13 +108,13 @@ namespace SlimGet.Services
             return fi.Open(FileMode.Create, FileAccess.Write);
         }
 
-        public Stream OpenSymbolsRead(PackageInfo package)
+        public Stream OpenSymbolsRead(PackageInfo package, Guid identifier)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "symbols.pdb");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), $"symbols-{identifier:N}.pdb");
             var fi = new FileInfo(pkgPath);
             if (fi.Exists)
             {
-                this.Logger.LogInformation("Opened symbols for reading: {0}/{1} ('{2}')", package.Id, package.Version, fi.FullName);
+                this.Logger.LogInformation("Opened symbols for reading: {0}/{1}/{3:D} ('{2}')", package.Id, package.Version, fi.FullName, identifier);
                 return fi.OpenRead();
             }
 
@@ -122,15 +122,15 @@ namespace SlimGet.Services
             throw new FileNotFoundException();
         }
 
-        public Stream OpenSymbolsWrite(PackageInfo package)
+        public Stream OpenSymbolsWrite(PackageInfo package, Guid identifier)
         {
             var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
                 pkgDir.Create();
 
-            var fi = new FileInfo(Path.Combine(pkgDir.FullName, "symbols.pdb"));
-            this.Logger.LogInformation("Opened manifest for writing: {0}/{1} ('{2}')", package.Id, package.Version, fi.FullName);
+            var fi = new FileInfo(Path.Combine(pkgDir.FullName, $"symbols-{identifier:N}.pdb"));
+            this.Logger.LogInformation("Opened manifest for writing: {0}/{1}/{3:D} ('{2}')", package.Id, package.Version, fi.FullName, identifier);
 
             return fi.Open(FileMode.Create, FileAccess.Write);
         }
@@ -144,11 +144,11 @@ namespace SlimGet.Services
 
             var pkg = new FileInfo(Path.Combine(pkgDir.FullName, "package.nupkg"));
             var spec = new FileInfo(Path.Combine(pkgDir.FullName, "manifest.nuspec"));
-            var pdb = new FileInfo(Path.Combine(pkgDir.FullName, "symbols.pdb"));
+            var pdbs = pkgDir.GetFiles("*.pdb", SearchOption.TopDirectoryOnly);
             if (!(pkg.Exists && spec.Exists))
             {
                 this.Logger.LogWarning("Requested deletion of {0}/{1} but package and manifest were missing, pruning '{2}' instead", package.Id, package.Version, pkgDir.FullName);
-                if (pdb.Exists) pdb.Delete();
+                foreach (var pdb in pdbs) pdb.Delete();
                 pkgDir.Delete(true);
                 return true;
             }
@@ -161,7 +161,7 @@ namespace SlimGet.Services
 
             pkg.Delete();
             spec.Delete();
-            if (pdb.Exists) pdb.Delete();
+            foreach (var pdb in pdbs) pdb.Delete();
             pkgDir.Delete(true);
             this.Logger.LogInformation("Successfully deleted {0}/{1} from '{2}'", package.Id, package.Version, pkgDir.FullName);
 
@@ -213,25 +213,25 @@ namespace SlimGet.Services
             return true;
         }
 
-        public bool DeleteSymbols(PackageInfo package)
+        public bool DeleteSymbols(PackageInfo package, Guid identifier)
         {
             var pkgDirPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString());
             var pkgDir = new DirectoryInfo(pkgDirPath);
             if (!pkgDir.Exists)
             {
-                this.Logger.LogWarning("Requested deletion of symbols for nonexistent package {0}/{1}", package.Id, package.Version);
+                this.Logger.LogWarning("Requested deletion of {2:D} symbols for nonexistent package {0}/{1}", package.Id, package.Version, identifier);
                 return false;
             }
 
-            var fi = new FileInfo(Path.Combine(pkgDir.FullName, "symbols.pdb"));
+            var fi = new FileInfo(Path.Combine(pkgDir.FullName, $"symbols-{identifier:N}.pdb"));
             if (!fi.Exists)
             {
-                this.Logger.LogWarning("Requested deletion of symbols for {0}/{1} but it was missing", package.Id, package.Version);
+                this.Logger.LogWarning("Requested deletion of {2:D} symbols for {0}/{1} but they were missing", package.Id, package.Version, identifier);
                 return false;
             }
 
             fi.Delete();
-            this.Logger.LogInformation("Successfully deleted symbols for {0}/{1}", package.Id, package.Version);
+            this.Logger.LogInformation("Successfully deleted {2:D} symbols for {0}/{1}", package.Id, package.Version, identifier);
             return true;
         }
 
@@ -283,13 +283,13 @@ namespace SlimGet.Services
             return vid;
         }
 
-        public string GetSymbolsFileName(PackageInfo package)
+        public string GetSymbolsFileName(PackageInfo package, Guid identifier)
         {
-            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), "symbols.pdb");
+            var pkgPath = Path.Combine(this.PackageRoot.FullName, package.Id.ToLowerInvariant(), package.Version.ToNormalizedString(), $"symbols-{identifier:N}.pdb");
             var pkg = new FileInfo(pkgPath);
             var vid = pkg.MakeRelativeTo(this.PackageRoot);
 
-            this.Logger.LogInformation("Virtual identifier for {0}/{1} symbols is '{2}'", package.Id, package.Version, vid);
+            this.Logger.LogInformation("Virtual identifier for {0}/{1}/{3:D} symbols is '{2}'", package.Id, package.Version, vid, identifier);
             return vid;
         }
 
