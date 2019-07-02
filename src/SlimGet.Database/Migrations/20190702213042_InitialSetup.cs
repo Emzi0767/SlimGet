@@ -188,10 +188,7 @@ namespace SlimGet.Data.Database.Migrations
                     framework = table.Column<string>(nullable: false),
                     name = table.Column<string>(nullable: false),
                     length = table.Column<long>(nullable: false),
-                    sha256_hash = table.Column<string>(nullable: false),
-                    symbols_filename = table.Column<string>(nullable: true),
-                    symbols_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    symbols_name = table.Column<string>(nullable: true)
+                    sha256_hash = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -210,6 +207,29 @@ namespace SlimGet.Data.Database.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "package_symbols",
+                columns: table => new
+                {
+                    package_id = table.Column<string>(nullable: false),
+                    package_version = table.Column<string>(nullable: false),
+                    framework = table.Column<string>(nullable: false),
+                    binary_name = table.Column<string>(nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(nullable: true),
+                    file_name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pkey_symbols_packageid_packageversion_framework", x => new { x.package_id, x.package_version, x.framework, x.binary_name, x.id });
+                    table.ForeignKey(
+                        name: "fkey_symbols_packageid_packageversion_framework_binaryname",
+                        columns: x => new { x.package_id, x.package_version, x.framework, x.binary_name },
+                        principalTable: "package_binaries",
+                        principalColumns: new[] { "package_id", "package_version", "framework", "name" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_binary_hash",
                 table: "package_binaries",
@@ -217,9 +237,9 @@ namespace SlimGet.Data.Database.Migrations
                 .Annotation("Npgsql:IndexMethod", "hash");
 
             migrationBuilder.CreateIndex(
-                name: "ix_binary_symbolsid",
-                table: "package_binaries",
-                column: "symbols_id");
+                name: "ix_symbols_id",
+                table: "package_symbols",
+                column: "id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_version_packageid",
@@ -248,16 +268,19 @@ namespace SlimGet.Data.Database.Migrations
                 name: "package_authors");
 
             migrationBuilder.DropTable(
-                name: "package_binaries");
+                name: "package_dependencies");
 
             migrationBuilder.DropTable(
-                name: "package_dependencies");
+                name: "package_symbols");
 
             migrationBuilder.DropTable(
                 name: "package_tags");
 
             migrationBuilder.DropTable(
                 name: "tokens");
+
+            migrationBuilder.DropTable(
+                name: "package_binaries");
 
             migrationBuilder.DropTable(
                 name: "package_frameworks");

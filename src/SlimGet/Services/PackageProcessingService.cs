@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,9 +30,10 @@ namespace SlimGet.Services
         /// </summary>
         /// <param name="pkgStream">Stream containing the package to parse.</param>
         /// <param name="specStream">Stream to which manifest will be written.</param>
+        /// <param name="symbolPackage">Whether the package is a symbol package.</param>
         /// <param name="cancellationToken">Token used to cancel the asynchronous operation.</param>
         /// <returns>Parsed information.</returns>
-        public async Task<ParsedPackageInfo> ParsePackageAsync(Stream pkgStream, Stream specStream, CancellationToken cancellationToken)
+        public async Task<ParsedPackageInfo> ParsePackageAsync(Stream pkgStream, Stream specStream, bool symbolPackage, CancellationToken cancellationToken)
         {
             try
             {
@@ -45,7 +48,7 @@ namespace SlimGet.Services
                     if (!frameworks.Any())
                         frameworks = new[] { NuGetFramework.AnyFramework };
 
-                    var bins = await this.IndexBinaryContentsAsync(pkgReader, frameworks, false, cancellationToken).ConfigureAwait(false);
+                    var bins = await this.IndexBinaryContentsAsync(pkgReader, frameworks, symbolPackage, cancellationToken).ConfigureAwait(false);
                     if (bins == null)
                         return null;
 
@@ -91,7 +94,7 @@ namespace SlimGet.Services
         /// <param name="packageFileName">Virtual file ID of the package file.</param>
         /// <param name="manifestFileName">Virtual file ID of the manifest file.</param>
         /// <param name="cancellationToken">Token used to cancel the asynchronous operation.</param>
-        /// <returns>Registration result</returns>
+        /// <returns>Registration result.</returns>
         public async Task<RegisterPackageResult> RegisterPackageAsync(ParsedPackageInfo packageInfo, SlimGetContext database, string userId, string packageFileName, string manifestFileName,
             CancellationToken cancellationToken)
         {
@@ -212,7 +215,8 @@ namespace SlimGet.Services
                     IsMinVersionInclusive = dep.IsMinInclusive
                 }, cancellationToken).ConfigureAwait(false);
 
-            foreach (var bin in packageInfo.Binaries)
+            foreach (var bin in packageInfo.Binaries.OfType<ParsedIndexedBinaryExecutable>())
+            {
                 await database.PackageBinaries.AddAsync(new PackageBinary
                 {
                     PackageId = pkginfo.Id,
@@ -220,14 +224,82 @@ namespace SlimGet.Services
                     Framework = bin.Framework.GetFrameworkString(),
                     Name = bin.Entry,
                     Length = bin.Length,
-                    Hash = bin.Sha256,
-                    SymbolsFilename = null,
-                    SymbolsIdentifier = null,
-                    SymbolsName = null
+                    Hash = bin.Sha256
                 }, cancellationToken).ConfigureAwait(false);
+
+                foreach (var symbolId in bin.SymbolIdentifiers)
+                    await database.PackageSymbols.AddAsync(new PackageSymbols
+                    {
+                        PackageId = pkginfo.Id,
+                        PackageVersion = pkginfo.NormalizedVersion,
+                        Framework = bin.Framework.GetFrameworkString(),
+                        BinaryName = bin.Entry,
+                        Identifier = symbolId
+                    }, cancellationToken).ConfigureAwait(false);
+            }
 
             await database.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return result;
+        }
+
+        /// <summary>
+        /// Registers debug symbols with the package database.
+        /// </summary>
+        /// <param name="packageInfo">Metadata of the package to register.</param>
+        /// <param name="database">Database to register to.</param>
+        /// <param name="symbolFileNames">Mapping of symbol id to symbol virtual identifiers.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous operation.</param>
+        /// <returns>Mapping of registered symbol identifiers to their entry names in the package.</returns>
+        public async Task<Dictionary<Guid, string>> RegisterSymbolsAsync(ParsedPackageInfo packageInfo, SlimGetContext database, IDictionary<Guid, string> symbolFileNames, CancellationToken cancellationToken)
+        {
+            var pkginfo = packageInfo.Info;
+            var dbsymbols = database.PackageSymbols
+                .Where(x => x.PackageId == pkginfo.Id && x.PackageVersion == pkginfo.NormalizedVersion)
+                .GroupBy(x => x.Identifier)
+                .ToDictionary(x => x.Key, x => x);
+
+            var regids = new Dictionary<Guid, string>();
+            foreach (var bin in packageInfo.Binaries.OfType<ParsedIndexedBinarySymbols>())
+            {
+                if (!dbsymbols.TryGetValue(bin.Identifier, out var dbsymbolg) || !symbolFileNames.TryGetValue(bin.Identifier, out var fnsymbol))
+                    continue;
+
+                var fx = bin.Framework.GetFrameworkString();
+                var dbsymbol = dbsymbolg.FirstOrDefault(x => x.Framework == fx);
+                if (dbsymbol == null)
+                    continue;
+
+                regids[bin.Identifier] = bin.Entry;
+                dbsymbol.Name = bin.Name;
+                dbsymbol.Filename = fnsymbol;
+                database.PackageSymbols.Update(dbsymbol);
+            }
+
+            await database.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return regids;
+        }
+
+        /// <summary>
+        /// Extracts symbol files from the package.
+        /// </summary>
+        /// <param name="pkgStream">Package to extract symbols from.</param>
+        /// <param name="pkgInfo">Information about package to which the symbols belong.</param>
+        /// <param name="entryIdMap">Mapping of entry to id.</param>
+        /// <param name="fs">Filesystem to write the symbols to.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous operation.</param>
+        /// <returns></returns>
+        public async Task ExtractSymbolsAsync(Stream pkgStream, PackageInfo pkgInfo, IDictionary<Guid, string> entryIdMap, IFileSystemService fs, CancellationToken cancellationToken)
+        {
+            using (var pkg = new PackageArchiveReader(pkgStream, true))
+            {
+                foreach (var (id, entry) in entryIdMap)
+                {
+                    var ze = pkg.GetEntry(entry);
+                    using (var pdbIn = ze.Open())
+                    using (var pdbOut = fs.OpenSymbolsWrite(pkgInfo, id))
+                        await pdbIn.CopyToAsync(pdbOut, cancellationToken).ConfigureAwait(false);
+                }
+            }
         }
 
         /// <summary>
@@ -273,17 +345,24 @@ namespace SlimGet.Services
             }
         }
 
-        private async Task<IEnumerable<ParsedIndexedBinary>> IndexBinaryContentsAsync(PackageArchiveReader package, IEnumerable<NuGetFramework> supportedFrameworks, bool canContainSymbols, CancellationToken cancellationToken)
+        private async Task<IEnumerable<BaseParsedIndexedBinary>> IndexBinaryContentsAsync(PackageArchiveReader package, IEnumerable<NuGetFramework> supportedFrameworks, bool symbolPackage, CancellationToken cancellationToken)
         {
-            var files = await package.GetFilesAsync(cancellationToken).ConfigureAwait(false);
-            if (!canContainSymbols && files.Any(x => string.Compare(Path.GetExtension(x), ".pdb", true, CultureInfo.InvariantCulture) == 0))
+            var files = (await package.GetFilesAsync(cancellationToken).ConfigureAwait(false))
+                .Select(x => new { name = x, ext = Path.GetExtension(x) });
+
+            var hasSymbols = files.Any(x => string.Equals(x.ext, ".pdb", StringComparison.InvariantCultureIgnoreCase));
+
+            if (!symbolPackage && hasSymbols)
+                return null;
+            else if (symbolPackage && !hasSymbols)
                 return null;
 
             var skipFx = supportedFrameworks.Contains(NuGetFramework.AnyFramework);
-            var bins = files.Select(x => new { name = x, ext = Path.GetExtension(x) })
-                .Where(x => string.Compare(x.ext, ".dll", true, CultureInfo.InvariantCulture) == 0 || string.Compare(x.ext, ".exe", true, CultureInfo.InvariantCulture) == 0);
+            var bins = files.Where(x => string.Equals(x.ext, ".dll", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(x.ext, ".exe", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(x.ext, ".pdb", StringComparison.InvariantCultureIgnoreCase));
 
-            var binaries = new List<ParsedIndexedBinary>();
+            var binaries = new List<BaseParsedIndexedBinary>();
             foreach (var bin in bins)
             {
                 var entry = bin.name;
@@ -292,33 +371,71 @@ namespace SlimGet.Services
                 var location = Path.GetDirectoryName(entry);
                 var parent = Path.GetFileName(location);
                 var hash = default(string);
-                var fx = string.Compare(parent, "lib", true, CultureInfo.InvariantCulture) == 0 || skipFx ? NuGetFramework.AnyFramework : NuGetFramework.ParseFolder(parent);
+                var fx = string.Equals(parent, "lib", StringComparison.InvariantCultureIgnoreCase) || skipFx ? NuGetFramework.AnyFramework : NuGetFramework.ParseFolder(parent);
+                var isSymbols = string.Equals(ext, ".pdb", StringComparison.InvariantCultureIgnoreCase);
 
                 if (!supportedFrameworks.Contains(fx))
                     continue;
 
                 var ze = package.GetEntry(entry);
-                using (var zstream = ze.Open())
-                using (var sha256 = SHA256.Create())
+                using (var ms = new MemoryStream())
                 {
-                    var hashBin = sha256.ComputeHash(zstream);
-                    hash = string.Create(256 / 8 * 2, hashBin, StringifyHash);
-                }
-                // Possibly think of adding pulling the symbols from the files?
-                // Or just leave it to the symbols controller? If hashes match,
-                // that doesn't matter, right?
+                    using (var zstream = ze.Open())
+                        await zstream.CopyToAsync(ms).ConfigureAwait(false);
+                    ms.Position = 0;
 
-                binaries.Add(new ParsedIndexedBinary
-                {
-                    Entry = entry,
-                    Name = name,
-                    Extension = ext,
-                    Location = location,
-                    Parent = parent,
-                    Sha256 = hash,
-                    Length = ze.Length,
-                    Framework = fx,
-                });
+                    if (!isSymbols)
+                    {
+                        using (var sha256 = SHA256.Create())
+                        {
+                            var hashBin = sha256.ComputeHash(ms);
+                            hash = string.Create(256 / 8 * 2, hashBin, StringifyHash);
+                        }
+                        ms.Position = 0;
+
+                        using (var pereader = new PEReader(ms))
+                        {
+                            var symbolIds = default(IEnumerable<Guid>);
+
+                            var debugdir = pereader.ReadDebugDirectory();
+                            if (debugdir != null && debugdir.Length > 0)
+                                symbolIds = debugdir.Where(x => x.Type == DebugDirectoryEntryType.CodeView)
+                                    .Select(x => pereader.ReadCodeViewDebugDirectoryData(x).Guid);
+
+                            binaries.Add(new ParsedIndexedBinaryExecutable
+                            {
+                                Entry = entry,
+                                Name = name,
+                                Extension = ext,
+                                Location = location,
+                                Parent = parent,
+                                Sha256 = hash,
+                                Length = ze.Length,
+                                Framework = fx,
+                                SymbolIdentifiers = symbolIds.ToList() // Otherwise it tries to enumerate over disposed objects
+                            });
+                        }
+                    }
+                    else
+                    {
+                        using (var metadata = MetadataReaderProvider.FromPortablePdbStream(ms, MetadataStreamOptions.LeaveOpen))
+                        {
+                            var reader = metadata.GetMetadataReader();
+                            var dbgHeader = reader.DebugMetadataHeader;
+                            if (dbgHeader != null)
+                                binaries.Add(new ParsedIndexedBinarySymbols
+                                {
+                                    Entry = entry,
+                                    Name = name,
+                                    Extension = ext,
+                                    Location = location,
+                                    Parent = parent,
+                                    Framework = fx,
+                                    Identifier = new BlobContentId(dbgHeader.Id).Guid
+                                });
+                        }
+                    }
+                }
             }
 
             return binaries;

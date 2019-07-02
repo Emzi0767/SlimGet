@@ -41,7 +41,7 @@ namespace SlimGet.Controllers
                     await pushpkg.CopyToAsync(pkgtmp, cancellationToken).ConfigureAwait(false);
 
                 pkgtmp.Position = 0;
-                var pkgparse = await this.Packages.ParsePackageAsync(pkgtmp, spectmp, cancellationToken).ConfigureAwait(false);
+                var pkgparse = await this.Packages.ParsePackageAsync(pkgtmp, spectmp, false, cancellationToken).ConfigureAwait(false);
                 if (pkgparse == null)
                     return this.BadRequest(new { message = "Package was malformed." });
 

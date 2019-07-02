@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NuGet.Frameworks;
 using NuGet.Versioning;
@@ -31,7 +32,7 @@ namespace SlimGet.Data
         public IEnumerable<NuGetFramework> Frameworks { get; set; }
 
         // Indexed binaries
-        public IEnumerable<ParsedIndexedBinary> Binaries { get; set; }
+        public IEnumerable<BaseParsedIndexedBinary> Binaries { get; set; }
 
         public PackageInfo Info => new PackageInfo(this.Id, this.Version);
     }
@@ -46,15 +47,25 @@ namespace SlimGet.Data
         public bool IsMaxInclusive { get; set; }
     }
 
-    public sealed class ParsedIndexedBinary
+    public abstract class BaseParsedIndexedBinary
     {
         public string Name { get; set; }
         public string Extension { get; set; }
         public string Location { get; set; }
         public string Parent { get; set; }
         public string Entry { get; set; }
+        public NuGetFramework Framework { get; set; }
+    }
+
+    public sealed class ParsedIndexedBinaryExecutable : BaseParsedIndexedBinary
+    {
         public string Sha256 { get; set; }
         public long Length { get; set; }
-        public NuGetFramework Framework { get; set; }
+        public IEnumerable<Guid> SymbolIdentifiers { get; set; }
+    }
+
+    public sealed class ParsedIndexedBinarySymbols : BaseParsedIndexedBinary
+    {
+        public Guid Identifier { get; set; }
     }
 }

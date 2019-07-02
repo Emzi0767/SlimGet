@@ -17,6 +17,7 @@ namespace SlimGet.Services
         public DbSet<PackageDependency> PackageDependencies { get; set; }
         public DbSet<PackageFramework> PackageFrameworks { get; set; }
         public DbSet<PackageBinary> PackageBinaries { get; set; }
+        public DbSet<PackageSymbols> PackageSymbols { get; set; }
 
         public SlimGetContext(ConnectionStringProvider csp)
         {
@@ -477,28 +478,8 @@ namespace SlimGet.Services
                 .HasColumnName("sha256_hash");
 
             modelBuilder.Entity<PackageBinary>()
-                .Property(x => x.SymbolsFilename)
-                .HasDefaultValue(null)
-                .HasColumnName("symbols_filename");
-
-            modelBuilder.Entity<PackageBinary>()
-                .Property(x => x.SymbolsIdentifier)
-                .HasColumnType("uuid")
-                .HasDefaultValue(null)
-                .HasColumnName("symbols_id");
-
-            modelBuilder.Entity<PackageBinary>()
-                .Property(x => x.SymbolsName)
-                .HasDefaultValue(null)
-                .HasColumnName("symbols_name");
-
-            modelBuilder.Entity<PackageBinary>()
                 .HasKey(x => new { x.PackageId, x.PackageVersion, x.Framework, x.Name })
                 .HasName("pkey_binary_packageid_packageversion_framework");
-
-            modelBuilder.Entity<PackageBinary>()
-                .HasIndex(x => x.SymbolsIdentifier)
-                .HasName("ix_binary_symbolsid");
 
             modelBuilder.Entity<PackageBinary>()
                 .HasIndex(x => x.Hash)
@@ -521,6 +502,62 @@ namespace SlimGet.Services
 
             modelBuilder.Entity<PackageBinary>()
                 .Ignore(x => x.NuGetFramework);
+            #endregion
+
+            #region PackageSymbols
+            modelBuilder.Entity<PackageSymbols>()
+                .ToTable("package_symbols");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.PackageId)
+                .IsRequired()
+                .HasColumnName("package_id");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.PackageVersion)
+                .IsRequired()
+                .HasColumnName("package_version");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Framework)
+                .IsRequired()
+                .HasColumnName("framework");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.BinaryName)
+                .IsRequired()
+                .HasColumnName("binary_name");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Identifier)
+                .HasColumnType("uuid")
+                .IsRequired()
+                .HasColumnName("id");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Name)
+                .HasDefaultValue(null)
+                .HasColumnName("name");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Filename)
+                .HasDefaultValue(null)
+                .HasColumnName("file_name");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .HasKey(x => new { x.PackageId, x.PackageVersion, x.Framework, x.BinaryName, x.Identifier })
+                .HasName("pkey_symbols_packageid_packageversion_framework");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .HasIndex(x => x.Identifier)
+                .HasName("ix_symbols_id");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .HasOne(x => x.Binary)
+                .WithMany(x => x.PackageSymbols)
+                .HasForeignKey(x => new { x.PackageId, x.PackageVersion, x.Framework, x.BinaryName })
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fkey_symbols_packageid_packageversion_framework_binaryname");
             #endregion
         }
     }

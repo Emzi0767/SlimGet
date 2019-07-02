@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using NuGet.Frameworks;
 
 namespace SlimGet.Data.Database
@@ -11,12 +11,10 @@ namespace SlimGet.Data.Database
         public string Name { get; set; }
         public long Length { get; set; }
         public string Hash { get; set; }
-        public string SymbolsFilename { get; set; }
-        public Guid? SymbolsIdentifier { get; set; }
-        public string SymbolsName { get; set; }
 
         public PackageVersion Package { get; set; }
         public PackageFramework PackageFramework { get; set; }
+        public List<PackageSymbols> PackageSymbols { get; set; }
 
         public NuGetFramework NuGetFramework => NuGetFramework.Parse(this.Framework);
     }

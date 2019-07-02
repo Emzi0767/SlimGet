@@ -55,7 +55,6 @@ namespace SlimGet
                 .AddSingleton<TokenService>()
                 .AddSingleton<IFileSystemService, FileSystemService>()
                 .AddSingleton<PackageProcessingService>()
-                .AddSingleton<SymbolProcessingService>()
                 .AddSingleton<RequireDevelopmentEnvironment>()
                 .AddSingleton<RequireWritableFeed>()
                 .AddSingleton<RequireSymbolsEnabled>();
