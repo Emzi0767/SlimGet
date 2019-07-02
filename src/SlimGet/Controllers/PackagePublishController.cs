@@ -60,7 +60,9 @@ namespace SlimGet.Controllers
                 if (result == RegisterPackageResult.AlreadyExists)
                     return this.Conflict(new { message = "Package with specified ID and version already exists." });
 
-#warning Create redis download counters
+                if (result == RegisterPackageResult.PackageCreated)
+                    await this.Redis.SetPackageDownloadCountAsync(pkgparse.Info, 0).ConfigureAwait(false);
+                await this.Redis.SetVersionDownloadCountAsync(pkgparse.Info, 0).ConfigureAwait(false);
 
                 using (var pkgfs = this.FileSystem.OpenPackageWrite(pkgparse.Info))
                     await pkgtmp.CopyToAsync(pkgfs).ConfigureAwait(false);
@@ -98,11 +100,17 @@ namespace SlimGet.Controllers
             }
             else
             {
+                var pkginfo = new PackageInfo(pkgvdb.PackageId, pkgvdb.NuGetVersion);
+
                 this.Database.PackageVersions.Remove(pkgvdb);
+                await this.Redis.ClearVersionDownloadCountAsync(pkginfo).ConfigureAwait(false);
                 this.FileSystem.DeleteWholePackage(new PackageInfo(pkgvdb.PackageId, pkgvdb.NuGetVersion));
 
                 if (!this.Database.PackageVersions.Any(x => x.PackageId == pkgvdb.PackageId))
+                {
                     this.Database.Packages.Remove(pkgvdb.Package);
+                    await this.Redis.ClearPackageDownloadCountAsync(pkginfo).ConfigureAwait(false);
+                }
             }
 
             await this.Database.SaveChangesAsync().ConfigureAwait(false);

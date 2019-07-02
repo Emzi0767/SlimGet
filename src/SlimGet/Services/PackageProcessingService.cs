@@ -92,6 +92,7 @@ namespace SlimGet.Services
             var pkg = database.Packages.FirstOrDefault(x => x.IdLowercase == pkginfo.IdLowercase);
             var pkgv = default(PackageVersion);
 
+            var result = RegisterPackageResult.VersionCreated;
             if (pkg != null)
             {
                 if (pkg.OwnerId != userId)
@@ -129,6 +130,7 @@ namespace SlimGet.Services
             else
             {
                 // package does not exist, create it
+                result = RegisterPackageResult.PackageCreated;
 
                 pkg = new Package
                 {
@@ -204,7 +206,7 @@ namespace SlimGet.Services
                 }, cancellationToken).ConfigureAwait(false);
 
             await database.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            return RegisterPackageResult.Ok;
+            return result;
         }
 
         /// <summary>
@@ -253,9 +255,10 @@ namespace SlimGet.Services
 
     public enum RegisterPackageResult
     {
-        Ok,
         OwnerMismatch,
         IdMismatch,
-        AlreadyExists
+        AlreadyExists,
+        PackageCreated,
+        VersionCreated
     }
 }

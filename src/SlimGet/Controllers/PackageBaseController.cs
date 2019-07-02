@@ -49,8 +49,10 @@ namespace SlimGet.Controllers
             if (pkgv == null)
                 return this.NotFound();
 
-#warning Increment counters
             var pkginfo = new PackageInfo(pkg.Id, pkgv.NuGetVersion);
+            await this.Redis.IncrementPackageDownloadCountAsync(pkginfo).ConfigureAwait(false);
+            await this.Redis.IncrementVersionDownloadCountAsync(pkginfo).ConfigureAwait(false);
+
             var pkgdata = this.FileSystem.OpenPackageRead(pkginfo);
             return this.File(pkgdata, "application/octet-stream", $"{pkg.Id}.{pkgv.Version}.nupkg");
         }
@@ -70,7 +72,6 @@ namespace SlimGet.Controllers
             if (pkgv == null)
                 return this.NotFound();
 
-#warning Increment counters
             var pkginfo = new PackageInfo(pkg.Id, pkgv.NuGetVersion);
             var pkgdata = this.FileSystem.OpenManifestRead(pkginfo);
             return this.File(pkgdata, "application/xml", $"{pkg.Id}.nuspec");

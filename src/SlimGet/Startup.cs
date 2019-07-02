@@ -49,6 +49,7 @@ namespace SlimGet
                 .AddSingleton<ITokenConfigurationProvider, TokenConfigurationProvider>()
                 .AddSingleton<IDatabaseConfigurationProvider, DatabaseConfigurationProvider>()
                 .AddSingleton<ConnectionStringProvider>()
+                .AddSingleton<PackageKeyProvider>()
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
                 .AddSingleton<RedisService>()
                 .AddSingleton<TokenService>()
