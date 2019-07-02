@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlimGet.Data.Configuration;
 using SlimGet.Services;
@@ -11,8 +12,8 @@ namespace SlimGet.Controllers
     [Route("/api/v3/registration"), ApiController, AllowAnonymous]
     public class RegistrationsBaseController : NuGetControllerBase
     {
-        public RegistrationsBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
-            : base(db, redis, fs, storcfg)
+        public RegistrationsBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
+            : base(db, redis, fs, storcfg, logger)
         { }
 
         [Route("plain"), HttpGet]

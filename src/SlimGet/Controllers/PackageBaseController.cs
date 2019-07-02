@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlimGet.Data;
 using SlimGet.Data.Configuration;
@@ -15,8 +16,8 @@ namespace SlimGet.Controllers
     [Route("/api/v3/flatcontainer"), ApiController, AllowAnonymous]
     public class PackageBaseController : NuGetControllerBase
     {
-        public PackageBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg)
-            : base(db, redis, fs, storcfg)
+        public PackageBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
+            : base(db, redis, fs, storcfg, logger)
         { }
 
         [Route(""), HttpGet]
