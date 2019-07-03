@@ -6,7 +6,7 @@ Unlike alternative implementations, SlimGet is designed to host a single, local 
 similar functionality. It's designed only with .NET packages (and debug symbols) in mind, and is therefore not
 guaranteed to work with anything else (e.g. COM interop, native libraries, etc.).
 
-The project was born out of need for a NuGet feed for CI artifacts of my projects, after my usualy go-to provider
+The project was born out of need for a NuGet feed for CI artifacts of my projects, after my usual go-to provider
 ceased responding to all my support emails, and broke my builds in the process.
 
 The web interface provides a simple, readonly view of the feed, which allows for browsing and downloading hosted
