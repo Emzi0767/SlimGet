@@ -38,5 +38,6 @@ namespace SlimGet.Data.Database
         public List<PackageBinary> Binaries { get; set; }
 
         public NuGetVersion NuGetVersion => NuGetVersion.TryParse(this.Version, out var ngv) ? ngv : null;
+        public NuGetVersion NuGetVersionLowercase => NuGetVersion.TryParse(this.VersionLowercase, out var ngv) ? ngv : null;
     }
 }

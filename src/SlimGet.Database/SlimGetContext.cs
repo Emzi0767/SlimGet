@@ -312,7 +312,8 @@ namespace SlimGet.Services
                 .HasConstraintName("fkey_version_packageid");
 
             modelBuilder.Entity<PackageVersion>()
-                .Ignore(x => x.NuGetVersion);
+                .Ignore(x => x.NuGetVersion)
+                .Ignore(x => x.NuGetVersionLowercase);
             #endregion
 
             #region PackageAuthor

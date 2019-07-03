@@ -88,12 +88,7 @@ namespace SlimGet.Controllers
                     await this.Packages.ExtractSymbolsAsync(pkgtmp, pkgparse.Info, result.SymbolMappings, this.FileSystem, cancellationToken).ConfigureAwait(false);
 
                     var (id, version) = (pkgparse.Id.ToLowerInvariant(), pkgparse.Version.ToNormalizedString().ToLowerInvariant());
-                    return this.Created(this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new
-                    {
-                        id,
-                        version,
-                        filename = $"{id}.{version}"
-                    }), new { message = "Uploaded successfully." });
+                    return this.CreatedAtAction("Contents", "Packagebase", new { id, version, filename = $"{id}.{version}" }, new { message = "Uploaded successfully." });
                 }
             }
             catch (Exception ex)

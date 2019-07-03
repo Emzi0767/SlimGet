@@ -97,6 +97,7 @@ namespace SlimGet
                 .UseStatusCodePages(this.RenderStatusCodeAsync)
                 .UseStaticFiles()
                 .UseAuthentication()
+                .UseFlushGZip()
                 .UseMvc(routes => { });
 
             if (!env.IsDevelopment())
