@@ -66,6 +66,9 @@ namespace SlimGet.Controllers
                     if (result.Result == RegisterPackageResult.DoesNotExist)
                         return this.NotFound(new { message = "Specified package ID or version does not exist." });
 
+                    if (result.Result == RegisterPackageResult.DuplicateSymbols)
+                        return this.Conflict(new { message = "Debug symbols for specified package already exist." });
+
                     await this.Packages.ExtractSymbolsAsync(pkgtmp, pkgparse.Info, result.SymbolMappings, this.FileSystem, cancellationToken).ConfigureAwait(false);
 
                     var (id, version) = (pkgparse.Id.ToLowerInvariant(), pkgparse.Version.ToNormalizedString().ToLowerInvariant());

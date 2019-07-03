@@ -293,6 +293,9 @@ namespace SlimGet.Services
                 if (dbsymbol == null)
                     continue;
 
+                if (dbsymbol.Filename != null)
+                    return RegisterPackageResult.DuplicateSymbols;
+
                 regids[identifier] = bin.Entry;
                 dbsymbol.Name = bin.Name;
                 dbsymbol.Filename = fnsymbol;
@@ -474,6 +477,23 @@ namespace SlimGet.Services
                         else
                         {
                             // Read full PDB
+                            using (var msf = new MsfParser(ms, leaveOpen: true))
+                            using (var pdb = new PdbParser(msf, leaveOpen: true))
+                            {
+                                if (pdb.TryGetMetadata(out var pdbmeta))
+                                    binaries.Add(new ParsedIndexedBinarySymbols
+                                    {
+                                        Entry = entry,
+                                        Name = name,
+                                        Extension = ext,
+                                        Location = location,
+                                        Parent = parent,
+                                        Framework = fx,
+                                        Identifier = pdbmeta.Identifier,
+                                        Age = pdbmeta.Age,
+                                        Kind = SymbolKind.Full
+                                    });
+                            }
                         }
                     }
                 }
@@ -531,9 +551,14 @@ namespace SlimGet.Services
         DoesNotExist,
 
         /// <summary>
-        /// Registration was successful
+        /// Registration was successful.
         /// </summary>
-        Ok
+        Ok,
+
+        /// <summary>
+        /// Debug symbols were duplicated.
+        /// </summary>
+        DuplicateSymbols
     }
 
     public struct RegisterSymbolResult

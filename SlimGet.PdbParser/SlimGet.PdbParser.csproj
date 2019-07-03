@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Version>1.0.0</Version>
+    <FileVersion>$(Version).0</FileVersion>
+    <ProductVersion>$(Version).0</ProductVersion>
+    <RootNamespace>SlimGet.Services</RootNamespace>
+  </PropertyGroup>
+
+</Project>
