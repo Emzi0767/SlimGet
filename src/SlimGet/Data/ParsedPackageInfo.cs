@@ -61,11 +61,13 @@ namespace SlimGet.Data
     {
         public string Sha256 { get; set; }
         public long Length { get; set; }
-        public IEnumerable<Guid> SymbolIdentifiers { get; set; }
+        public IEnumerable<SymbolIdentifier> SymbolIdentifiers { get; set; }
     }
 
     public sealed class ParsedIndexedBinarySymbols : BaseParsedIndexedBinary
     {
         public Guid Identifier { get; set; }
+        public int Age { get; set; }
+        public SymbolKind Kind { get; set; }
     }
 }

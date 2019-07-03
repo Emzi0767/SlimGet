@@ -247,6 +247,15 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnName("id")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Kind")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("kind")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("Age")
+                        .HasColumnName("age");
+
                     b.Property<string>("Filename")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("file_name")
@@ -257,11 +266,20 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnName("name")
                         .HasDefaultValue(null);
 
-                    b.HasKey("PackageId", "PackageVersion", "Framework", "BinaryName", "Identifier")
-                        .HasName("pkey_symbols_packageid_packageversion_framework");
+                    b.Property<string>("Signature")
+                        .IsRequired()
+                        .HasColumnName("signature");
+
+                    b.HasKey("PackageId", "PackageVersion", "Framework", "BinaryName", "Identifier", "Kind")
+                        .HasName("pkey_symbols_packageid_packageversion_framework_id_kind");
 
                     b.HasIndex("Identifier")
-                        .HasName("ix_symbols_id");
+                        .HasName("ix_symbols_id")
+                        .HasAnnotation("Npgsql:IndexMethod", "hash");
+
+                    b.HasIndex("Signature")
+                        .HasName("ix_symbols_sig")
+                        .HasAnnotation("Npgsql:IndexMethod", "hash");
 
                     b.ToTable("package_symbols");
                 });

@@ -45,17 +45,19 @@ namespace SlimGet.Services
         /// Opens a symbol file for reading. This stream is read-only, seeking is not guaranteed.
         /// </summary>
         /// <param name="package">Package to open the symbol file for.</param>
-        /// <param name="identifier">Identifier of the symbols file to open.</param>
+        /// <param name="identifier">Identifier of the symbol file to open.</param>
+        /// <param name="age">Age of the symbol file.</param>
         /// <returns>Stream for the symbols.</returns>
-        Stream OpenSymbolsRead(PackageInfo package, Guid identifier);
+        Stream OpenSymbolsRead(PackageInfo package, Guid identifier, int age);
 
         /// <summary>
         /// Opens a symbol file for writing. File will be overwritten if it exists, and created otherwise. This stream is write-only, seeking is not guaranteed.
         /// </summary>
         /// <param name="package">Package to open the symbol file for.</param>
-        /// <param name="identifier">Identifier of the symbols file to open.</param>
+        /// <param name="identifier">Identifier of the symbol file to open.</param>
+        /// <param name="age">Age of the symbol file.</param>
         /// <returns>Stream for the symbols.</returns>
-        Stream OpenSymbolsWrite(PackageInfo package, Guid identifier);
+        Stream OpenSymbolsWrite(PackageInfo package, Guid identifier, int age);
 
         /// <summary>
         /// Deletes a package and associated manifest from the filesystem.
@@ -82,9 +84,10 @@ namespace SlimGet.Services
         /// Deletes package symbols from the filesystem.
         /// </summary>
         /// <param name="package">Package the symbols of which to delete.</param>
-        /// <param name="identifier">Identifier of the symbols file to delete.</param>
+        /// <param name="identifier">Identifier of the symbol file to delete.</param>
+        /// <param name="age">Age of the symbol file.</param>
         /// <returns>Whether the operation was successful.</returns>
-        bool DeleteSymbols(PackageInfo package, Guid identifier);
+        bool DeleteSymbols(PackageInfo package, Guid identifier, int age);
 
         /// <summary>
         /// Checks whether this filesystem has the specified package.
@@ -112,8 +115,9 @@ namespace SlimGet.Services
         /// </summary>
         /// <param name="package">Package to get virtual identifier for.</param>
         /// <param name="identifier">Identifier of the symbols file to get identifier for.</param>
+        /// <param name="age">Age of the symbol file.</param>
         /// <returns>Virtual identifier of symbols, or null if specified package does not exist.</returns>
-        string GetSymbolsFileName(PackageInfo package, Guid identifier);
+        string GetSymbolsFileName(PackageInfo package, Guid identifier, int age);
     }
 
     /// <summary>

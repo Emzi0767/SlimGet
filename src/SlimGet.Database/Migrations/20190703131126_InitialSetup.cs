@@ -216,12 +216,15 @@ namespace SlimGet.Data.Database.Migrations
                     framework = table.Column<string>(nullable: false),
                     binary_name = table.Column<string>(nullable: false),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    kind = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    age = table.Column<int>(nullable: false),
+                    signature = table.Column<string>(nullable: false),
                     name = table.Column<string>(nullable: true),
                     file_name = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pkey_symbols_packageid_packageversion_framework", x => new { x.package_id, x.package_version, x.framework, x.binary_name, x.id });
+                    table.PrimaryKey("pkey_symbols_packageid_packageversion_framework_id_kind", x => new { x.package_id, x.package_version, x.framework, x.binary_name, x.id, x.kind });
                     table.ForeignKey(
                         name: "fkey_symbols_packageid_packageversion_framework_binaryname",
                         columns: x => new { x.package_id, x.package_version, x.framework, x.binary_name },
@@ -239,7 +242,14 @@ namespace SlimGet.Data.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_symbols_id",
                 table: "package_symbols",
-                column: "id");
+                column: "id")
+                .Annotation("Npgsql:IndexMethod", "hash");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_symbols_sig",
+                table: "package_symbols",
+                column: "signature")
+                .Annotation("Npgsql:IndexMethod", "hash");
 
             migrationBuilder.CreateIndex(
                 name: "ix_version_packageid",

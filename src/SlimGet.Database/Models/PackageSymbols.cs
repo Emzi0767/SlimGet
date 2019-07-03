@@ -9,6 +9,9 @@ namespace SlimGet.Data.Database
         public string Framework { get; set; }
         public string BinaryName { get; set; }
         public Guid Identifier { get; set; }
+        public int Age { get; set; }
+        public SymbolKind Kind { get; set; }
+        public string Signature { get; set; }
         public string Name { get; set; }
         public string Filename { get; set; }
 

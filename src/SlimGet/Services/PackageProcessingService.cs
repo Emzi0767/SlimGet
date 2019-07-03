@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -18,6 +19,10 @@ namespace SlimGet.Services
 {
     public sealed class PackageProcessingService
     {
+        private const int PortablePdbAge = unchecked((int)0xFFFFFFFF);
+        private const ushort PortablePdbEntryMinorVersion = 0x504D;
+        private const uint PortablePdbMagic = 0x42_53_4A_42; // BSJB
+
         private ILogger<PackageProcessingService> Logger { get; }
 
         public PackageProcessingService(ILoggerFactory logger)
@@ -234,7 +239,10 @@ namespace SlimGet.Services
                         PackageVersion = pkginfo.NormalizedVersion,
                         Framework = bin.Framework.GetFrameworkString(),
                         BinaryName = bin.Entry,
-                        Identifier = symbolId
+                        Identifier = symbolId.Identifier,
+                        Age = symbolId.Age,
+                        Kind = symbolId.Kind,
+                        Signature = $"{symbolId.Identifier.ToString("N").ToUpperInvariant()}{symbolId.Age:x}"
                     }, cancellationToken).ConfigureAwait(false);
             }
 
@@ -247,21 +255,37 @@ namespace SlimGet.Services
         /// </summary>
         /// <param name="packageInfo">Metadata of the package to register.</param>
         /// <param name="database">Database to register to.</param>
+        /// <param name="userId">ID of the user uploading the package.</param>
         /// <param name="symbolFileNames">Mapping of symbol id to symbol virtual identifiers.</param>
         /// <param name="cancellationToken">Token used to cancel the asynchronous operation.</param>
-        /// <returns>Mapping of registered symbol identifiers to their entry names in the package.</returns>
-        public async Task<Dictionary<Guid, string>> RegisterSymbolsAsync(ParsedPackageInfo packageInfo, SlimGetContext database, IDictionary<Guid, string> symbolFileNames, CancellationToken cancellationToken)
+        /// <returns>Symbol registration result.</returns>
+        public async Task<RegisterSymbolResult> RegisterSymbolsAsync(ParsedPackageInfo packageInfo, SlimGetContext database, string userId, IDictionary<SymbolIdentifier, string> symbolFileNames, CancellationToken cancellationToken)
         {
             var pkginfo = packageInfo.Info;
+            var pkg = database.Packages.FirstOrDefault(x => x.IdLowercase == pkginfo.IdLowercase);
+            if (pkg == null)
+                return RegisterPackageResult.DoesNotExist;
+
+            if (pkg.OwnerId != userId)
+                return RegisterPackageResult.OwnerMismatch;
+
+            if (pkg.Id != pkginfo.Id)
+                return RegisterPackageResult.IdMismatch;
+
+            var pkgv = database.PackageVersions.FirstOrDefault(x => x.PackageId == pkginfo.Id && x.Version == pkginfo.NormalizedVersion);
+            if (pkgv == null)
+                return RegisterPackageResult.DoesNotExist;
+
             var dbsymbols = database.PackageSymbols
                 .Where(x => x.PackageId == pkginfo.Id && x.PackageVersion == pkginfo.NormalizedVersion)
                 .GroupBy(x => x.Identifier)
                 .ToDictionary(x => x.Key, x => x);
 
-            var regids = new Dictionary<Guid, string>();
+            var regids = new Dictionary<SymbolIdentifier, string>();
             foreach (var bin in packageInfo.Binaries.OfType<ParsedIndexedBinarySymbols>())
             {
-                if (!dbsymbols.TryGetValue(bin.Identifier, out var dbsymbolg) || !symbolFileNames.TryGetValue(bin.Identifier, out var fnsymbol))
+                var identifier = new SymbolIdentifier(bin.Identifier, bin.Age, bin.Kind);
+                if (!dbsymbols.TryGetValue(bin.Identifier, out var dbsymbolg) || !symbolFileNames.TryGetValue(identifier, out var fnsymbol))
                     continue;
 
                 var fx = bin.Framework.GetFrameworkString();
@@ -269,7 +293,7 @@ namespace SlimGet.Services
                 if (dbsymbol == null)
                     continue;
 
-                regids[bin.Identifier] = bin.Entry;
+                regids[identifier] = bin.Entry;
                 dbsymbol.Name = bin.Name;
                 dbsymbol.Filename = fnsymbol;
                 database.PackageSymbols.Update(dbsymbol);
@@ -288,7 +312,7 @@ namespace SlimGet.Services
         /// <param name="fs">Filesystem to write the symbols to.</param>
         /// <param name="cancellationToken">Token used to cancel the asynchronous operation.</param>
         /// <returns></returns>
-        public async Task ExtractSymbolsAsync(Stream pkgStream, PackageInfo pkgInfo, IDictionary<Guid, string> entryIdMap, IFileSystemService fs, CancellationToken cancellationToken)
+        public async Task ExtractSymbolsAsync(Stream pkgStream, PackageInfo pkgInfo, IDictionary<SymbolIdentifier, string> entryIdMap, IFileSystemService fs, CancellationToken cancellationToken)
         {
             using (var pkg = new PackageArchiveReader(pkgStream, true))
             {
@@ -296,7 +320,7 @@ namespace SlimGet.Services
                 {
                     var ze = pkg.GetEntry(entry);
                     using (var pdbIn = ze.Open())
-                    using (var pdbOut = fs.OpenSymbolsWrite(pkgInfo, id))
+                    using (var pdbOut = fs.OpenSymbolsWrite(pkgInfo, id.Identifier, id.Age))
                         await pdbIn.CopyToAsync(pdbOut, cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -358,9 +382,10 @@ namespace SlimGet.Services
                 return null;
 
             var skipFx = supportedFrameworks.Contains(NuGetFramework.AnyFramework);
-            var bins = files.Where(x => string.Equals(x.ext, ".dll", StringComparison.InvariantCultureIgnoreCase) ||
-                    string.Equals(x.ext, ".exe", StringComparison.InvariantCultureIgnoreCase) ||
-                    string.Equals(x.ext, ".pdb", StringComparison.InvariantCultureIgnoreCase));
+            var bins = !symbolPackage
+                ? files.Where(x => string.Equals(x.ext, ".dll", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(x.ext, ".exe", StringComparison.InvariantCultureIgnoreCase))
+                : files.Where(x => string.Equals(x.ext, ".pdb", StringComparison.InvariantCultureIgnoreCase));
 
             var binaries = new List<BaseParsedIndexedBinary>();
             foreach (var bin in bins)
@@ -395,12 +420,17 @@ namespace SlimGet.Services
 
                         using (var pereader = new PEReader(ms))
                         {
-                            var symbolIds = default(IEnumerable<Guid>);
+                            var symbolIds = default(IEnumerable<SymbolIdentifier>);
 
                             var debugdir = pereader.ReadDebugDirectory();
-                            if (debugdir != null && debugdir.Length > 0)
+                            if (debugdir != null && debugdir.Length > 0 && debugdir.Any(x => x.Type == DebugDirectoryEntryType.Reproducible /* == Deterministic (0x10) */))
                                 symbolIds = debugdir.Where(x => x.Type == DebugDirectoryEntryType.CodeView)
-                                    .Select(x => pereader.ReadCodeViewDebugDirectoryData(x).Guid);
+                                    .Select(x => new
+                                    {
+                                        data = pereader.ReadCodeViewDebugDirectoryData(x),
+                                        kind = x.MinorVersion == PortablePdbEntryMinorVersion ? SymbolKind.Portable : SymbolKind.Full
+                                    })
+                                    .Select(x => new SymbolIdentifier(x.data.Guid, x.kind == SymbolKind.Portable ? PortablePdbAge : x.data.Age, x.kind));
 
                             binaries.Add(new ParsedIndexedBinaryExecutable
                             {
@@ -418,21 +448,32 @@ namespace SlimGet.Services
                     }
                     else
                     {
-                        using (var metadata = MetadataReaderProvider.FromPortablePdbStream(ms, MetadataStreamOptions.LeaveOpen))
+                        var magic = ReadMagic(ms);
+                        if (magic == PortablePdbMagic)
                         {
-                            var reader = metadata.GetMetadataReader();
-                            var dbgHeader = reader.DebugMetadataHeader;
-                            if (dbgHeader != null)
-                                binaries.Add(new ParsedIndexedBinarySymbols
-                                {
-                                    Entry = entry,
-                                    Name = name,
-                                    Extension = ext,
-                                    Location = location,
-                                    Parent = parent,
-                                    Framework = fx,
-                                    Identifier = new BlobContentId(dbgHeader.Id).Guid
-                                });
+                            // Read portable PDB
+                            using (var metadata = MetadataReaderProvider.FromPortablePdbStream(ms, MetadataStreamOptions.LeaveOpen))
+                            {
+                                var reader = metadata.GetMetadataReader();
+                                var dbgHeader = reader.DebugMetadataHeader;
+                                if (dbgHeader != null)
+                                    binaries.Add(new ParsedIndexedBinarySymbols
+                                    {
+                                        Entry = entry,
+                                        Name = name,
+                                        Extension = ext,
+                                        Location = location,
+                                        Parent = parent,
+                                        Framework = fx,
+                                        Identifier = new BlobContentId(dbgHeader.Id).Guid,
+                                        Age = PortablePdbAge,
+                                        Kind = SymbolKind.Portable
+                                    });
+                            }
+                        }
+                        else
+                        {
+                            // Read full PDB
                         }
                     }
                 }
@@ -445,15 +486,75 @@ namespace SlimGet.Services
                 for (var i = state.Length - 1; i >= 0; i--)
                     state[i].TryFormat(buffer.Slice(i * 2), out _, "x2", CultureInfo.InvariantCulture);
             }
+
+            uint ReadMagic(MemoryStream ms)
+            {
+                Span<byte> magic = stackalloc byte[4];
+                ms.Read(magic);
+                ms.Position = 0;
+
+                return BinaryPrimitives.ReadUInt32BigEndian(magic);
+            }
         }
     }
 
     public enum RegisterPackageResult
     {
+        /// <summary>
+        /// Uploader is not the owner.
+        /// </summary>
         OwnerMismatch,
+
+        /// <summary>
+        /// ID mismatched. Possibly wrong casing.
+        /// </summary>
         IdMismatch,
+
+        /// <summary>
+        /// Package version already exists.
+        /// </summary>
         AlreadyExists,
+
+        /// <summary>
+        /// Package did not exist and was created.
+        /// </summary>
         PackageCreated,
-        VersionCreated
+
+        /// <summary>
+        /// Package existed, new version was created.
+        /// </summary>
+        VersionCreated,
+
+        /// <summary>
+        /// Package did not exist.
+        /// </summary>
+        DoesNotExist,
+
+        /// <summary>
+        /// Registration was successful
+        /// </summary>
+        Ok
+    }
+
+    public struct RegisterSymbolResult
+    {
+        public RegisterPackageResult Result { get; }
+        public IDictionary<SymbolIdentifier, string> SymbolMappings { get; }
+
+        private RegisterSymbolResult(RegisterPackageResult result)
+            : this(result, null)
+        { }
+
+        private RegisterSymbolResult(RegisterPackageResult result, IDictionary<SymbolIdentifier, string> symbolMappings)
+        {
+            this.Result = result;
+            this.SymbolMappings = symbolMappings;
+        }
+
+        public static implicit operator RegisterSymbolResult(RegisterPackageResult result)
+            => new RegisterSymbolResult(result);
+
+        public static implicit operator RegisterSymbolResult(Dictionary<SymbolIdentifier, string> symbolMappings)
+            => new RegisterSymbolResult(RegisterPackageResult.Ok, symbolMappings);
     }
 }

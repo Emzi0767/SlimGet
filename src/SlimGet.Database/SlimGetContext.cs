@@ -535,6 +535,23 @@ namespace SlimGet.Services
                 .HasColumnName("id");
 
             modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Age)
+                .IsRequired()
+                .HasColumnName("age");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Kind)
+                .HasColumnType("integer")
+                .IsRequired()
+                .HasDefaultValue(SymbolKind.None)
+                .HasColumnName("kind");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .Property(x => x.Signature)
+                .IsRequired()
+                .HasColumnName("signature");
+
+            modelBuilder.Entity<PackageSymbols>()
                 .Property(x => x.Name)
                 .HasDefaultValue(null)
                 .HasColumnName("name");
@@ -545,12 +562,18 @@ namespace SlimGet.Services
                 .HasColumnName("file_name");
 
             modelBuilder.Entity<PackageSymbols>()
-                .HasKey(x => new { x.PackageId, x.PackageVersion, x.Framework, x.BinaryName, x.Identifier })
-                .HasName("pkey_symbols_packageid_packageversion_framework");
+                .HasKey(x => new { x.PackageId, x.PackageVersion, x.Framework, x.BinaryName, x.Identifier, x.Kind })
+                .HasName("pkey_symbols_packageid_packageversion_framework_id_kind");
 
             modelBuilder.Entity<PackageSymbols>()
                 .HasIndex(x => x.Identifier)
+                .ForNpgsqlHasMethod("hash")
                 .HasName("ix_symbols_id");
+
+            modelBuilder.Entity<PackageSymbols>()
+                .HasIndex(x => x.Signature)
+                .ForNpgsqlHasMethod("hash")
+                .HasName("ix_symbols_sig");
 
             modelBuilder.Entity<PackageSymbols>()
                 .HasOne(x => x.Binary)

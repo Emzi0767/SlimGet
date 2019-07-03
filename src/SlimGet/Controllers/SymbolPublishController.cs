@@ -53,11 +53,20 @@ namespace SlimGet.Controllers
 
                     var symbolFileMapping = pkgparse.Binaries
                         .OfType<ParsedIndexedBinarySymbols>()
-                        .GroupBy(x => x.Identifier)
-                        .ToDictionary(x => x.Key, x => this.FileSystem.GetSymbolsFileName(pkgparse.Info, x.Key));
+                        .GroupBy(x => new SymbolIdentifier(x.Identifier, x.Age, x.Kind))
+                        .ToDictionary(x => x.Key, x => this.FileSystem.GetSymbolsFileName(pkgparse.Info, x.Key.Identifier, x.Key.Age));
 
-                    var regids = await this.Packages.RegisterSymbolsAsync(pkgparse, this.Database, symbolFileMapping, cancellationToken).ConfigureAwait(false);
-                    await this.Packages.ExtractSymbolsAsync(pkgtmp, pkgparse.Info, regids, this.FileSystem, cancellationToken).ConfigureAwait(false);
+                    var result = await this.Packages.RegisterSymbolsAsync(pkgparse, this.Database, this.HttpContext.User.Identity.Name, symbolFileMapping, cancellationToken).ConfigureAwait(false);
+                    if (result.Result == RegisterPackageResult.OwnerMismatch)
+                        return this.StatusCode(403, new { message = "You are not the owner of this package." });
+
+                    if (result.Result == RegisterPackageResult.IdMismatch)
+                        return this.BadRequest(new { message = $"Package ID mismatch (check that package ID casing is identical)." });
+
+                    if (result.Result == RegisterPackageResult.DoesNotExist)
+                        return this.NotFound(new { message = "Specified package ID or version does not exist." });
+
+                    await this.Packages.ExtractSymbolsAsync(pkgtmp, pkgparse.Info, result.SymbolMappings, this.FileSystem, cancellationToken).ConfigureAwait(false);
 
                     var (id, version) = (pkgparse.Id.ToLowerInvariant(), pkgparse.Version.ToNormalizedString().ToLowerInvariant());
                     return this.Created(this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new
