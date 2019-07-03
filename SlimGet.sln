@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimGet.Database", "src\Sli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimGet.AuthenticationTokens", "src\SlimGet.AuthenticationTokens\SlimGet.AuthenticationTokens.csproj", "{C417DFF2-B341-4ABC-B096-D066CE7DDDED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.PdbParser", "SlimGet.PdbParser\SlimGet.PdbParser.csproj", "{5C92A559-D48C-43DA-BE42-50A46A1E07DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.PdbParser", "src\SlimGet.PdbParser\SlimGet.PdbParser.csproj", "{5C92A559-D48C-43DA-BE42-50A46A1E07DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
