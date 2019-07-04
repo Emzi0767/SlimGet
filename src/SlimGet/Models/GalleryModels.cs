@@ -22,13 +22,29 @@ namespace SlimGet.Models
     {
         public Uri NuGetFeedUrl { get; }
         public Uri SymbolsUrl { get; }
+        public Uri SymbolsPushUrl { get; }
         public bool SymbolsEnabled { get; }
+        public bool IsWritable { get; }
 
-        public GalleryAboutModel(Uri feedUrl, Uri symbolsUrl, bool symbolsEnabled)
+        public GalleryAboutModel(Uri feedUrl, Uri symbolsUrl, Uri symbolsPushUrl, bool symbolsEnabled, bool writble)
         {
             this.NuGetFeedUrl = feedUrl;
             this.SymbolsUrl = symbolsUrl;
+            this.SymbolsPushUrl = symbolsPushUrl;
             this.SymbolsEnabled = symbolsEnabled;
+            this.IsWritable = writble;
+        }
+    }
+
+    public class GalleryIndexModel
+    {
+        public int PackageCount { get; }
+        public int VersionCount { get; }
+
+        public GalleryIndexModel(int pkgCount, int verCount)
+        {
+            this.PackageCount = pkgCount;
+            this.VersionCount = verCount;
         }
     }
 }

@@ -25,9 +25,17 @@
 
     <environment include="Development">
         <link rel="stylesheet" href="~/css/slimget.css" />
+        @if (this.Context.Request.Query["comicsans"] == "yesplease")
+        {
+            <link rel="stylesheet" href="~/css/secret-comicsans-mode.css" />
+        }
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="~/css/slimget.min.css" asp-append-version="true" />
+        @if (this.Context.Request.Query["comicsans"] == "yesplease")
+        {
+            <link rel="stylesheet" href="~/css/secret-comicsans-mode.min.css" asp-append-version="true" />
+        }
     </environment>
 </head>
 <body>
@@ -40,11 +48,22 @@
     </div>
 
     <div class="slimget-content" id="main-content">
-        @RenderBody()
+        <div class="slimget-content-inner">
+            @RenderBody()
+        </div>
     </div>
 
     <div class="slimget-footer" id="footer">
-
+        <div class="slimget-footer-inner">
+            <p>
+                &copy; @(DateTime.UtcNow.Year == 2019 ? "2019" : $"2019 - {DateTime.UtcNow.Year}") Emzi0767
+            </p>
+            <p>
+                SlimGet is <a href="https://en.wikipedia.org/wiki/Free_software" title="Free Software (Wikipedia article)">Free Software</a>,
+                licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0.html" title="Apache License 2.0 on Apache Software Foundation's website">Apache License 2.0</a>.
+                You can obtain it and its source code from <a href="https://github.com/Emzi0767/SlimGet/" title="SlimGet on GitHub">GitHub</a>.
+            </p>
+        </div>
     </div>
 
     @RenderSection("Scripts", required: false)

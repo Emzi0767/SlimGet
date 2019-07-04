@@ -4,5 +4,11 @@
         "inputFiles": [
             "wwwroot/css/slimget.css"
         ]
+    },
+    {
+        "outputFileName": "wwwroot/css/secret-comicsans-mode.min.css",
+        "inputFiles": [
+            "wwwroot/css/secret-comicsans-mode.css"
+        ]
     }
 ]

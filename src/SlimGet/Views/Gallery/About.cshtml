@@ -21,17 +21,61 @@
     ViewData["Title"] = "About";
 }
 
-<h1>About</h1>
+<h1 class="page-header">About this feed</h1>
 
+<h3 class="page-subheader">Consuming packages hosted in this feed</h3>
 <p>
-    To use, add the following NuGet feed to your NuGet package manager:
-    <pre>@Model.NuGetFeedUrl</pre>
+    To use this feed with your NuGet client, simply add the following URL to your NuGet sources. After you have done
+    so, make sure to select it as your package source.
+
+    <pre>@this.Model.NuGetFeedUrl</pre>
 </p>
 
-@if (Model.SymbolsEnabled)
+@if (this.Model.SymbolsEnabled)
 {
     <p>
-        This feed also offers a symbol server. Use it by adding the following symbol source to your debugger configuration:
-        <pre>@Model.SymbolsUrl</pre>
+        This feed also provides a debug symbol server. To consume debug symbols uploaded to this feed, add and enable
+        the following URL in your debug symbol sources. Any debug symbols should be downloaded automatically.
+
+        <pre>@this.Model.SymbolsUrl</pre>
     </p>
 }
+
+@if (this.Model.IsWritable)
+{
+    <h3 class="page-subheader">Pushing packages to this feed</h3>
+    <p>
+        If you have an API key issued to you by the feed's operator, simply push packages to this feed using NuGet CLI. For
+        example:
+
+        <pre>nuget push -source @this.Model.NuGetFeedUrl -apikey YourApiKeyGoesHere MyPackage.1.0.0.nupkg</pre>
+    </p>
+
+    @if (this.Model.SymbolsEnabled)
+    {
+        <p>
+            You can also push symbol packages to this feed, using the below push URL.
+
+            <pre>@this.Model.SymbolsPushUrl</pre>
+        </p>
+
+        <p>
+            To push debug symbols alongside your packages, make sure you package with debug symbols. This should create 2
+            files, a .nupkg, and .symbols.nupkg file. For example, if your package is named MyPackage, has a version of
+            1.0.0, the files will be called MyPackage.1.0.0.nupkg and MyPackage.1.0.0.symbols.nupkg. To push, simply push
+            your package like you usually would, but specify symbol source argument, for example:
+
+            <pre>nuget push -source @this.Model.NuGetFeedUrl -symbolsource @this.Model.SymbolsPushUrl -apikey YourApiKeyGoesHere MyPackage.1.0.0.nupkg</pre>
+
+            Note that you should push the regular .nupkg (e.g. MyPackage.1.0.0.nupkg) file, not the .symbols.nupkg one. If
+            you specify symbol source, the .symbols.nupkg package will be pushed automatically.
+        </p>
+    }
+}
+
+<h3 class="page-subheader">Software behind the scenes</h3>
+<p>
+    This feed is powered by SlimGet, which is 100% <a href="https://en.wikipedia.org/wiki/Free_software" title="Free Software (Wikipedia article)">Free Software</a>,
+    licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0.html" title="Apache License 2.0 on Apache Software Foundation's website">Apache License 2.0</a>.
+    SlimGet's complete source code, binary releases, hosting and usage instructions can be found on <a href="https://github.com/Emzi0767/SlimGet/" title="SlimGet on GitHub">GitHub</a>.
+</p>

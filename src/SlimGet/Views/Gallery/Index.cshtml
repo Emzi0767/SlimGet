@@ -16,9 +16,12 @@
     limitations under the License.
 *@
 
+@model GalleryIndexModel
 @{
     ViewData["Title"] = "SlimGet Gallery";
 }
 
-<h1>Index</h1>
+<h1 class="page-header">Welcome to @this.Context.Request.Host.Host NuGet feed</h1>
+<h3 class="page-subheader">This feed is powered by SlimGet</h3>
+<h5 class="page-bigtext">This feed currently hosts @($"{this.Model.PackageCount:#,##0}") packages, with a total of @($"{this.Model.VersionCount:#,##0}") distinct versions</h5>
 

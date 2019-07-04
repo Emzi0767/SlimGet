@@ -15,11 +15,16 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SlimGet.Data.Configuration;
 using SlimGet.Models;
+using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
@@ -27,15 +32,22 @@ namespace SlimGet.Controllers
     public class GalleryController : Controller
     {
         private PackageStorageConfiguration PackageStorageConfiguration { get; }
+        private SlimGetContext Database { get; }
 
-        public GalleryController(IOptions<StorageConfiguration> scfg)
+        public GalleryController(IOptions<StorageConfiguration> scfg, SlimGetContext db)
         {
             this.PackageStorageConfiguration = scfg.Value.Packages;
+            this.Database = db;
         }
 
         [HttpGet, SlimGetRoute(Routing.GalleryIndexRouteName), SlimGetRoute(Routing.InheritRoute)]
-        public IActionResult Index()
-            => this.View();
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        {
+            var pkgCount = await this.Database.Packages.CountAsync(cancellationToken).ConfigureAwait(false);
+            var verCount = await this.Database.PackageVersions.CountAsync(cancellationToken).ConfigureAwait(false);
+
+            return this.View(new GalleryIndexModel(pkgCount, verCount));
+        }
 
         [HttpGet, SlimGetRoute(Routing.GalleryPackageIndexRouteName)]
         public IActionResult Packages()
@@ -54,8 +66,14 @@ namespace SlimGet.Controllers
         {
             var feedUrl = this.Url.AbsoluteUrl(Routing.FeedIndexRouteName, this.HttpContext);
             var symbolUrl = this.Url.AbsoluteUrl(Routing.DownloadSymbolsRouteName, this.HttpContext);
+            var symbolPushUrl = this.Url.AbsoluteUrl(Routing.PublishSymbolsRouteName, this.HttpContext);
 
-            return this.View(new GalleryAboutModel(new Uri(feedUrl), new Uri(symbolUrl), this.PackageStorageConfiguration.SymbolsEnabled));
+            return this.View(new GalleryAboutModel(
+                new Uri(feedUrl),
+                new Uri(symbolUrl),
+                new Uri(symbolPushUrl),
+                this.PackageStorageConfiguration.SymbolsEnabled,
+                !this.PackageStorageConfiguration.ReadOnlyFeed));
         }
     }
 }
