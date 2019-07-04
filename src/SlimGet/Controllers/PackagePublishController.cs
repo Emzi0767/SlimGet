@@ -30,7 +30,7 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v2/package"), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed))]
+    [SlimGetRoute(Routing.PublishPackageRouteName), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed))]
     public sealed class PackagePublishController : NuGetControllerBase
     {
         private PackageProcessingService Packages { get; }
@@ -41,7 +41,7 @@ namespace SlimGet.Controllers
             this.Packages = pkgParser;
         }
 
-        [Route(""), HttpPut]
+        [SlimGetRoute(Routing.InheritRoute), HttpPut]
         public async Task<IActionResult> Push(CancellationToken cancellationToken)
         {
             // spec says multipart/form-data, application/x-www-form-urlencoded should work for this too
@@ -104,7 +104,7 @@ namespace SlimGet.Controllers
             }
         }
 
-        [Route("{id}/{version}"), HttpDelete]
+        [SlimGetRoute(Routing.PublishPackageModifyRouteName), HttpDelete]
         public async Task<IActionResult> Delete(string id, string version, CancellationToken cancellationToken)
         {
             var pkgvdb = this.Database.PackageVersions.Include(x => x.Package).FirstOrDefault(x => x.PackageId == id && x.Version == version);
@@ -138,7 +138,7 @@ namespace SlimGet.Controllers
             return this.NoContent();
         }
 
-        [Route("{id}/{version}"), HttpPost]
+        [SlimGetRoute(Routing.PublishPackageModifyRouteName), HttpPost]
         public async Task<IActionResult> Relist(string id, string version, CancellationToken cancellationToken)
         {
             var pkgvdb = this.Database.PackageVersions.Include(x => x.Package).FirstOrDefault(x => x.PackageId == id && x.Version == version);

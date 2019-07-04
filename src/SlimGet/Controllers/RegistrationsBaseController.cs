@@ -34,23 +34,18 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v3/registration"), ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.RegistrationsRouteName), ApiController, AllowAnonymous]
     public class RegistrationsBaseController : NuGetControllerBase
     {
         public RegistrationsBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
             : base(db, redis, fs, storcfg, logger)
         { }
 
-        [Route("plain"), HttpGet]
-        public IActionResult Dummy() => this.NoContent();
+        [SlimGetRoute(Routing.InheritRoute), HttpGet]
+        public IActionResult Dummy()
+            => this.NotFound();
 
-        [Route("gzip"), HttpGet]
-        public IActionResult DummyGz() => this.NoContent();
-
-        [Route("semver2"), HttpGet]
-        public IActionResult DummySemVer() => this.NoContent();
-
-        [Route("{mode}/{id}/index.json"), HttpGet]
+        [SlimGetRoute(Routing.RegistrationsIndexRouteName), HttpGet]
         public async Task<IActionResult> Index(string id, RegistrationsContentMode mode, CancellationToken cancellationToken)
         {
             var useGz = mode == RegistrationsContentMode.GZip || mode == RegistrationsContentMode.SemVer2;
@@ -79,7 +74,7 @@ namespace SlimGet.Controllers
             return this.Json(this.PrepareIndex(mode, dbpackage, dbversions));
         }
 
-        [Route("{mode}/{id}/page/{minVersion}/{maxVersion}.json"), HttpGet]
+        [SlimGetRoute(Routing.RegistrationsPageRouteName), HttpGet]
         public async Task<IActionResult> Page(string id, string minVersion, string maxVersion, RegistrationsContentMode mode, CancellationToken cancellationToken)
         {
             var useGz = mode == RegistrationsContentMode.GZip || mode == RegistrationsContentMode.SemVer2;
@@ -112,7 +107,7 @@ namespace SlimGet.Controllers
             return this.Json(this.PreparePage(mode, dbpackage, dbversions, (minVersion, maxVersion), true));
         }
 
-        [Route("{mode}/{id}/{version}.json"), HttpGet]
+        [SlimGetRoute(Routing.RegistrationsLeafRouteName), HttpGet]
         public async Task<IActionResult> Leaf(string id, string version, RegistrationsContentMode mode, CancellationToken cancellationToken)
         {
             var useGz = mode == RegistrationsContentMode.GZip || mode == RegistrationsContentMode.SemVer2;

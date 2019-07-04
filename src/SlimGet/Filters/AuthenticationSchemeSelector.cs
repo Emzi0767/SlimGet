@@ -47,7 +47,7 @@ namespace SlimGet.Filters
 
         private static string SelectPolicy(HttpContext ctx)
         {
-            if (ctx.Request.Path == "/dev" || ctx.Request.Path.StartsWithSegments("/dev"))
+            if (ctx.Request.Path == "/api/dev" || ctx.Request.Path.StartsWithSegments("/api/dev"))
                 return BypassAuthenticationHandler.AuthenticationSchemeName;
 
             return TokenAuthenticationHandler.AuthenticationSchemeName;

@@ -26,22 +26,22 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.SearchRouteName), ApiController, AllowAnonymous]
     public class SearchController : NuGetControllerBase
     {
         public SearchController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
             : base(db, redis, fs, storcfg, logger)
         { }
 
-        [Route("/api/v3/query"), HttpGet]
+        [SlimGetRoute(Routing.SearchQueryRouteName), HttpGet]
         public async Task<IActionResult> Search(SearchQueryModel search, CancellationToken cancellationToken)
             => this.NoContent();
 
-        [Route("/api/v3/autocomplete"), HttpGet]
+        [SlimGetRoute(Routing.SearchAutocompleteRouteName), HttpGet]
         public async Task<IActionResult> Autocomplete(SearchQueryModel search, CancellationToken cancellationToken)
             => this.NoContent();
 
-        [Route("/api/v3/autocomplete"), HttpGet]
+        [SlimGetRoute(Routing.SearchAutocompleteRouteName), HttpGet]
         public async Task<IActionResult> Enumerate(SearchEnumerateModel enumerate, CancellationToken cancellationToken)
             => this.NoContent();
     }

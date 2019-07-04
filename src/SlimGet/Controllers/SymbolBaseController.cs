@@ -30,25 +30,26 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v3/symbolstore"), ApiController, AllowAnonymous, ServiceFilter(typeof(RequireSymbolsEnabled))]
+    [SlimGetRoute(Routing.DownloadSymbolsRouteName), ApiController, AllowAnonymous, ServiceFilter(typeof(RequireSymbolsEnabled))]
     public sealed class SymbolBaseController : NuGetControllerBase
     {
         public SymbolBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
             : base(db, redis, fs, storcfg, logger)
         { }
 
-        [Route(""), HttpGet]
-        public IActionResult Dummy() => this.NoContent();
+        [SlimGetRoute(Routing.InheritRoute), HttpGet]
+        public IActionResult Dummy()
+            => this.NotFound();
 
-        [Route("index2.txt"), HttpGet]
+        [SlimGetRoute(Routing.DownloadSymbols2StageIndexRouteName), HttpGet]
         public IActionResult Index2()
             => this.Content("", "text/plain", Utilities.UTF8);
 
-        [Route("pingme.txt"), HttpGet]
+        [SlimGetRoute(Routing.DownloadSymbols1StageIndexRouteName), HttpGet]
         public IActionResult PingMe()
             => this.Content("", "text/plain", Utilities.UTF8);
 
-        [Route("{file}/{sig}/{file2}"), Route("{t2prefix}/{file}/{sig}/{file2}"), HttpGet]
+        [SlimGetRoute(Routing.DownloadSymbols1StageRouteName), SlimGetRoute(Routing.DownloadSymbols2StageRouteName), HttpGet]
         public async Task<IActionResult> Symbols(string file, string sig, string file2, CancellationToken cancellationToken)
         {
             if (file2 != file)

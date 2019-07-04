@@ -27,7 +27,7 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [AllowAnonymous]
+    [SlimGetRoute(Routing.MiscApiRouteName), AllowAnonymous]
     public class MiscController : Controller
     {
         private IHostingEnvironment Environment { get; }
@@ -42,7 +42,7 @@ namespace SlimGet.Controllers
         }
 
         // Revokes a token, provided in case of leakage; no validation is performed except GUID parsing
-        [Route("/token/revoke/{token}"), HttpGet]
+        [SlimGetRoute(Routing.MiscRevokeTokenRouteName), HttpGet]
         public async Task<IActionResult> RevokeToken(string token)
         {
             if (!this.Tokens.TryReadTokenId(token, out var guid))
@@ -57,7 +57,7 @@ namespace SlimGet.Controllers
             return this.NoContent();
         }
 
-        [Route("/error"), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [SlimGetRoute(Routing.MiscErrorRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             var jsonopts = new JsonSerializerSettings { Formatting = Formatting.Indented };

@@ -29,17 +29,18 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v3/flatcontainer"), ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.DownloadPackageRouteName), ApiController, AllowAnonymous]
     public class PackageBaseController : NuGetControllerBase
     {
         public PackageBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
             : base(db, redis, fs, storcfg, logger)
         { }
 
-        [Route(""), HttpGet]
-        public IActionResult Dummy() => this.NoContent();
+        [SlimGetRoute(Routing.InheritRoute), HttpGet]
+        public IActionResult Dummy()
+            => this.NotFound();
 
-        [Route("{id}/index.json"), HttpGet]
+        [SlimGetRoute(Routing.DownloadPackageIndexRouteName), HttpGet]
         public async Task<IActionResult> EnumerateVersions(string id, CancellationToken cancellationToken)
         {
             var pkg = await this.Database.Packages.Include(x => x.Versions)
@@ -51,7 +52,7 @@ namespace SlimGet.Controllers
             return this.Json(new PackageVersionList(pkg.Versions.Select(x => x.Version)));
         }
 
-        [Route("{id}/{version}/{filename}.nupkg"), HttpGet]
+        [SlimGetRoute(Routing.DownloadPackageContentsRouteName), HttpGet]
         public async Task<IActionResult> Contents(string id, string version, string filename, CancellationToken cancellationToken)
         {
             if (filename != $"{id}.{version}")
@@ -74,7 +75,7 @@ namespace SlimGet.Controllers
             return this.File(pkgdata, "application/octet-stream", $"{pkg.Id}.{pkgv.Version}.nupkg");
         }
 
-        [Route("{id}/{version}/{id2}.nuspec"), HttpGet]
+        [SlimGetRoute(Routing.DownloadPackageManifestRouteName), HttpGet]
         public async Task<IActionResult> Manifest(string id, string version, string id2, CancellationToken cancellationToken)
         {
             if (id != id2)

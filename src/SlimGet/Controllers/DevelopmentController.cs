@@ -32,7 +32,7 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/dev"), ApiController, ServiceFilter(typeof(RequireDevelopmentEnvironment))]
+    [SlimGetRoute(Routing.DevelopmentRouteName), ApiController, ServiceFilter(typeof(RequireDevelopmentEnvironment))]
     public class DevelopmentController : Controller
     {
         private SlimGetContext Database { get; }
@@ -49,7 +49,7 @@ namespace SlimGet.Controllers
         }
 
         // Generates a user and token for testing, unless one exists already
-        [Route("token/issue/{username?}/{email?}"), HttpGet]
+        [SlimGetRoute(Routing.DevelopmentTokenRouteName), HttpGet]
         public async Task<IActionResult> Token(string username = null, string email = null)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -86,18 +86,22 @@ namespace SlimGet.Controllers
             return this.Content(this.Tokens.EncodeToken(atok), "text/plain", Utilities.UTF8);
         }
 
-        [Route("whoami"), HttpGet, Authorize(AuthenticationSchemes = TokenAuthenticationHandler.AuthenticationSchemeName)]
+        [SlimGetRoute(Routing.DevelopmentWhoamiRouteName), HttpGet, Authorize(AuthenticationSchemes = TokenAuthenticationHandler.AuthenticationSchemeName)]
         public IActionResult Whoami()
             => this.Json(this.HttpContext.User.Claims.ToDictionary(x => x.Type, x => x.Value));
 
-        [Route("genroute/{rc?}/{ra?}"), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Test(string rc = "Feed", string ra = "Index")
-            => this.Content(this.Url.AbsoluteUrl(ra, rc, this.HttpContext), "text/plain", Utilities.UTF8);
+        [SlimGetRoute(Routing.DevelopmentUrlPerComponentsRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Test(string genController, string genAction)
+            => this.Content(this.Url.AbsoluteUrl(genAction, genController, this.HttpContext), "text/plain", Utilities.UTF8);
 
-        [Route("eval"), HttpPost]
+        [SlimGetRoute(Routing.DevelopmentUrlPerNameRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Test(string routeName)
+            => this.Content(this.Url.AbsoluteUrl(routeName, this.HttpContext), "text/plain", Utilities.UTF8);
+
+        [SlimGetRoute(Routing.DevelopmentEvalRouteName), HttpPost]
         public async Task<IActionResult> Evaluate([FromBody] string code)
         {
-            var globals = new EvaluationEnvironment(this.HttpContext, this.Database, this.Redis, this.Filesystem, this.Tokens);
+            var globals = new EvaluationEnvironment(this.HttpContext, this.Url, this.Database, this.Redis, this.Filesystem, this.Tokens);
             var sopts = ScriptOptions.Default
                 .WithImports("System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Net.Http", "System.Net.Http.Headers", "System.Reflection", "System.Text",
                              "System.Threading.Tasks", "SlimGet", "SlimGet.Data", "SlimGet.Data.Configuration", "SlimGet.Data.Database", "SlimGet.Services", "SlimGet.Models", "SlimGet.Filters")
@@ -151,14 +155,16 @@ namespace SlimGet.Controllers
         public sealed class EvaluationEnvironment
         {
             public HttpContext Context { get; }
+            public IUrlHelper Url { get; }
             public SlimGetContext Database { get; }
             public RedisService Redis { get; }
             public IFileSystemService Filesystem { get; }
             public TokenService Tokens { get; }
 
-            public EvaluationEnvironment(HttpContext ctx, SlimGetContext db, RedisService redis, IFileSystemService fs, TokenService tokens)
+            public EvaluationEnvironment(HttpContext ctx, IUrlHelper url, SlimGetContext db, RedisService redis, IFileSystemService fs, TokenService tokens)
             {
                 this.Context = ctx;
+                this.Url = url;
                 this.Database = db;
                 this.Redis = redis;
                 this.Filesystem = fs;

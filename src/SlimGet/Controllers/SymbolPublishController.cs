@@ -29,7 +29,7 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [Route("/api/v2/symbolpackage"), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed)), ServiceFilter(typeof(RequireSymbolsEnabled))]
+    [SlimGetRoute(Routing.PublishSymbolsRouteName), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed)), ServiceFilter(typeof(RequireSymbolsEnabled))]
     public class SymbolPublishController : NuGetControllerBase
     {
         private PackageProcessingService Packages { get; }
@@ -40,7 +40,7 @@ namespace SlimGet.Controllers
             this.Packages = pkgParser;
         }
 
-        [Route(""), HttpPut]
+        [SlimGetRoute(Routing.InheritRoute), HttpPut]
         public async Task<IActionResult> Push(CancellationToken cancellationToken)
         {
             // spec says multipart/form-data, application/x-www-form-urlencoded should work for this too

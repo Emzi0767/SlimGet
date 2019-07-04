@@ -23,7 +23,7 @@ using SlimGet.Models;
 
 namespace SlimGet.Controllers
 {
-    [Route("/[controller]/[action]"), AllowAnonymous]
+    [SlimGetRoute(Routing.GalleryRouteName), AllowAnonymous]
     public class GalleryController : Controller
     {
         private PackageStorageConfiguration PackageStorageConfiguration { get; }
@@ -33,23 +33,27 @@ namespace SlimGet.Controllers
             this.PackageStorageConfiguration = scfg.Value.Packages;
         }
 
-        [HttpGet, Route("/"), Route("/[controller]")]
-        public IActionResult Index() => this.View();
+        [HttpGet, SlimGetRoute(Routing.GalleryIndexRouteName), SlimGetRoute(Routing.InheritRoute)]
+        public IActionResult Index()
+            => this.View();
 
-        [HttpGet]
-        public IActionResult Packages() => this.View();
+        [HttpGet, SlimGetRoute(Routing.GalleryPackageIndexRouteName)]
+        public IActionResult Packages()
+            => this.View();
 
-        [HttpGet, Route("{id}")]
-        public IActionResult Packages(string id) => this.View();
+        [HttpGet, SlimGetRoute(Routing.GalleryPackageDetailsRouteName)]
+        public IActionResult Packages(string id)
+            => this.View();
 
-        [HttpGet, Route("{id}/{version}")]
-        public IActionResult Packages(string id, string version) => this.View();
+        [HttpGet, SlimGetRoute(Routing.GalleryPackageVersionRouteName)]
+        public IActionResult Packages(string id, string version)
+            => this.View();
 
-        [HttpGet]
+        [HttpGet, SlimGetRoute(Routing.GalleryAboutRouteName)]
         public IActionResult About()
         {
-            var feedUrl = this.Url.AbsoluteUrl("Index", "Index", this.HttpContext);
-            var symbolUrl = this.Url.AbsoluteUrl("Dummy", "SymbolBase", this.HttpContext);
+            var feedUrl = this.Url.AbsoluteUrl(Routing.FeedIndexRouteName, this.HttpContext);
+            var symbolUrl = this.Url.AbsoluteUrl(Routing.DownloadSymbolsRouteName, this.HttpContext);
 
             return this.View(new GalleryAboutModel(new Uri(feedUrl), new Uri(symbolUrl), this.PackageStorageConfiguration.SymbolsEnabled));
         }

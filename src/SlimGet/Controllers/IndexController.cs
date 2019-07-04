@@ -27,25 +27,25 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.FeedIndexRouteName), ApiController, AllowAnonymous]
     public sealed class IndexController : NuGetControllerBase
     {
         public IndexController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
             : base(db, redis, fs, storcfg, logger)
         { }
 
-        [Route("/api/v3/index.json"), HttpGet]
+        [SlimGetRoute(Routing.InheritRoute), HttpGet]
         public IActionResult Index()
         {
-            var packagePublish = this.CreateResourceModels(this.Url.AbsoluteUrl("Push", "PackagePublish", this.HttpContext).ToUri(), "PackagePublish", "2.0.0");
-            var symbolPackagePublish = this.CreateResourceModels(this.Url.AbsoluteUrl("Push", "SymbolPublish", this.HttpContext).ToUri(), "SymbolPackagePublish", "4.9.0");
-            var searchQuery = this.CreateResourceModels(this.Url.AbsoluteUrl("Search", "Search", this.HttpContext).ToUri(), "SearchQueryService", "", "3.0.0-beta", "3.0.0-rc");
-            var searchAutocomplete = this.CreateResourceModels(this.Url.AbsoluteUrl("Autocomplete", "Search", this.HttpContext).ToUri(), "SearchAutocompleteService", "", "3.0.0-beta", "3.0.0-rc");
-            var registrationsBase = this.CreateResourceModels(this.Url.AbsoluteUrl("Dummy", "RegistrationsBase", this.HttpContext).ToUri(), "RegistrationsBase", "", "3.0.0-beta", "3.0.0-rc");
-            var registrationsBaseGz = this.CreateResourceModels(this.Url.AbsoluteUrl("DummyGz", "RegistrationsBase", this.HttpContext).ToUri(), "RegistrationsBase", "3.4.0");
-            var registrationsBaseSemVer2 = this.CreateResourceModels(this.Url.AbsoluteUrl("DummySemVer", "RegistrationsBase", this.HttpContext).ToUri(), "RegistrationsBase", "3.6.0");
-            var packageDetailsUriTemplate = this.CreateResourceModels(this.Url.AbsoluteUrl("Packages", "Gallery", this.HttpContext, new { id = "{id}", version = "{version}" }).Replace("%7B", "{").Replace("%7D", "}").ToUri(), "PackageDetailsUriTemplate", "5.1.0");
-            var packageBaseAddress = this.CreateResourceModels(this.Url.AbsoluteUrl("Dummy", "PackageBase", this.HttpContext).ToUri(), "PackageBaseAddress", "3.0.0");
+            var packagePublish = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.PublishPackageRouteName, this.HttpContext).ToUri(), "PackagePublish", "2.0.0");
+            var symbolPackagePublish = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.PublishSymbolsRouteName, this.HttpContext).ToUri(), "SymbolPackagePublish", "4.9.0");
+            var searchQuery = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.SearchQueryRouteName, this.HttpContext).ToUri(), "SearchQueryService", "", "3.0.0-beta", "3.0.0-rc");
+            var searchAutocomplete = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.SearchAutocompleteRouteName, this.HttpContext).ToUri(), "SearchAutocompleteService", "", "3.0.0-beta", "3.0.0-rc");
+            var registrationsBase = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.Plain }).ToUri(), "RegistrationsBase", "", "3.0.0-beta", "3.0.0-rc");
+            var registrationsBaseGz = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.GZip }).ToUri(), "RegistrationsBase", "3.4.0");
+            var registrationsBaseSemVer2 = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.SemVer2 }).ToUri(), "RegistrationsBase", "3.6.0");
+            var packageDetailsUriTemplate = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.GalleryPackageVersionRouteName, this.HttpContext, new { id = "{id}", version = "{version}" }).Replace("%7B", "{").Replace("%7D", "}").ToUri(), "PackageDetailsUriTemplate", "5.1.0");
+            var packageBaseAddress = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.DownloadPackageRouteName, this.HttpContext).ToUri(), "PackageBaseAddress", "3.0.0");
 
             var resources = packagePublish
                 .Concat(symbolPackagePublish)
@@ -65,7 +65,7 @@ namespace SlimGet.Controllers
         {
             foreach (var version in versions)
             {
-                var xtype = !string.IsNullOrWhiteSpace(type) ? $"{type}/{version}" : type;
+                var xtype = !string.IsNullOrWhiteSpace(version) ? $"{type}/{version}" : type;
                 yield return new FeedResourceModel(baseUrl, xtype, null);
             }
         }

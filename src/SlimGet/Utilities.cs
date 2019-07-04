@@ -42,6 +42,12 @@ namespace SlimGet
         public static string AbsoluteUrl(this IUrlHelper url, string action, string controller, HttpContext ctx, object @params)
             => url.Action(action, controller, @params, ctx.Request.Scheme);
 
+        public static string AbsoluteUrl(this IUrlHelper url, string routeName, HttpContext ctx)
+            => url.AbsoluteUrl(routeName, ctx, null);
+
+        public static string AbsoluteUrl(this IUrlHelper url, string routeName, HttpContext ctx, object @params)
+            => url.RouteUrl(routeName, @params, ctx.Request.Scheme);
+
         public static Uri ToUri(this string s)
             => new Uri(s);
 
