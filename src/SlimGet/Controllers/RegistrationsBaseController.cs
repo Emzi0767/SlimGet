@@ -142,7 +142,7 @@ namespace SlimGet.Controllers
                 CatalogEntry = new CatalogEntryModel
                 {
                     CatalogUrl = this.Url.AbsoluteUrl("Leaf", "RegistrationsBase", this.HttpContext, new { mode, id = dbpackage.IdLowercase, version = dbversion.VersionLowercase }),
-                    Authors = dbpackage.Authors.Select(x => x.Name),
+                    Authors = dbpackage.AuthorNames,
                     DependencyGroups = this.PrepareDependencyGroups(dbversion),
                     Deprecation = null,
                     Description = dbpackage.Description,
@@ -156,7 +156,7 @@ namespace SlimGet.Controllers
                     PublishedAt = dbpackage.PublishedAt.Value,
                     RequiresLicenseAcceptance = dbpackage.RequiresLicenseAcceptance,
                     Summary = dbpackage.Summary,
-                    Tags = dbpackage.Tags.Select(x => x.Tag),
+                    Tags = dbpackage.TagNames,
                     Title = dbpackage.Title,
                     Version = dbversion.Version
                 },

@@ -87,4 +87,19 @@ namespace SlimGet.Models
         [JsonProperty("downloads", NullValueHandling = NullValueHandling.Ignore)]
         public long DownloadCount { get; set; }
     }
+
+    public sealed class SearchAutocompleteResponseModel
+    {
+        [JsonProperty("totalHits")]
+        public int TotalResultCount { get; set; }
+
+        [JsonProperty("data", NullValueHandling = NullValueHandling.Include)]
+        public IEnumerable<string> Results { get; set; }
+    }
+
+    public sealed class SearchEnumerateResponseModel
+    {
+        [JsonProperty("data", NullValueHandling = NullValueHandling.Include)]
+        public IEnumerable<string> Versions { get; set; }
+    }
 }

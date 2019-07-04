@@ -24,23 +24,14 @@ namespace SlimGet.Models
         [FromQuery(Name = "q"), StringLength(32767, ErrorMessage = "Package ID query is too long.")]
         public string Query { get; set; } = null;
 
+        [FromQuery(Name = "id"), StringLength(32767, ErrorMessage = "Package ID is too long.")]
+        public string Id { get; set; } = null;
+
         [FromQuery(Name = "skip"), Range(0, int.MaxValue, ErrorMessage = "Skip amount cannot be less than 0.")]
         public int Skip { get; set; } = 0;
 
-        [FromQuery(Name = "take"), Range(1, 1000, ErrorMessage = "You must specify at least 1, and at most 1000 items per page.")]
+        [FromQuery(Name = "take"), Range(1, 100, ErrorMessage = "You must specify at least 1, and at most 100 items per page.")]
         public int Take { get; set; } = 20;
-
-        [FromQuery(Name = "prerelease")]
-        public bool Prerelase { get; set; } = false;
-
-        [FromQuery(Name = "semVerLevel")]
-        public string SemVerLevel { get; set; } = "2.0.0";
-    }
-
-    public sealed class SearchEnumerateModel
-    {
-        [FromQuery(Name = "id"), StringLength(32767, ErrorMessage = "Package ID is too long.")]
-        public string Id { get; set; } = null;
 
         [FromQuery(Name = "prerelease")]
         public bool Prerelase { get; set; } = false;
