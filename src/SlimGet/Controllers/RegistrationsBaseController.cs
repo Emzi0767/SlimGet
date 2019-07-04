@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
@@ -26,6 +27,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using NuGet.Versioning;
 using SlimGet.Data.Configuration;
+using SlimGet.Data.Database;
 using SlimGet.Models;
 using SlimGet.Services;
 
@@ -69,12 +71,8 @@ namespace SlimGet.Controllers
                 .Where(x => !useSemVer2 ? !x.NuGetVersion.IsSemVer2 : true)
                 .OrderBy(x => x.NuGetVersion)
                 .ToList();
-            var inline = dbversions.Count <= 128;
-            var pageCount = dbversions.Count / 64 + (dbversions.Count % 64 != 0 ? 1 : 0);
-            var pages = Enumerable.Range(0, pageCount)
-                .Select(x => dbversions.Skip(x * 64).Take(64));
-
-            return this.NoContent();
+            
+            return this.Json(this.PrepareIndex(mode, dbpackage, dbversions));
         }
 
         [Route("{mode}/{id}/page/{minVersion}/{maxVersion}.json"), HttpGet]
@@ -99,26 +97,12 @@ namespace SlimGet.Controllers
             var nvMax = NuGetVersion.Parse(maxVersion);
             var dbversions = dbpackage.Versions
                 .Where(x => x.NuGetVersionLowercase >= nvMin && x.NuGetVersionLowercase <= nvMax && (!useSemVer2 ? !x.NuGetVersion.IsSemVer2 : true))
+                .OrderBy(x => x.NuGetVersion)
                 .ToList();
             if (dbversions.Count > 64)
                 return this.BadRequest(new { message = "Too wide version range." });
 
-            return this.Json(new RegistrationsPageModel
-            {
-                PageUrl = this.Url.AbsoluteUrl("Page", "RegistrationsBase", this.HttpContext, new { mode, id, minVersion, maxVersion }),
-                Count = dbversions.Count,
-                Items = dbversions.Select(x => new RegistrationsLeafModel
-                {
-                    LeafUrl = this.Url.AbsoluteUrl("Leaf", "RegistrationsBase", this.HttpContext, new { mode, id, version = x.VersionLowercase }),
-                    IsListed = x.IsListed,
-                    ContentUrl = this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new { id, version = x.VersionLowercase, filename = $"{id}.{x.VersionLowercase}" }),
-                    PublishedAt = x.PublishedAt.Value,
-                    RegistrationIndexUrl = this.Url.AbsoluteUrl("Index", "RegistrationsBase", this.HttpContext, new { mode, id })
-                }),
-                MinVersion = dbversions.Min(x => x.NuGetVersion).ToNormalizedString(),
-                MaxVersion = dbversions.Max(x => x.NuGetVersion).ToNormalizedString(),
-                IndexUrl = this.Url.AbsoluteUrl("Index", "RegistrationsBase", this.HttpContext, new { mode, id })
-            });
+            return this.Json(this.PreparePage(mode, dbpackage, dbversions, (minVersion, maxVersion), true));
         }
 
         [Route("{mode}/{id}/{version}.json"), HttpGet]
@@ -143,14 +127,69 @@ namespace SlimGet.Controllers
             if (dbversion == null)
                 return this.NotFound();
 
-            return this.Json(new RegistrationsLeafModel
+            return this.Json(this.PrepareLeaf(mode, dbpackage, dbversion));
+        }
+
+        private RegistrationsLeafModel PrepareLeaf(RegistrationsContentMode mode, Package dbpackage, PackageVersion dbversion)
+            => new RegistrationsLeafModel
             {
-                LeafUrl = this.Url.AbsoluteUrl("Leaf", "RegistrationsBase", this.HttpContext, new { mode, id, version }),
+                LeafUrl = this.Url.AbsoluteUrl("Leaf", "RegistrationsBase", this.HttpContext, new { mode, id = dbpackage.IdLowercase, version = dbversion.VersionLowercase }),
                 IsListed = dbversion.IsListed,
-                ContentUrl = this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new { id, version, filename = $"{id}.{version}" }),
+                ContentUrl = this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new
+                {
+                    id = dbpackage.IdLowercase,
+                    version = dbversion.VersionLowercase,
+                    filename = $"{dbpackage.IdLowercase}.{dbversion.VersionLowercase}"
+                }),
                 PublishedAt = dbversion.PublishedAt.Value,
-                RegistrationIndexUrl = this.Url.AbsoluteUrl("Index", "RegistrationsBase", this.HttpContext, new { mode, id })
-            });
+                RegistrationIndexUrl = this.Url.AbsoluteUrl("Index", "RegistrationsBase", this.HttpContext, new { mode, id = dbpackage.IdLowercase })
+            };
+
+        private RegistrationsPageModel PreparePage(RegistrationsContentMode mode, Package dbpackage, IEnumerable<PackageVersion> dbversions, (string min, string max) versionRange, bool inlineVersions)
+        {
+            var items = !inlineVersions
+                ? null
+                : dbversions.Select(x => this.PrepareLeaf(mode, dbpackage, x));
+
+            return new RegistrationsPageModel
+            {
+                PageUrl = this.Url.AbsoluteUrl("Page", "RegistrationsBase", this.HttpContext, new
+                {
+                    mode,
+                    id = dbpackage.IdLowercase,
+                    minVersion = versionRange.min,
+                    maxVersion = versionRange.max
+                }),
+                Count = dbversions.Count(),
+                Items = items,
+                MinVersion = versionRange.min,
+                MaxVersion = versionRange.max,
+                IndexUrl = this.Url.AbsoluteUrl("Index", "RegistrationsBase", this.HttpContext, new { mode, id = dbpackage.IdLowercase })
+            };
+        }
+
+        private RegistrationsIndexModel PrepareIndex(RegistrationsContentMode mode, Package dbpackage, IEnumerable<PackageVersion> dbversions)
+        {
+            var count = dbversions.Count();
+            var inline = count <= 128;
+            var pages = new List<RegistrationsPageModel>();
+            for (var i = 0; i < count; i += 64)
+            {
+                var versions = dbversions.Skip(i).Take(64);
+
+                // Versions collection should be ordered by the time it enters the method
+                // Thusly we can grab minmax from the edges
+                var min = versions.First().VersionLowercase;
+                var max = versions.Last().VersionLowercase;
+
+                pages.Add(this.PreparePage(mode, dbpackage, versions, (min, max), inline));
+            }
+
+            return new RegistrationsIndexModel
+            {
+                Count = pages.Count,
+                Pages = pages
+            };
         }
     }
 
