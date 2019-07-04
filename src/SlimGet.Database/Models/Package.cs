@@ -30,7 +30,7 @@ namespace SlimGet.Data.Database
         public bool IsListed { get; set; }
         public string MinimumClientVersion { get; set; }
         public DateTime? PublishedAt { get; set; }
-        public bool RequireLicenseAcceptance { get; set; }
+        public bool RequiresLicenseAcceptance { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
         public string IconUrl { get; set; }

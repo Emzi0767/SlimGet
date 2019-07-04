@@ -141,7 +141,7 @@ namespace SlimGet.Services
                 pkg.Description = packageInfo.Description;
                 pkg.Language = packageInfo.Language;
                 pkg.MinimumClientVersion = packageInfo.MinimumClientVersion;
-                pkg.RequireLicenseAcceptance = packageInfo.RequireLicenseAcceptance;
+                pkg.RequiresLicenseAcceptance = packageInfo.RequireLicenseAcceptance;
                 pkg.Summary = packageInfo.Summary;
                 pkg.Title = packageInfo.Title;
                 pkg.IconUrl = packageInfo.IconUrl;
@@ -173,7 +173,7 @@ namespace SlimGet.Services
                     IsListed = true,
                     MinimumClientVersion = packageInfo.MinimumClientVersion,
                     PublishedAt = DateTime.UtcNow,
-                    RequireLicenseAcceptance = packageInfo.RequireLicenseAcceptance,
+                    RequiresLicenseAcceptance = packageInfo.RequireLicenseAcceptance,
                     Summary = packageInfo.Summary,
                     Title = packageInfo.Title,
                     IconUrl = packageInfo.IconUrl,

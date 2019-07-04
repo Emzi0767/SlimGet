@@ -162,7 +162,7 @@ namespace SlimGet.Services
                 .HasColumnName("published_at");
 
             modelBuilder.Entity<Package>()
-                .Property(x => x.RequireLicenseAcceptance)
+                .Property(x => x.RequiresLicenseAcceptance)
                 .IsRequired()
                 .HasDefaultValue(false)
                 .HasColumnName("require_license_acceptance");

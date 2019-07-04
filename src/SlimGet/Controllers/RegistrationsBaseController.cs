@@ -17,6 +17,7 @@
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -62,6 +63,9 @@ namespace SlimGet.Controllers
 
             var dbpackage = await this.Database.Packages
                 .Include(x => x.Versions)
+                .ThenInclude(x => x.Dependencies)
+                .Include(x => x.Authors)
+                .Include(x => x.Tags)
                 .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken)
                 .ConfigureAwait(false);
             if (dbpackage == null)
@@ -71,7 +75,7 @@ namespace SlimGet.Controllers
                 .Where(x => !useSemVer2 ? !x.NuGetVersion.IsSemVer2 : true)
                 .OrderBy(x => x.NuGetVersion)
                 .ToList();
-            
+
             return this.Json(this.PrepareIndex(mode, dbpackage, dbversions));
         }
 
@@ -88,6 +92,9 @@ namespace SlimGet.Controllers
 
             var dbpackage = await this.Database.Packages
                 .Include(x => x.Versions)
+                .ThenInclude(x => x.Dependencies)
+                .Include(x => x.Authors)
+                .Include(x => x.Tags)
                 .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken)
                 .ConfigureAwait(false);
             if (dbpackage == null)
@@ -118,6 +125,9 @@ namespace SlimGet.Controllers
 
             var dbpackage = await this.Database.Packages
                 .Include(x => x.Versions)
+                .ThenInclude(x => x.Dependencies)
+                .Include(x => x.Authors)
+                .Include(x => x.Tags)
                 .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken)
                 .ConfigureAwait(false);
             if (dbpackage == null)
@@ -134,6 +144,27 @@ namespace SlimGet.Controllers
             => new RegistrationsLeafModel
             {
                 LeafUrl = this.Url.AbsoluteUrl("Leaf", "RegistrationsBase", this.HttpContext, new { mode, id = dbpackage.IdLowercase, version = dbversion.VersionLowercase }),
+                CatalogEntry = new CatalogEntryModel
+                {
+                    CatalogUrl = this.Url.AbsoluteUrl("Leaf", "RegistrationsBase", this.HttpContext, new { mode, id = dbpackage.IdLowercase, version = dbversion.VersionLowercase }),
+                    Authors = dbpackage.Authors.Select(x => x.Name),
+                    DependencyGroups = this.PrepareDependencyGroups(dbversion),
+                    Deprecation = null,
+                    Description = dbpackage.Description,
+                    IconUrl = dbpackage.IconUrl,
+                    Id = dbpackage.Id,
+                    LicenseUrl = dbpackage.LicenseUrl,
+                    LicenseExpression = null,
+                    IsListed = dbpackage.IsListed,
+                    MinimumClientVersion = dbpackage.MinimumClientVersion,
+                    ProjectUrl = dbpackage.ProjectUrl,
+                    PublishedAt = dbpackage.PublishedAt.Value,
+                    RequiresLicenseAcceptance = dbpackage.RequiresLicenseAcceptance,
+                    Summary = dbpackage.Summary,
+                    Tags = dbpackage.Tags.Select(x => x.Tag),
+                    Title = dbpackage.Title,
+                    Version = dbversion.Version
+                },
                 IsListed = dbversion.IsListed,
                 ContentUrl = this.Url.AbsoluteUrl("Contents", "PackageBase", this.HttpContext, new
                 {
@@ -190,6 +221,47 @@ namespace SlimGet.Controllers
                 Count = pages.Count,
                 Pages = pages
             };
+        }
+
+        private IEnumerable<DependencyGroupModel> PrepareDependencyGroups(PackageVersion dbversion)
+        {
+            foreach (var depgroup in dbversion.Dependencies.GroupBy(x => x.TargetFramework))
+                yield return new DependencyGroupModel
+                {
+                    Framework = depgroup.Key,
+                    Dependencies = this.PrepareDependencies(depgroup)
+                };
+        }
+
+        private IEnumerable<DependencyModel> PrepareDependencies(IEnumerable<PackageDependency> dbdeps)
+        {
+            foreach (var dbdep in dbdeps)
+                yield return new DependencyModel
+                {
+                    Id = dbdep.Id,
+                    VersionRange = this.PrepareVersionRange(dbdep),
+                    RegistrationUrl = null
+                };
+        }
+
+        private string PrepareVersionRange(PackageDependency dbdep)
+        {
+            var sb = new StringBuilder();
+            if (dbdep.MinVersion != null)
+                sb.Append(dbdep.IsMinVersionInclusive == true ? '[' : '(')
+                    .Append(dbdep.MinVersion);
+            else
+                sb.Append('(');
+
+            sb.Append(',');
+
+            if (dbdep.MaxVersion != null)
+                sb.Append(dbdep.IsMaxVersionInclusive == true ? ']' : ')')
+                    .Append(dbdep.MaxVersion);
+            else
+                sb.Append(')');
+
+            return sb.ToString();
         }
     }
 
