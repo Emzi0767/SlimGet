@@ -14,10 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SlimGet.Data.Configuration;
@@ -34,15 +36,19 @@ namespace SlimGet.Controllers
         { }
 
         [SlimGetRoute(Routing.SearchQueryRouteName), HttpGet]
-        public async Task<IActionResult> Search(SearchQueryModel search, CancellationToken cancellationToken)
+        public async Task<IActionResult> Search([FromQuery] SearchQueryModel search, CancellationToken cancellationToken)
+        {
+            var packages = this.Database.Packages.Where(x => EF.Functions.Similarity(x.Id, search.Query) > 0.5).ToList();
+
+            return this.NoContent();
+        }
+
+        [SlimGetRoute(Routing.SearchAutocompleteRouteName), HttpGet]
+        public async Task<IActionResult> Autocomplete([FromQuery] SearchQueryModel search, CancellationToken cancellationToken)
             => this.NoContent();
 
         [SlimGetRoute(Routing.SearchAutocompleteRouteName), HttpGet]
-        public async Task<IActionResult> Autocomplete(SearchQueryModel search, CancellationToken cancellationToken)
-            => this.NoContent();
-
-        [SlimGetRoute(Routing.SearchAutocompleteRouteName), HttpGet]
-        public async Task<IActionResult> Enumerate(SearchEnumerateModel enumerate, CancellationToken cancellationToken)
+        public async Task<IActionResult> Enumerate([FromQuery] SearchEnumerateModel enumerate, CancellationToken cancellationToken)
             => this.NoContent();
     }
 }

@@ -23,6 +23,9 @@ namespace SlimGet.Data.Database.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:pg_trgm", ",,");
+
             migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
@@ -286,6 +289,12 @@ namespace SlimGet.Data.Database.Migrations
                 name: "ix_token_owner",
                 table: "tokens",
                 column: "user_id");
+
+            // ADDED MANUALLY
+            migrationBuilder.Sql("CREATE INDEX ix_package_trgm_id ON packages USING gin (id gin_trgm_ops);");
+            migrationBuilder.Sql("CREATE INDEX ix_package_trgm_title ON packages USING gin (title gin_trgm_ops);");
+            migrationBuilder.Sql("CREATE INDEX ix_package_trgm_desc ON packages USING gin (description gin_trgm_ops);");
+            migrationBuilder.Sql("CREATE INDEX ix_package_trgm_tags ON package_tags USING gin (tag gin_trgm_ops);");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

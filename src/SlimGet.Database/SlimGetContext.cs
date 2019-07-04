@@ -45,6 +45,8 @@ namespace SlimGet.Services
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresExtension("pg_trgm");
+
             #region User
             modelBuilder.Entity<User>()
                 .ToTable("users");

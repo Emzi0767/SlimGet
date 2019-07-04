@@ -31,6 +31,7 @@ namespace SlimGet.Data.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasAnnotation("Npgsql:PostgresExtension:pg_trgm", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
@@ -106,7 +107,7 @@ namespace SlimGet.Data.Database.Migrations
                         .HasColumnName("repository_url")
                         .HasDefaultValue(null);
 
-                    b.Property<bool>("RequireLicenseAcceptance")
+                    b.Property<bool>("RequiresLicenseAcceptance")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("require_license_acceptance")
                         .HasDefaultValue(false);
