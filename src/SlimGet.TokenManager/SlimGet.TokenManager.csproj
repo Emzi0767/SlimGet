@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Version>1.0.0</Version>
+    <FileVersion>$(Version).0</FileVersion>
+    <ProductVersion>$(Version).0</ProductVersion>
+    <RootNamespace>SlimGet.Tools</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Emzi0767.Common" Version="1.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SlimGet.AuthenticationTokens\SlimGet.AuthenticationTokens.csproj" />
+    <ProjectReference Include="..\SlimGet.Database\SlimGet.Database.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "meta", "meta", "{D976F83A-29BC-4713-891C-97E697646464}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitignore = .gitignore
 		LICENSE.TXT = LICENSE.TXT
 		NOTICE.TXT = NOTICE.TXT
 		README.MD = README.MD
@@ -26,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{46ACF8
 		.dockerignore = .dockerignore
 		Dockerfile = Dockerfile
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.TokenManager", "src\SlimGet.TokenManager\SlimGet.TokenManager.csproj", "{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +52,10 @@ Global
 		{5C92A559-D48C-43DA-BE42-50A46A1E07DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C92A559-D48C-43DA-BE42-50A46A1E07DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C92A559-D48C-43DA-BE42-50A46A1E07DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +65,7 @@ Global
 		{C92C12DB-24AB-42C7-B1D7-32BEB2B7085C} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{C417DFF2-B341-4ABC-B096-D066CE7DDDED} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{5C92A559-D48C-43DA-BE42-50A46A1E07DA} = {A53ED2F0-B059-473B-9399-B673F37716AA}
+		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6B73761-3D26-4D42-BB4A-B02D57B5A6AB}

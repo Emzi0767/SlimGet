@@ -27,7 +27,7 @@ In order to run a SlimGet server, you need the following components installed an
 The application is very easy and straightforward to set up, and complete guide is below. Before you begin, rename
 `slimget.example.json` to `slimget.json` and open it in your favourite text editor.
 
-## PostgreSQL Database
+### PostgreSQL Database
 The application requires pre-made database with pg_trgm extension created, and a user to connect as. This is all fairly
 easy to set up.
 
@@ -71,7 +71,7 @@ At this point, you should switch to the editor with your SlimGet configuration, 
   set this to `true`, otherwise it's strongly recommended you set this to `false`. This option has no effect if SSL is
   disabled.
 
-## Redis
+### Redis
 Redis does not require any setup on the server itself. Simply edit the values in `Storage.Redis` accordingly. Below are
 explanations of the various options:
 
@@ -85,7 +85,7 @@ explanations of the various options:
 - `UseSsl`: If your Redis server encrypts connections using SSL/TLS, set this to `true`. Otherwise, set this to
   `false`.
 
-## File system and package storage
+### File system and package storage
 These settings control various aspects of the actual package for your feed. Explanations for the various options are
 below:
 
@@ -108,7 +108,7 @@ below:
   - `SymbolsEnabled`: Controls whether this feed should support hosting and pushing debug symbols. Setting this to
     `false` will disable debug symbol push and download endpoints.
 
-## Server
+### Server
 Server section contains various options pertaining to the HTTP stack of SlimGet. These options are explained below:
 
 - `SslCertificate`: Configures the location and password for the certificate. The certificate needs to be in PKCS12
@@ -129,7 +129,7 @@ Server section contains various options pertaining to the HTTP stack of SlimGet.
   about a good password, you can use `dd if=/dev/random bs=1024 count=1 2>/dev/null | sha256sum - | cut -d' ' -f1` on
   a Linux system to generate one.
 
-### SSL certificates
+#### SSL certificates
 SlimGet can use any certificate for SSL, be it self-signed or proper CA-issued one. If you need to generate a
 self-signed certificate, you can use the following commands to do so:
 
@@ -147,7 +147,7 @@ rm certificate-key.pem certificate.pem subject.txt
 Your certificate will be saved as `certificate.pfx`, and its password as `certificate.pfx.pwd`. Copy them somewhere
 your server can access (perferably a secure medium, such as an encrypted filesystem).
 
-## Docker
+### Docker
 You can run SlimGet as a Docker container. For this purpose, a [prebuilt image](https://hub.docker.com/r/emzi0767/slimget)
 is provided, allowing you to easily set up and deploy a SlimGet server. The image is `emzi0767/slimget:latest`. It
 requires that you bind mount a directory for the packages, as well as the config file, and point the file via
@@ -214,9 +214,81 @@ For more information about these subjects, refer to Docker documentation:
 - [Use overlay networks](https://docs.docker.com/network/overlay/) - specifically the [Create overlay network](https://docs.docker.com/network/overlay/#create-an-overlay-network) 
   section, for communicating between services in a Docker swarm.
 
-### Building Docker image
+#### Building Docker image
 If you wish to build a SlimGet Docker image yourself, you can do so by doing `docker build .
 --tag=emzi0767/slimget:latest` from the repository's root.
+
+### Issuing tokens
+At this point, your SlimGet instance is already up and running. However, you will find that you cannot push any
+packages or symbols to the feed, because you have no credentials to do so.
+
+SlimGet comes with a simple CLI utility to manage users and tokens. It's pretty self-explanatory, and straightforward
+to use. To view full usage instructions, invoke `dotnet SlimGet.TokenManager.dll`, and it will print out all the
+options available, with explanations.
+
+To start using the feed, you need to first create a user, and issue a token for them. The CLI is located in the same
+directory as SlimGet itself. To get started, create a new user:
+
+```bash
+dotnet SlimGet.TokenManager.dll user create slimget-user slimget-user@example.com
+```
+
+Replace `slimget-user` with your desired username, and `slimget-user@example.com` with your email address. Currently,
+email addresses are not used for communication, but only identification. The email needs to be a valid address, but
+does not necessarily need to exist.
+
+Now that you have a user, you need to issue an API token for said user. This is done like so:
+
+```bash
+dotnet SlimGet.TokenManager.dll token issue slimget-user
+```
+
+Replace `slimget-user` with your chosen username from the previous step. The command will create a token, and return
+it. It will look like this:
+`3a337a10785745259adc34c534a0eea81fd00bc21cdd1d3e20044ea20a59bac1a2905786670307720e0d8203bbd7d967`.
+
+Now you should note this token down somewhere, because you will be using it with your feed. You can also save it using
+NuGet CLI, by performing the following command:
+
+```bash
+nuget setApiKey -Source https://nuget.example.com/api/v3/index.json YourApiKey
+# if using debug symbol hosting
+nuget setApiKey -Source https://nuget.example.com/api/v2/symbolpackage YourApiKey
+```
+
+Replace `https://nuget.example.com` with your server's URL, and `YourApiKey` with your API key obtained above.
+Performing this will remove the necessity to supply the API key to the `push` command via `-apiKey` switch.
+
+#### Docker
+If your SlimGet instance is running in Docker, using the official image, you can also use the CLI to manage users and
+tokens. The CLI needs to be invoked via `docker exec`, command, like so:
+
+- View CLI usage instructions:
+  ```bash
+  docker exec -it slimget SlimGet.TokenManager.dll
+  ```
+- Create a new user
+  ```bash
+  docker exec -it slimget SlimGet.TokenManager.dll user create slimget-user slimget-user@example.com
+  ```
+- Issue a new token
+  ```bash
+  docker exec -it slimget SlimGet.TokenManager.dll token issue slimget-user
+  ```
+
+### Pushing packages and symbols
+You should be ready to push packages to your feed now. The complete instructions on doing so are provided by SlimGet
+itself. To view them, simply navigate to `https://nuget.example.com/gallery/about` (substituting
+`https://nuget.example.com` for your server's URL).
+
+### Consuming packages and symbols
+After publishing packages to your feed, you can consume them in Visual Studio, or any other NuGet client. To do so, add
+the `https://nuget.example.com/api/v3/index.json` (substituting `https://nuget.example.com` for your server's URL) to
+your NuGet package sources.
+
+If you enabled debug symbol server, you can consume uploaded debug symbols as well. To do so, add
+`https://nuget.example.com/api/v3/symbolstore` (substituting `https://nuget.example.com` for your server's URL) to your
+debug symbol sources, and enable it.
 
 ## Building
 TODO

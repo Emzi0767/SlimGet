@@ -1,4 +1,6 @@
-namespace SlimGet.Data.Configuration
+using SlimGet.Data.Configuration;
+
+namespace SlimGet.Services
 {
     public interface ITokenConfigurationProvider
     {

@@ -22,16 +22,17 @@ WORKDIR /app
 COPY . ./
 
 # Build the application
-RUN dotnet publish -c Release -f netcoreapp2.2 -r linux-musl-x64 -o out
+RUN dotnet publish -c Release -f netcoreapp2.2 -r linux-musl-x64 -o slimget-publish
 
 # Set up runtime environment
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine3.9
 WORKDIR /app
-COPY --from=build /app/out .
+COPY --from=build /app/slimget-publish .
 
 # Set up storage
 RUN mkdir feed
 VOLUME [ "/app/feed" ]
 
 # Run the application
-ENTRYPOINT [ "dotnet", "SlimGet.dll" ]
+ENTRYPOINT [ "dotnet" ]
+RUN [ "SlimGet.dll" ]
