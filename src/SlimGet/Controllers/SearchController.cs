@@ -41,7 +41,7 @@ namespace SlimGet.Controllers
         public async Task<IActionResult> Search([FromQuery] SearchQueryModel search, CancellationToken cancellationToken)
         {
             var semver2 = search.SemVerLevel == "2.0.0";
-            var prerelease = search.Prerelase;
+            var prerelease = search.Prerelease;
             var query = search.Query;
             var dbpackages = this.Database.Packages
                 .Include(x => x.Versions)
@@ -63,7 +63,7 @@ namespace SlimGet.Controllers
         public async Task<IActionResult> Autocomplete([FromQuery] SearchQueryModel search, CancellationToken cancellationToken)
         {
             var semver2 = search.SemVerLevel == "2.0.0";
-            var prerelease = search.Prerelase;
+            var prerelease = search.Prerelease;
             if (search.Id == null)
             {
                 var query = search.Query;

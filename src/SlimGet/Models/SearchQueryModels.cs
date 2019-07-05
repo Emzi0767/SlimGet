@@ -34,7 +34,7 @@ namespace SlimGet.Models
         public int Take { get; set; } = 20;
 
         [FromQuery(Name = "prerelease")]
-        public bool Prerelase { get; set; } = false;
+        public bool Prerelease { get; set; } = false;
 
         [FromQuery(Name = "semVerLevel")]
         public string SemVerLevel { get; set; } = "2.0.0";

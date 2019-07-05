@@ -1,0 +1,170 @@
+@*
+    This file is a part of SlimGet project.
+
+    Copyright 2019 Emzi0767
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*@
+
+@using NuGet.Packaging
+@model GalleryPackageInfoModel
+@{
+    ViewData["Title"] = $"Package details - {this.Model.Id} {this.Model.Version.ToNormalizedString()}";
+}
+
+@*
+<h1 class="page-header">Package details</h1>
+<h3 class="page-subheader">@this.Model.Id @Model.Version.ToNormalizedString()</h3>
+*@
+
+<div class="details-outer">
+    <div class="details-inner-left">
+        <div class="details-header">
+            <div class="details-icon">
+                @if (!string.IsNullOrWhiteSpace(this.Model.IconUrl))
+                {
+                    <img src="@this.Model.IconUrl" class="details-icon-image" alt="@this.Model.Id" />
+                }
+                else
+                {
+                    <div class="details-icon-image"><i class="fas fa-file-image"></i></div>
+                }
+            </div>@*
+            *@<div class="details-id">
+                <div class="details-id-id">@this.Model.Id</div>
+                <div class="details-id-version">@this.Model.Version.ToNormalizedString()</div>
+                <div class="details-id-title">@this.Model.Title</div>
+            </div>
+        </div>
+        <div class="details-description">
+            @this.Model.Description
+        </div>
+        <div class="details-dependencies">
+            <h3 class="header">Dependencies</h3>
+            @if (this.Model.DependencyGroups?.Any() == true)
+            {
+                foreach (var depgroup in this.Model.DependencyGroups)
+                {
+                    <h5 class="header">@depgroup.Framework.GetFrameworkString()</h5>
+                    foreach (var dep in depgroup.Dependencies)
+                    {
+                        <div class="details-dependency">
+                            @dep.Id
+                            @if (dep.MinVersion != null)
+                            {
+                                <text>&nbsp;</text>
+                                @(dep.MinInclusive ? ">=" : ">") @dep.MinVersion.ToNormalizedString()
+                                @(dep.MaxVersion != null ? "," : "")<text>&nbsp;</text>
+                            }
+                            @if (dep.MaxVersion != null)
+                            {
+                                @(dep.MaxInclusive ? "<=" : "<") @dep.MinVersion.ToNormalizedString()
+                            }
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <text>None</text>
+            }
+        </div>
+        <div class="details-versions">
+            <h3 class="header">Version history</h3>
+            <div class="details-version">
+                <div class="details-version-row details-version-row-header">
+                    <div class="details-version-link">Version</div>
+                    <div class="details-version-downloads">Download count</div>
+                    <div class="details-version-published">Published at</div>
+                </div>
+                @foreach (var version in this.Model.AllVersions)
+                {
+                    <div class="details-version-row">
+                        <div class="details-version-link"><a asp-route="@Routing.GalleryPackageRouteName" asp-route-id="@this.Model.Id" asp-route-version="@version.version">@version.version</a></div>
+                        <div class="details-version-downloads">@version.downloads</div>
+                        <div class="details-version-published">@version.publishedAt.ToString("yyyy-MM-dd HH:mm zzz")</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="details-inner-right">
+        <h5 class="details-subdetails-header"><i class="fas fa-info-circle"></i> Information</h5>
+        <div class="details-container">
+            <div class="details-icon"><i class="fas fa-calendar"></i></div>
+            <div class="details-text">Published: @this.Model.PublishedAt.ToString("yyyy-MM-dd HH:mm zzz")</div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(this.Model.ProjectUrl))
+        {
+            <div class="details-container">
+                <div class="details-icon"><i class="fas fa-globe"></i></div>
+                <div class="details-text"><a href="@this.Model.ProjectUrl" title="Project website">Project website</a></div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(this.Model.LicenseUrl))
+        {
+            <div class="details-container">
+                <div class="details-icon"><i class="fas fa-balance-scale"></i></div>
+                <div class="details-text"><a href="@this.Model.LicenseUrl" title="Project license">Project license</a></div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(this.Model.RepositoryUrl))
+        {
+            <div class="details-container">
+                <div class="details-icon"><i class="fas fa-code-branch"></i></div>
+                <div class="details-text"><a href="@this.Model.RepositoryUrl" title="Source code repository">Source code repository</a></div>
+            </div>
+        }
+        <div class="details-container">
+            <div class="details-icon"><i class="fas fa-download"></i></div>
+            <div class="details-text"><a href="@this.Model.DownloadUrl" title="Download .nupkg">Download package</a></div>
+        </div>
+        <div class="details-container">
+            <div class="details-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="details-text"><a href="@this.Model.ManifestUrl" title="Download .nuspec">Download manifest</a></div>
+        </div>
+        <div class="details-container">
+            <div class="details-icon"><i class="fas fa-chart-bar"></i></div>
+            <div class="details-text">Download count: @this.Model.DownloadCount.ToString("#,##0")</div>
+        </div>
+        <div class="spacer">&nbsp;</div>
+        @if (this.Model.Authors?.Any() == true)
+        {
+            <h5 class="details-subdetails-header"><i class="fas fa-users"></i> Authors</h5>
+            @foreach (var author in this.Model.Authors)
+            {
+                <div class="details-container">
+                    <div class="details-icon"><i class="fas fa-user"></i></div>
+                    <div class="details-text">@author</div>
+                </div>
+            }
+        }
+        <div class="spacer">&nbsp;</div>
+        @if (this.Model.Tags?.Any() == true)
+        {
+            <h5 class="details-subdetails-header"><i class="fas fa-tags"></i> Tags</h5>
+            @foreach (var tag in this.Model.Tags)
+            {
+                <div class="details-container">
+                    <div class="details-icon"><i class="fas fa-tag"></i></div>
+                    <div class="details-text"><a asp-route="@Routing.GallerySearchRouteName" asp-route-q="@tag" asp-route-pre="true">@tag</a></div>
+                </div>
+            }
+        }
+        <div class="spacer">&nbsp;</div>
+        <h5 class="details-subdetails-header"><i class="fas fa-box"></i> Package maintainer</h5>
+        <div class="details-maintainer">
+            @this.Model.OwnerId
+        </div>
+    </div>
+</div>

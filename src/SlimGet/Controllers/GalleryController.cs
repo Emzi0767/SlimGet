@@ -15,6 +15,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NuGet.Frameworks;
+using NuGet.Versioning;
 using SlimGet.Data.Configuration;
+using SlimGet.Data.Database;
 using SlimGet.Models;
 using SlimGet.Services;
 
@@ -49,17 +53,74 @@ namespace SlimGet.Controllers
             return this.View(new GalleryIndexModel(pkgCount, verCount));
         }
 
-        [HttpGet, SlimGetRoute(Routing.GalleryPackageIndexRouteName)]
-        public IActionResult Packages()
-            => this.View();
+        [HttpGet, SlimGetRoute(Routing.GalleryListRouteName)]
+        public async Task<IActionResult> Packages([FromQuery] int skip, CancellationToken cancellationToken)
+        {
+            if (skip < 0)
+                return this.BadRequest();
 
-        [HttpGet, SlimGetRoute(Routing.GalleryPackageDetailsRouteName)]
-        public IActionResult Packages(string id)
-            => this.View();
+            var dbpackages = this.Database.Packages
+                .Include(x => x.Tags)
+                .Include(x => x.Authors)
+                .Include(x => x.Versions)
+                .OrderByDescending(x => x.DownloadCount)
+                .ThenBy(x => x.Id);
 
-        [HttpGet, SlimGetRoute(Routing.GalleryPackageVersionRouteName)]
-        public IActionResult Packages(string id, string version)
-            => this.View();
+            var count = await dbpackages.CountAsync(cancellationToken);
+            var next = skip + 20 <= count ? skip + 20 : -1;
+
+            return this.View(new GalleryPackageListModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20)), next, skip - 20));
+        }
+
+        [HttpGet, SlimGetRoute(Routing.GalleryPackageRouteName)]
+        public async Task<IActionResult> Package(string id, string version, CancellationToken cancellationToken)
+        {
+            var dbpackage = await this.Database.Packages
+                .Include(x => x.Tags)
+                .Include(x => x.Versions)
+                .ThenInclude(x => x.Binaries)
+                .ThenInclude(x => x.PackageSymbols)
+                .Include(x => x.Versions)
+                .ThenInclude(x => x.Dependencies)
+                .Include(x => x.Authors)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+
+            if (dbpackage == null)
+                return this.NotFound();
+
+            var dbversion = version != null
+                ? dbpackage.Versions.FirstOrDefault(x => x.Version == version)
+                : dbpackage.Versions.OrderByDescending(x => x.NuGetVersion).First();
+
+            if (dbversion == null)
+                return this.NotFound();
+
+            return this.View(this.PreparePackage(dbpackage, dbversion));
+        }
+
+        [HttpGet, SlimGetRoute(Routing.GallerySearchRouteName)]
+        public async Task<IActionResult> Search([FromQuery] GallerySearchModel search, CancellationToken cancellationToken)
+        {
+            var query = search.Query;
+            var prerelease = search.Prerelease;
+            var skip = search.Skip;
+            var dbpackages = this.Database.Packages
+                .Include(x => x.Versions)
+                .Include(x => x.Tags)
+                .Include(x => x.Authors)
+                .Where(x => (EF.Functions.Similarity(x.Id, query) >= 0.35 ||
+                        EF.Functions.Similarity(x.Description, query) >= 0.2 ||
+                        EF.Functions.Similarity(x.Title, query) >= 0.2 ||
+                        x.Tags.Any(y => EF.Functions.Similarity(y.Tag, query) >= 0.35)) &&
+                    x.Versions.Any(y => !y.IsPrerelase || prerelease))
+                .OrderByDescending(x => x.DownloadCount)
+                .ThenBy(x => x.Id);
+
+            var count = await dbpackages.CountAsync(cancellationToken);
+            var next = skip + 20 <= count ? skip + 20 : -1;
+
+            return this.View(new GallerySearchResultModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20), prerelease), next, skip - 20, query, prerelease));
+        }
 
         [HttpGet, SlimGetRoute(Routing.GalleryAboutRouteName)]
         public IActionResult About()
@@ -74,6 +135,88 @@ namespace SlimGet.Controllers
                 new Uri(symbolPushUrl),
                 this.PackageStorageConfiguration.SymbolsEnabled,
                 !this.PackageStorageConfiguration.ReadOnlyFeed));
+        }
+
+        private IEnumerable<GalleryPackageListItemModel> PreparePackages(IEnumerable<Package> dbpackages, bool prerelease = true)
+        {
+            foreach (var dbpackage in dbpackages)
+            {
+                var version = dbpackage.Versions
+                    .Where(x => !x.IsPrerelase || prerelease)
+                    .OrderByDescending(x => x.NuGetVersion)
+                    .First();
+
+                yield return new GalleryPackageListItemModel
+                {
+                    Id = dbpackage.Id,
+                    Title = dbpackage.Title,
+                    IconUrl = dbpackage.IconUrl,
+                    Authors = dbpackage.AuthorNames,
+                    Tags = dbpackage.TagNames,
+                    DownloadCount = dbpackage.DownloadCount,
+                    PublishedAt = dbpackage.PublishedAt.Value,
+                    LastUpdatedAt = version.PublishedAt.Value,
+                    LatestVersion = version.NuGetVersion,
+                    Description = dbpackage.Description
+                };
+            }
+        }
+
+        private GalleryPackageInfoModel PreparePackage(Package dbpackage, PackageVersion dbversion)
+            => new GalleryPackageInfoModel
+            {
+                Id = dbpackage.Id,
+                Title = dbpackage.Title,
+                IconUrl = dbpackage.IconUrl,
+                ProjectUrl = dbpackage.ProjectUrl,
+                LicenseUrl = dbpackage.LicenseUrl,
+                RepositoryUrl = dbpackage.RepositoryUrl,
+                Authors = dbpackage.AuthorNames,
+                Tags = dbpackage.TagNames,
+                DownloadCount = dbpackage.DownloadCount,
+                VersionDownloadCount = dbversion.DownloadCount,
+                PublishedAt = dbversion.PublishedAt.Value,
+                Version = dbversion.NuGetVersion,
+                Description = dbpackage.Description,
+                DownloadUrl = this.Url.AbsoluteUrl(Routing.DownloadPackageContentsRouteName, this.HttpContext, new
+                {
+                    id = dbpackage.IdLowercase,
+                    version = dbversion.VersionLowercase,
+                    filename = $"{dbpackage.IdLowercase}.{dbversion.VersionLowercase}"
+                }),
+                ManifestUrl = this.Url.AbsoluteUrl(Routing.DownloadPackageManifestRouteName, this.HttpContext, new
+                {
+                    id = dbpackage.IdLowercase,
+                    version = dbversion.VersionLowercase,
+                    id2 = dbpackage.IdLowercase
+                }),
+                // figure out symbols
+                DependencyGroups = this.PrepareDependencyGroups(dbversion),
+                OwnerId = dbpackage.OwnerId,
+                AllVersions = dbpackage.Versions.Select(x => (x.Version, x.DownloadCount, new DateTimeOffset(x.PublishedAt.Value)))
+            };
+
+        private IEnumerable<GalleryPackageDependencyGroupModel> PrepareDependencyGroups(PackageVersion dbversion)
+        {
+            foreach (var depgroup in dbversion.Dependencies.GroupBy(x => x.TargetFramework))
+                yield return new GalleryPackageDependencyGroupModel
+                {
+                    Framework = NuGetFramework.Parse(depgroup.Key),
+                    Dependencies = this.PrepareDependencies(depgroup)
+                };
+        }
+
+        private IEnumerable<GalleryPackageDependencyModel> PrepareDependencies(IEnumerable<PackageDependency> dbdeps)
+        {
+            foreach (var dbdep in dbdeps)
+                yield return new GalleryPackageDependencyModel
+                {
+                    Id = dbdep.Id,
+                    MinVersion = dbdep.MinVersion != null ? NuGetVersion.Parse(dbdep.MinVersion) : null,
+                    MaxVersion = dbdep.MaxVersion != null ? NuGetVersion.Parse(dbdep.MaxVersion) : null,
+                    MinInclusive = dbdep.IsMinVersionInclusive.HasValue && dbdep.IsMinVersionInclusive.HasValue,
+                    MaxInclusive = dbdep.IsMaxVersionInclusive.HasValue && dbdep.IsMaxVersionInclusive.HasValue
+                };
         }
     }
 }

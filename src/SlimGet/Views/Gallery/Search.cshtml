@@ -16,4 +16,33 @@
     limitations under the License.
 *@
 
-search goes here
+@model GallerySearchResultModel
+@{
+    ViewData["Title"] = "Package search results";
+}
+
+<h1 class="page-header">Package search results for "@this.Model.Query"</h1>
+<h3 class="page-subheader">Total results: @this.Model.TotalCount.ToString("#,##0")</h3>
+
+<partial name="SearchForm" optional="false" model="null" />
+
+@foreach (var pkg in this.Model.Items)
+{
+    <partial name="ItemDisplay" optional="false" model="pkg" />
+}
+
+<p class="navigation">
+    @if (this.Model.PreviousPage >= 0)
+    {
+        <a asp-route="@Routing.GallerySearchRouteName" asp-route-q="@this.Model.Query" asp-route-pre="@this.Model.IncludePrerelease" asp-route-skip="@this.Model.PreviousPage"><i class="far fa-chevron-left"></i> Previous page</a>
+    }
+    @if (this.Model.PreviousPage >= 0 && this.Model.NextPage >= 0)
+    {
+        <span class="navigation-pipe">|</span>
+    }
+    @if (this.Model.NextPage >= 0)
+    {
+        <a asp-route="@Routing.GalleryListRouteName" asp-route-q="@this.Model.Query" asp-route-pre="@this.Model.IncludePrerelease" asp-route-skip="@this.Model.NextPage">Next page <i class="far fa-chevron-right"></i></a>
+    }
+</p>
+

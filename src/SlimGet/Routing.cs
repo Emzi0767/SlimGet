@@ -78,12 +78,12 @@ namespace SlimGet
         public const string GalleryRoute = "/gallery";
         public const string GalleryIndexRouteName = "Web,Gallery,Index";
         public const string GalleryIndexRoute = "/";
-        public const string GalleryPackageIndexRouteName = "Web,Gallery,PackageIndex";
-        public const string GalleryPackageIndexRoute = "packages";
-        public const string GalleryPackageDetailsRouteName = "Web,Gallery,PackageDetails";
-        public const string GalleryPackageDetailsRoute = "packages/{id}";
-        public const string GalleryPackageVersionRouteName = "Web,Gallery,PackageVersion";
-        public const string GalleryPackageVersionRoute = "packages/{id}/{version}";
+        public const string GalleryListRouteName = "Web,Gallery,PackageList";
+        public const string GalleryListRoute = "packages";
+        public const string GalleryPackageRouteName = "Web,Gallery,Package";
+        public const string GalleryPackageRoute = "package/{id}/{version?}";
+        public const string GallerySearchRouteName = "Web,Gallery,PackageSearch";
+        public const string GallerySearchRoute = "search";
         public const string GalleryAboutRouteName = "Web,Gallery,About";
         public const string GalleryAboutRoute = "about";
         // ENDOF: Gallery
@@ -145,9 +145,9 @@ namespace SlimGet
             // BEGIN: Gallery
             [GalleryRouteName] = GalleryRoute,
             [GalleryIndexRouteName] = GalleryIndexRoute,
-            [GalleryPackageIndexRouteName] = GalleryPackageIndexRoute,
-            [GalleryPackageDetailsRouteName] = GalleryPackageDetailsRoute,
-            [GalleryPackageVersionRouteName] = GalleryPackageVersionRoute,
+            [GalleryListRouteName] = GalleryListRoute,
+            [GalleryPackageRouteName] = GalleryPackageRoute,
+            [GallerySearchRouteName] = GallerySearchRoute,
             [GalleryAboutRouteName] = GalleryAboutRoute,
             // ENDOF: Gallery
 

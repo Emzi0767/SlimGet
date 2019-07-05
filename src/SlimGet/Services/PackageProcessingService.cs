@@ -191,14 +191,14 @@ namespace SlimGet.Services
                 await database.PackageAuthors.AddAsync(new PackageAuthor
                 {
                     PackageId = pkginfo.Id,
-                    Name = author
+                    Name = author.Trim()
                 }, cancellationToken).ConfigureAwait(false);
 
             foreach (var tag in packageInfo.Tags)
                 await database.PackageTags.AddAsync(new PackageTag
                 {
                     PackageId = pkginfo.Id,
-                    Tag = tag
+                    Tag = tag.Trim()
                 }, cancellationToken).ConfigureAwait(false);
 
             pkgv = new PackageVersion

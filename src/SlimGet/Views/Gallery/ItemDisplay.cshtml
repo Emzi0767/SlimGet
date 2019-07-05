@@ -1,0 +1,69 @@
+@*
+    This file is a part of SlimGet project.
+
+    Copyright 2019 Emzi0767
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*@
+
+@model GalleryPackageListItemModel
+<div class="package-listing">
+    <div class="package-icon">
+        @if (!string.IsNullOrWhiteSpace(this.Model.IconUrl))
+        {
+            <img src="@this.Model.IconUrl" class="package-icon-image" alt="@this.Model.Id" />
+        }
+        else
+        {
+            <div class="package-icon-image"><i class="fas fa-file-image"></i></div>
+        }
+    </div>@*
+    *@<div class="package-data">
+        <div class="package-tagline">
+            <div class="package-id"><a asp-route="@Routing.GalleryPackageRouteName" asp-route-id="@this.Model.Id" asp-route-version="@this.Model.LatestVersion.ToNormalizedString()">@this.Model.Id</a></div>
+            @if (this.Model.Authors?.Any() == true)
+            {
+                <div class="package-authors">
+                    by:
+                    @foreach (var author in this.Model.Authors)
+                    {
+                        <span class="package-author">@author</span>
+                    }
+                </div>
+            }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(this.Model.Title))
+        {
+            <div class="package-title">@this.Model.Title</div>
+        }
+        <div class="package-basics">
+            <div class="package-download-count"><i class="fas fa-download"></i> @this.Model.DownloadCount.ToString("#,##0") download@(this.Model.DownloadCount != 1 ? "s" : "")</div>
+            <div class="package-latest-version"><i class="far fa-flag"></i> Latest version: @this.Model.LatestVersion.ToNormalizedString()</div>
+            @*<div class="package-publish-timestamp"><i class="far fa-calendar"></i> Published at: @this.Model.PublishedAt.ToString("yyyy-MM-dd HH:mm zzz")</div>*@
+            <div class="package-lastupdate-timestamp"><i class="far fa-calendar"></i> Last updated at: @this.Model.LastUpdatedAt.ToString("yyyy-MM-dd HH:mm zzz")</div>
+        </div>
+        @if (this.Model.Tags?.Any() == true)
+        {
+            <div class="package-tags">
+                <i class="fas fa-tags"></i>
+                @foreach (var tag in this.Model.Tags)
+                {
+                    <span class="package-author"><a asp-route="@Routing.GallerySearchRouteName" asp-route-q="@tag">@tag</a></span>
+                }
+            </div>
+        }
+        <div class="package-description">
+            @(this.Model.Description != null && this.Model.Description.Length > 256 ? $"{this.Model.Description.Substring(0, 256)}..." : this.Model.Description)
+        </div>
+    </div>
+</div>

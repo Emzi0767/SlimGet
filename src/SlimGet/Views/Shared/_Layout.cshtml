@@ -24,6 +24,7 @@
     <title>@ViewData["Title"]</title>
 
     <environment include="Development">
+        <link rel="stylesheet" href="~/css/font-awesome.css" />
         <link rel="stylesheet" href="~/css/slimget.css" />
         @if (this.Context.Request.Query["comicsans"] == "yesplease")
         {
@@ -31,6 +32,7 @@
         }
     </environment>
     <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/font-awesome.min.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/slimget.min.css" asp-append-version="true" />
         @if (this.Context.Request.Query["comicsans"] == "yesplease")
         {
@@ -41,9 +43,9 @@
 <body>
     <div class="slimget-header" id="header">
         <div class="slimget-header-inner">
-            <a href="@Url.Action("Index", "Gallery")" class="slimget">SlimGet</a>
-            <a href="@Url.Action("Packages", "Gallery")" class="nav-link">Packages</a>
-            <a href="@Url.Action("About", "Gallery")" class="nav-link">About</a>
+            <a href="@Url.RouteUrl(Routing.GalleryIndexRouteName)" class="slimget">SlimGet</a>
+            <a href="@Url.RouteUrl(Routing.GalleryListRouteName)" class="nav-link">Packages</a>
+            <a href="@Url.RouteUrl(Routing.GalleryAboutRouteName)" class="nav-link">About</a>
         </div>
     </div>
 

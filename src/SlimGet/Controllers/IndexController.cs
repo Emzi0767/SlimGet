@@ -44,7 +44,7 @@ namespace SlimGet.Controllers
             var registrationsBase = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.Plain }).ToUri(), "RegistrationsBase", "", "3.0.0-beta", "3.0.0-rc");
             var registrationsBaseGz = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.GZip }).ToUri(), "RegistrationsBase", "3.4.0");
             var registrationsBaseSemVer2 = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.SemVer2 }).ToUri(), "RegistrationsBase", "3.6.0");
-            var packageDetailsUriTemplate = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.GalleryPackageVersionRouteName, this.HttpContext, new { id = "{id}", version = "{version}" }).Replace("%7B", "{").Replace("%7D", "}").ToUri(), "PackageDetailsUriTemplate", "5.1.0");
+            var packageDetailsUriTemplate = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.GalleryPackageRouteName, this.HttpContext, new { id = "{id}", version = "{version}" }).Replace("%7B", "{").Replace("%7D", "}").ToUri(), "PackageDetailsUriTemplate", "5.1.0");
             var packageBaseAddress = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.DownloadPackageRouteName, this.HttpContext).ToUri(), "PackageBaseAddress", "3.0.0");
 
             var resources = packagePublish
