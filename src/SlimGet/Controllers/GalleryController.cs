@@ -214,8 +214,8 @@ namespace SlimGet.Controllers
                     Id = dbdep.Id,
                     MinVersion = dbdep.MinVersion != null ? NuGetVersion.Parse(dbdep.MinVersion) : null,
                     MaxVersion = dbdep.MaxVersion != null ? NuGetVersion.Parse(dbdep.MaxVersion) : null,
-                    MinInclusive = dbdep.IsMinVersionInclusive.HasValue && dbdep.IsMinVersionInclusive.HasValue,
-                    MaxInclusive = dbdep.IsMaxVersionInclusive.HasValue && dbdep.IsMaxVersionInclusive.HasValue
+                    MinInclusive = dbdep.IsMinVersionInclusive.HasValue && dbdep.IsMinVersionInclusive.Value,
+                    MaxInclusive = dbdep.IsMaxVersionInclusive.HasValue && dbdep.IsMaxVersionInclusive.Value
                 };
         }
     }
