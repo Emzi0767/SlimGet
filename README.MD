@@ -42,7 +42,7 @@ easy to set up.
    username in step 2, make sure to replace the owner name (`slimget`, the one in quotes) with the username you chose.
 4. Connect to the newly-created database: `\c slimget`. If you changed the database name in step 3, replace `slimget`
    accordingly.
-5. Create the pg_trgm extenion: `create extension pg_trgm`.
+5. Create the pg_trgm extension: `create extension pg_trgm`.
 6. Disconnect: `\q`.
 
 At this point, you should switch to the editor with your SlimGet configuration, and edit the values in
