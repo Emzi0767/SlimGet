@@ -153,27 +153,27 @@ is provided, allowing you to easily set up and deploy a SlimGet server. The imag
 requires that you bind mount a directory for the packages, as well as the config file, and point the file via
 SLIMGET_CONFIGURATION_FILE environment variable.
 
-For example, to run SlimGet as a regular container, using `/mnt/slimget/feed` as the package storage location, and
-`/home/slimget/slimget.json` mounted from `/mnt/slimget` as the config location, and certificate located in
-`/home/slimget/certificates` mounted from `/mnt/slimget/certificates`:
+For example, to run SlimGet as a regular container, using `/app/feed` as the package storage location, and
+`/app/slimget.json` mounted from `/mnt/slimget` as the config location, and certificate located in
+`/app/certificates` mounted from `/mnt/slimget/certificates`:
 
 ```bash
 docker run \
     --detach \
     --name slimget \
     --hostname slimget \
-    --mount type=bind,src=/mnt/slimget/feed,dst=/home/slimget/feed \
-    --mount type=bind,src=/mnt/slimget/certificates,dst=/home/slimget/certificates,readonly \
-    --mount type=bind,src=/mnt/slimget/slimget.json,dst=/home/slimget/slimget.json,readonly \
-    --env SLIMGET_CONFIGURATION_FILE=/home/slimget/slimget.json \
+    --mount type=bind,src=/mnt/slimget/feed,dst=/app/feed \
+    --mount type=bind,src=/mnt/slimget/certificates,dst=/app/certificates,readonly \
+    --mount type=bind,src=/mnt/slimget/slimget.json,dst=/app/slimget.json,readonly \
+    --env SLIMGET_CONFIGURATION_FILE=/app/slimget.json \
     --expose 443:5000 \
     --restart=always \
     emzi0767/slimget:latest
 ```
 
-Above requires `Server.SslCertificate.Location` set to `"/home/slimget/certificates/certificate.pfx"` and
-`Server.SslCertificate.PasswordFile` set to `"/home/slimget/certificates/certificate.pfx.pwd"` (assuming the
-corresponding files are named like that), as well as `Storage.FileSystem.StoragePath` set to `"/home/slimget/feed"`.
+Above requires `Server.SslCertificate.Location` set to `"/app/certificates/certificate.pfx"` and
+`Server.SslCertificate.PasswordFile` set to `"/app/certificates/certificate.pfx.pwd"` (assuming the corresponding files
+are named like that), as well as `Storage.FileSystem.StoragePath` set to `"/app/feed"`.
 
 You can also run SlimGet as a docker service, for example, using similar settings as above, except we use a docker
 secret called `slimget-config` to host configuration, `slimget-certificate` to host the certificate, and
@@ -184,7 +184,7 @@ secret called `slimget-config` to host configuration, `slimget-certificate` to h
 docker service create \
     --replicas 1 \
     --name slimget \
-    --mount type=bind,src=/mnt/slimget/feed,dst=/home/slimget/feed \
+    --mount type=bind,src=/mnt/slimget/feed,dst=/app/feed \
     --secret slimget-certificate \
     --secret slimget-certificate-password \
     --secret slimget-config \
@@ -196,11 +196,11 @@ docker service create \
 
 In this case, `Server.SslCertificate.Location` must be set to `"/run/secrets/slimget-certificate"`,
 `Server.SslCertificate.PasswordFile` must be set to `"/run/secrets/slimget-certificate-password"`, and
-`Storage.FileSystem.StoragePath` must be set to `"/home/slimget/feed"`.
+`Storage.FileSystem.StoragePath` must be set to `"/app/feed"`.
 
 It is possible to use Docker volumes instead of bind mounts for the feed storage. To use a volume called slimget-feed, 
-simply replace `--mount type=bind,src=/mnt/slimget/feed,dst=/home/slimget/feed` with
-`--mount type=volume,src=slimget-feed,dst=/home/slimget/feed`.
+simply replace `--mount type=bind,src=/mnt/slimget/feed,dst=/app/feed` with
+`--mount type=volume,src=slimget-feed,dst=/app/feed`.
 
 For more information about these subjects, refer to Docker documentation:
 
