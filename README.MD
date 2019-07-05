@@ -216,7 +216,7 @@ For more information about these subjects, refer to Docker documentation:
 
 ### Building Docker image
 If you wish to build a SlimGet Docker image yourself, you can do so by doing `docker build .
---tag=emzi0767/slimget:latest`.
+--tag=emzi0767/slimget:latest` from the repository's root.
 
 ## Building
 TODO
