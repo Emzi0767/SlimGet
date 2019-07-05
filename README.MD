@@ -214,6 +214,10 @@ For more information about these subjects, refer to Docker documentation:
 - [Use overlay networks](https://docs.docker.com/network/overlay/) - specifically the [Create overlay network](https://docs.docker.com/network/overlay/#create-an-overlay-network) 
   section, for communicating between services in a Docker swarm.
 
+### Building Docker image
+If you wish to build a SlimGet Docker image yourself, you can do so by doing `docker build .
+--tag=emzi0767/slimget:latest`.
+
 ## Building
 TODO
 
