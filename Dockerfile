@@ -22,7 +22,9 @@ WORKDIR /app
 COPY . ./
 
 # Build the application
-RUN dotnet publish -c Release -f netcoreapp2.2 -o slimget-publish
+RUN dotnet build -c Release -f netcoreapp2.2 src/SlimGet/SlimGet.csproj && \
+    dotnet build -c Release -f netcoreapp2.2 src/SlimGet.TokenManager/SlimGet.TokenManager.csproj && \
+    dotnet publish -c Release -f netcoreapp2.2 -o /app/slimget-publish
 
 # Set up runtime environment
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine3.9
@@ -35,4 +37,4 @@ VOLUME [ "/app/feed" ]
 
 # Run the application
 ENTRYPOINT [ "dotnet" ]
-RUN [ "SlimGet.dll" ]
+CMD [ "SlimGet.dll" ]
