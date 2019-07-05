@@ -39,9 +39,12 @@ namespace SlimGet
 
         public Startup(IConfiguration configuration)
         {
+            var envConfigLocation = Environment.GetEnvironmentVariable("SLIMGET_CONFIGURATION_FILE");
+            var configLocation = envConfigLocation ?? "slimget.json";
+
             var cfg = new ConfigurationBuilder()
                 .AddConfiguration(configuration)
-                .AddJsonFile("slimget.json", false)
+                .AddJsonFile(configLocation, false)
                 .Build();
 
             this.Configuration = cfg;

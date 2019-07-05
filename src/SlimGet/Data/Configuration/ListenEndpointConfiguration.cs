@@ -16,11 +16,12 @@
 
 namespace SlimGet.Data.Configuration
 {
-    public class ServerConfiguration : ITokenConfiguration
+    public class ListenEndpointConfiguration
     {
-        public CertificateConfiguration SslCertificate { get; set; }
-        public ListenEndpointConfiguration[] Listen { get; set; }
-        public long MaxRequestSizeBytes { get; set; }
-        public string TokenHmacKey { get; set; }
+        public string IpAddress { get; set; }
+
+        public int Port { get; set; }
+
+        public bool UseSsl { get; set; }
     }
 }

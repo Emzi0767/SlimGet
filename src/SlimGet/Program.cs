@@ -41,30 +41,42 @@ namespace SlimGet
                 .UseKestrel(kopts =>
                 {
                     var kcfg = kopts.ApplicationServices.GetService<IOptions<ServerConfiguration>>().Value;
-                    kopts.Limits.MaxRequestBodySize = kcfg.MaxRequestSizeBytes;
-
                     kopts.AddServerHeader = false;
-                    kopts.Listen(new IPEndPoint(IPAddress.Any, 5000), lopts =>
+
+                    if (kcfg != null && kcfg.Listen != null && kcfg.Listen.Length > 0)
                     {
                         var scfg = kcfg.SslCertificate;
+                        var lcfg = kcfg.Listen;
 
-                        if (kcfg == null || string.IsNullOrWhiteSpace(scfg.Location) || string.IsNullOrWhiteSpace(scfg.PasswordFile))
+                        var cpwd = "";
+                        using (var fs = File.OpenRead(scfg.PasswordFile))
+                        using (var sr = new StreamReader(fs, Utilities.UTF8))
+                            cpwd = sr.ReadToEnd();
+
+                        var cert = new X509Certificate2(scfg.Location, cpwd);
+                        foreach (var endpoint in lcfg)
                         {
-                            lopts.Protocols = HttpProtocols.Http1;
-                        }
-                        else
-                        {
-                            var cpwd = "";
-                            using (var fs = File.OpenRead(scfg.PasswordFile))
-                            using (var sr = new StreamReader(fs, Utilities.UTF8))
-                                cpwd = sr.ReadToEnd();
+                            if (endpoint.UseSsl && (kcfg == null || scfg == null || string.IsNullOrWhiteSpace(scfg.Location) || string.IsNullOrWhiteSpace(scfg.PasswordFile)))
+                                continue;
 
-                            var cert = new X509Certificate2(scfg.Location, cpwd);
-
-                            lopts.Protocols = HttpProtocols.Http1AndHttp2;
-                            lopts.UseHttps(cert, sopts => sopts.SslProtocols = SslProtocols.Tls12);
+                            kopts.Listen(new IPEndPoint(IPAddress.Parse(endpoint.IpAddress), endpoint.Port), lopts =>
+                            {
+                                if (endpoint.UseSsl)
+                                {
+                                    lopts.Protocols = HttpProtocols.Http1AndHttp2;
+                                    lopts.UseHttps(cert, sopts => sopts.SslProtocols = SslProtocols.Tls12);
+                                }
+                                else
+                                {
+                                    lopts.Protocols = HttpProtocols.Http1;
+                                }
+                            });
                         }
-                    });
+                    }
+                    else
+                    {
+                        kopts.Listen(new IPEndPoint(IPAddress.Any, 5000), lopts => lopts.Protocols = HttpProtocols.Http1);
+                    }
                 });
     }
 }

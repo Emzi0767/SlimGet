@@ -89,9 +89,12 @@ namespace SlimGet.Controllers
                     using (var specfs = this.FileSystem.OpenManifestWrite(pkgparse.Info))
                         await spectmp.CopyToAsync(specfs).ConfigureAwait(false);
 
-                    var pruned = await this.Packages.PrunePackageAsync(pkgparse.Id, this.PackageStorageConfiguration.LatestVersionRetainCount, this.Database, cancellationToken).ConfigureAwait(false);
-                    foreach (var pp in pruned)
-                        this.FileSystem.DeleteWholePackage(pp);
+                    if (this.PackageStorageConfiguration.EnablePruning)
+                    {
+                        var pruned = await this.Packages.PrunePackageAsync(pkgparse.Id, this.PackageStorageConfiguration.LatestVersionRetainCount, this.Database, cancellationToken).ConfigureAwait(false);
+                        foreach (var pp in pruned)
+                            this.FileSystem.DeleteWholePackage(pp);
+                    }
 
                     var (id, version) = (pkgparse.Id.ToLowerInvariant(), pkgparse.Version.ToNormalizedString().ToLowerInvariant());
                     return this.CreatedAtAction("Contents", "Packagebase", new { id, version, filename = $"{id}.{version}" }, new { message = "Uploaded successfully." });
@@ -150,7 +153,7 @@ namespace SlimGet.Controllers
 
             pkgvdb.IsListed = true;
             this.Database.PackageVersions.Update(pkgvdb);
-            await this.Database.SaveChangesAsync().ConfigureAwait(false);
+            await this.Database.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return this.Ok();
         }
