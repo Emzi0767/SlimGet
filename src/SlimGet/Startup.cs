@@ -76,7 +76,8 @@ namespace SlimGet
                 .AddSingleton<PackageProcessingService>()
                 .AddSingleton<RequireDevelopmentEnvironment>()
                 .AddSingleton<RequireWritableFeed>()
-                .AddSingleton<RequireSymbolsEnabled>();
+                .AddSingleton<RequireSymbolsEnabled>()
+                .AddSingleton<DownloadCountTransferService>();
 
             services.AddAuthentication(AuthenticationSchemeSelector.AuthenticationSchemeName)
                 .AddPolicyScheme(AuthenticationSchemeSelector.AuthenticationSchemeName, AuthenticationSchemeSelector.AuthenticationSchemeName, AuthenticationSchemeSelector.ConfigureSelector)
@@ -96,6 +97,8 @@ namespace SlimGet
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            _ = app.ApplicationServices.GetRequiredService<DownloadCountTransferService>();
+
             app.UseExceptionHandler($"{Routing.MiscApiRoute}/{Routing.MiscErrorRoute}")
                 .UseStatusCodePages(this.RenderStatusCodeAsync)
                 .UseStaticFiles()
