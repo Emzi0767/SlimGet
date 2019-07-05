@@ -276,6 +276,15 @@ tokens. The CLI needs to be invoked via `docker exec`, command, like so:
   docker exec -it slimget SlimGet.TokenManager.dll token issue slimget-user
   ```
 
+If your container is not named `slimget`, or is running as a Docker swarm service, you can use the following command
+to find your container ID and name:
+
+```bash
+docker ps --filter "ancestor=emzi0767/slimget:latest" --format '{{.ID}} | {{.Names}}'
+```
+
+Then substitute `slimget` for the name you got as the output from above command.
+
 ### Pushing packages and symbols
 You should be ready to push packages to your feed now. The complete instructions on doing so are provided by SlimGet
 itself. To view them, simply navigate to `https://nuget.example.com/gallery/about` (substituting
