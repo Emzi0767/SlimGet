@@ -1,0 +1,79 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-slimget",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SlimGet/SlimGet.csproj"
+            ],
+            "problemMatcher": "$tsc",
+            "group": "build"
+        },
+        {
+            "label": "publish-slimget",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "-c",
+                "Release",
+                "-o",
+                "${workspaceFolter}/slimget-publish",
+                "${workspaceFolder}/src/SlimGet/SlimGet.csproj"
+            ],
+            "problemMatcher": "$tsc",
+            "group": "build"
+        },
+        {
+            "label": "watch-slimget",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/src/SlimGet/SlimGet.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "build-tokenmanager",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SlimGet.TokenManager/SlimGet.TokenManager.csproj"
+            ],
+            "problemMatcher": "$tsc",
+            "group": "build"
+        },
+        {
+            "label": "publish-tokenmanager",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "-c",
+                "Release",
+                "-o",
+                "${workspaceFolter}/slimget-publish",
+                "${workspaceFolder}/src/SlimGet.TokenManager/SlimGet.TokenManager.csproj"
+            ],
+            "problemMatcher": "$tsc",
+            "group": "build"
+        },
+        {
+            "label": "watch-tokenmanager",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/src/SlimGet.TokenManager/SlimGet.TokenManager.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        }
+    ]
+}

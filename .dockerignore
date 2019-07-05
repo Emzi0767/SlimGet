@@ -15,5 +15,6 @@
 # limitations under the License.
 
 # .NET build artifacts
-bin\
-obj\
+bin/
+obj/
+slimget-publish/

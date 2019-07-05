@@ -300,7 +300,74 @@ If you enabled debug symbol server, you can consume uploaded debug symbols as we
 debug symbol sources, and enable it.
 
 ## Building
-TODO
+Building SlimGet is a very straightforward process. There's a single dependency for building, the .NET Core SDK,
+available from the following links:
+
+- [Windows 64-bit](https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.2.300-windows-x64-installer)
+- [Linux](https://dotnet.microsoft.com/download/linux-package-manager/debian9/sdk-current) - you will need to choose
+  your distribution from the Linux Distribution dropdown on the page
+- [OS X](https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.2.300-macos-x64-installer)
+
+Beyond that, it is advisable to have a good IDE or text editor available. For Windows, I recommend
+[Visual Studio 2019](https://visualstudio.microsoft.com/vs/) or newer. The Community edition is free to download and
+use. On other platforms, I recommend [Visual Studio Code](https://code.visualstudio.com/Download).
+
+To start, you should clone this repository to your machine.
+
+### Building from CLI
+Building from the CLI is a very straightforward procedure. Simply navigate to the directory you cloned SlimGet source
+to, and execute this command:
+
+```bash
+dotnet publish -c Release -f netcoreapp2.2 -o slimget-publish
+```
+
+After the project is done building, your SlimGet build will be available in `slimget-publish` directory, in the
+directory you cloned SlimGet source code to.
+
+If you want to build for a specific platform (e.g. Linux, Windows), you can specify a runtime identifier during build.
+Some of the most common platform examples are:
+
+- Linux x64 (Glibc-based; most Linux distributions)
+  ```bash
+  dotnet publish -c Release -f netcoreapp2.2 -r linux-x64 -o slimget-publish
+  ```
+- Linux x64 (musl-based; Alpine Linux, etc.)
+  ```bash
+  dotnet publish -c Release -f netcoreapp2.2 -r linux-musl-x64 -o slimget-publish
+  ```
+- Windows x64
+  ```bash
+  dotnet publish -c Release -f netcoreapp2.2 -r win-x64 -o slimget-publish
+  ```
+
+This will create a standalone build, which does not require ASP.NET Core runtime to be available on the target system.
+Such a build will be runnable using `SlimGet.exe` (and `SlimGet.TokenManager.exe`) on Windows, `./SlimGet` (and
+`./SlimGet.TokenManager`) on Linux, etc.
+
+To read more about available Runtime Identifiers for .NET Core, refer to [Microsoft's documentation on the subject](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).
+
+### Building in Visual Studio on Windows
+Building in Visual Studio is also possible, with a couple of clicks. Simply open `SlimGet.sln` in Visual Studio. from
+the menu bar on top, select Build -> Rebuild Solution.
+
+But this is not a full build yet. In order to get a working application, you must publish the artifacts. In the
+Solution Explorer pane, find the `SlimGet` project (not solution), right-click it, and select Publish from the menu.
+
+This will open a Publish tab, titled SlimGet. There's a dropdown menu on it, and next to it is a Publish button. Select
+Publish-Portable profile from the menu, then click Publish button.
+
+Next, you need to repeat the procedure for the `SlimGet.TokenManager` project. Once you're done, your artifacts will be
+available in the `slimget-publish` directory, in the directory you cloned SlimGet source code to.
+
+### Building in Visual Studio Code
+SlimGet provides build and launch configurations for Visual Studio Code. In order to build using VSCode, open the
+directory you cloned SlimGet source code to, then hit Ctrl+Shift+B (or your configured build keyboard shortcut), and
+select `publish-slimget` from the command palette. Then hit Ctrl+Shift+B (or proper shortcut) again, and select
+`publish-tokenmanager`.
+
+After both builds complete, your artifacts will be available in the `slimget-publish` directory, in the directory you
+cloned SlimGet source code to.
 
 ## Support me
 Lots of effort went into making this, and sometimes even related software.

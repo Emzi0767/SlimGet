@@ -22,7 +22,7 @@ WORKDIR /app
 COPY . ./
 
 # Build the application
-RUN dotnet publish -c Release -f netcoreapp2.2 -r linux-musl-x64 -o slimget-publish
+RUN dotnet publish -c Release -f netcoreapp2.2 -o slimget-publish
 
 # Set up runtime environment
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine3.9
