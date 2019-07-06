@@ -43,16 +43,23 @@ namespace SlimGet.Controllers
             var semver2 = search.SemVerLevel == "2.0.0";
             var prerelease = search.Prerelease;
             var query = search.Query;
-            var dbpackages = this.Database.Packages
-                .Include(x => x.Versions)
-                .Include(x => x.Tags)
-                .Include(x => x.Authors)
-                .Where(x => (EF.Functions.Similarity(x.Id, query) >= 0.35 ||
+
+            IQueryable<Package> dbpackages = this.Database.Packages
+                    .Include(x => x.Versions)
+                    .Include(x => x.Tags)
+                    .Include(x => x.Authors);
+
+            if (!string.IsNullOrWhiteSpace(search.Query))
+                dbpackages = dbpackages.Where(x => (EF.Functions.Similarity(x.Id, query) >= 0.35 ||
                         EF.Functions.Similarity(x.Description, query) >= 0.2 ||
                         EF.Functions.Similarity(x.Title, query) >= 0.2 ||
                         x.Tags.Any(y => EF.Functions.Similarity(y.Tag, query) >= 0.35)) &&
                     (x.SemVerLevel == SemVerLevel.Unknown || semver2) &&
-                    x.Versions.Any(y => !y.IsPrerelase || prerelease));
+                    x.Versions.Any(y => (!y.IsPrerelase || prerelease) && y.IsListed));
+
+            else
+                dbpackages = dbpackages.Where(x => (x.SemVerLevel == SemVerLevel.Unknown || semver2) &&
+                    x.Versions.Any(y => (!y.IsPrerelase || prerelease) && y.IsListed));
 
             var count = await dbpackages.CountAsync(cancellationToken).ConfigureAwait(false);
 
@@ -64,7 +71,7 @@ namespace SlimGet.Controllers
         {
             var semver2 = search.SemVerLevel == "2.0.0";
             var prerelease = search.Prerelease;
-            if (search.Id == null)
+            if (string.IsNullOrWhiteSpace(search.Id))
             {
                 var query = search.Query;
                 var dbids = this.Database.Packages
@@ -76,7 +83,7 @@ namespace SlimGet.Controllers
                             EF.Functions.Similarity(x.Title, query) >= 0.2 ||
                             x.Tags.Any(y => EF.Functions.Similarity(y.Tag, query) >= 0.35)) &&
                         (x.SemVerLevel == SemVerLevel.Unknown || semver2) &&
-                        x.Versions.Any(y => !y.IsPrerelase || prerelease))
+                        x.Versions.Any(y => (!y.IsPrerelase || prerelease) && y.IsListed))
                     .Select(x => x.Id);
 
                 var count = await dbids.CountAsync(cancellationToken).ConfigureAwait(false);

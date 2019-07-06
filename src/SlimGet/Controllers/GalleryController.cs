@@ -69,7 +69,7 @@ namespace SlimGet.Controllers
             var count = await dbpackages.CountAsync(cancellationToken);
             var next = skip + 20 <= count ? skip + 20 : -1;
 
-            return this.View(new GalleryPackageListModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20)), next, skip - 20));
+            return this.View("Packages", new GallerySearchListingModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20)), next, skip - 20, null));
         }
 
         [HttpGet, SlimGetRoute(Routing.GalleryPackageRouteName)]
@@ -104,22 +104,30 @@ namespace SlimGet.Controllers
             var query = search.Query;
             var prerelease = search.Prerelease;
             var skip = search.Skip;
-            var dbpackages = this.Database.Packages
-                .Include(x => x.Versions)
-                .Include(x => x.Tags)
-                .Include(x => x.Authors)
-                .Where(x => (EF.Functions.Similarity(x.Id, query) >= 0.35 ||
+
+            IQueryable<Package> dbpackages = this.Database.Packages
+                    .Include(x => x.Versions)
+                    .Include(x => x.Tags)
+                    .Include(x => x.Authors);
+
+            if (!string.IsNullOrWhiteSpace(search.Query))
+                dbpackages = dbpackages.Where(x => (EF.Functions.Similarity(x.Id, query) >= 0.35 ||
                         EF.Functions.Similarity(x.Description, query) >= 0.2 ||
                         EF.Functions.Similarity(x.Title, query) >= 0.2 ||
                         x.Tags.Any(y => EF.Functions.Similarity(y.Tag, query) >= 0.35)) &&
-                    x.Versions.Any(y => !y.IsPrerelase || prerelease))
+                    x.Versions.Any(y => (!y.IsPrerelase || prerelease) && y.IsListed));
+
+            else
+                dbpackages = dbpackages.Where(x => x.Versions.Any(y => (!y.IsPrerelase || prerelease) && y.IsListed));
+
+            dbpackages = dbpackages
                 .OrderByDescending(x => x.DownloadCount)
                 .ThenBy(x => x.Id);
 
             var count = await dbpackages.CountAsync(cancellationToken);
             var next = skip + 20 <= count ? skip + 20 : -1;
 
-            return this.View(new GallerySearchResultModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20), prerelease), next, skip - 20, query, prerelease));
+            return this.View("Packages", new GallerySearchListingModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20), prerelease), next, skip - 20, search));
         }
 
         [HttpGet, SlimGetRoute(Routing.GalleryAboutRouteName)]

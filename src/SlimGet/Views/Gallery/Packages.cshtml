@@ -16,14 +16,22 @@
     limitations under the License.
 *@
 
-@model GalleryPackageListModel
+@model GallerySearchListingModel
 @{
-    ViewData["Title"] = "Packages hosted in this feed";
+    ViewData["Title"] = string.IsNullOrWhiteSpace(this.Model.Query) ? "Packages hosted in this feed" : "Package search results";
 }
 
-<h1 class="page-header">Packages hosted in this feed</h1>
+@if (string.IsNullOrWhiteSpace(this.Model.Query))
+{
+    <h1 class="page-header">Packages hosted in this feed</h1>
+}
+else
+{
+    <h1 class="page-header">Package search results for "@this.Model.Query"</h1>
+    <h3 class="page-subheader">Total results: @this.Model.TotalCount.ToString("#,##0")</h3>
+}
 
-<partial name="SearchForm" optional="false" model="null" />
+<partial name="SearchForm" optional="false" model="this.Model.SearchQuery" />
 
 @foreach (var pkg in this.Model.Items)
 {
@@ -33,7 +41,14 @@
 <p class="navigation">
     @if (this.Model.PreviousPage >= 0)
     {
-        <a asp-route="@Routing.GalleryListRouteName" asp-route-skip="@this.Model.PreviousPage"><i class="far fa-chevron-left"></i> Previous page</a>
+        if (this.Model.SearchQuery == null)
+        {
+            <a asp-route="@Routing.GalleryListRouteName" asp-route-skip="@this.Model.PreviousPage"><i class="far fa-chevron-left"></i> Previous page</a>
+        }
+        else
+        {
+            <a asp-route="@Routing.GallerySearchRouteName" asp-route-q="@this.Model.Query" asp-route-pre="@this.Model.IncludePrerelease" asp-route-skip="@this.Model.PreviousPage"><i class="far fa-chevron-left"></i> Previous page</a>
+        }
     }
     @if (this.Model.PreviousPage >= 0 && this.Model.NextPage >= 0)
     {
@@ -41,6 +56,13 @@
     }
     @if (this.Model.NextPage >= 0)
     {
-        <a asp-route="@Routing.GalleryListRouteName" asp-route-skip="@this.Model.NextPage">Next page <i class="far fa-chevron-right"></i></a>
+        if (this.Model.SearchQuery == null)
+        {
+            <a asp-route="@Routing.GalleryListRouteName" asp-route-skip="@this.Model.NextPage">Next page <i class="far fa-chevron-right"></i></a>
+        }
+        else
+        {
+            <a asp-route="@Routing.GalleryListRouteName" asp-route-q="@this.Model.Query" asp-route-pre="@this.Model.IncludePrerelease" asp-route-skip="@this.Model.NextPage">Next page <i class="far fa-chevron-right"></i></a>
+        }
     }
 </p>

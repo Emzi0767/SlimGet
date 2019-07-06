@@ -65,22 +65,6 @@ namespace SlimGet.Models
         public bool Prerelease { get; set; } = false;
     }
 
-    public sealed class GalleryPackageListModel
-    {
-        public int TotalCount { get; }
-        public IEnumerable<GalleryPackageListItemModel> Items { get; }
-        public int NextPage { get; }
-        public int PreviousPage { get; }
-
-        public GalleryPackageListModel(int total, IEnumerable<GalleryPackageListItemModel> items, int next, int prev)
-        {
-            this.TotalCount = total;
-            this.Items = items;
-            this.NextPage = next;
-            this.PreviousPage = prev;
-        }
-    }
-
     public sealed class GalleryPackageListItemModel
     {
         public string Id { get; set; }
@@ -95,23 +79,23 @@ namespace SlimGet.Models
         public string Description { get; set; }
     }
 
-    public sealed class GallerySearchResultModel
+    public sealed class GallerySearchListingModel
     {
         public int TotalCount { get; }
         public IEnumerable<GalleryPackageListItemModel> Items { get; }
         public int NextPage { get; }
         public int PreviousPage { get; }
-        public string Query { get; }
-        public bool IncludePrerelease { get; }
+        public string Query => this.SearchQuery?.Query;
+        public bool IncludePrerelease => this.SearchQuery.Prerelease;
+        public GallerySearchModel SearchQuery { get; }
 
-        public GallerySearchResultModel(int total, IEnumerable<GalleryPackageListItemModel> items, int next, int prev, string query, bool prerelease)
+        public GallerySearchListingModel(int total, IEnumerable<GalleryPackageListItemModel> items, int next, int prev, GallerySearchModel searchQuery)
         {
             this.TotalCount = total;
             this.Items = items;
             this.NextPage = next;
             this.PreviousPage = prev;
-            this.Query = query;
-            this.IncludePrerelease = prerelease;
+            this.SearchQuery = searchQuery;
         }
     }
 

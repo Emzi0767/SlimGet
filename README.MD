@@ -265,15 +265,15 @@ tokens. The CLI needs to be invoked via `docker exec`, command, like so:
 
 - View CLI usage instructions:
   ```bash
-  docker exec -it slimget SlimGet.TokenManager.dll
+  docker exec -it slimget dotnet SlimGet.TokenManager.dll
   ```
 - Create a new user
   ```bash
-  docker exec -it slimget SlimGet.TokenManager.dll user create slimget-user slimget-user@example.com
+  docker exec -it slimget dotnet SlimGet.TokenManager.dll user create slimget-user slimget-user@example.com
   ```
 - Issue a new token
   ```bash
-  docker exec -it slimget SlimGet.TokenManager.dll token issue slimget-user
+  docker exec -it slimget dotnet SlimGet.TokenManager.dll token issue slimget-user
   ```
 
 If your container is not named `slimget`, or is running as a Docker swarm service, you can use the following command
