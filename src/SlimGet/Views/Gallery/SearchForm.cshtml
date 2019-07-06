@@ -22,12 +22,12 @@
 <div class="search-form">
     <form method="get" asp-route="@Routing.GallerySearchRouteName">
         <div class="search-group search-query-group">
-            <input type="text" name="q" placeholder="Search packages" />
+            <input type="text" name="q" placeholder="Search packages" value="@this.Model?.Query" />
             <button type="submit"><i class="fas fa-search"></i></button>
         </div>
 
         <div class="search-group search-prerelease-group">
-            <input type="checkbox" name="pre" value="true" id="form-input-prerelease" />
+            <input type="checkbox" name="pre" value="true" id="form-input-prerelease" @if (this.Model?.Prerelease == true) { <text>checked="checked"</text> } />
             <label for="form-input-prerelease"><i class="fas fa-check"></i></label>
             <label for="form-input-prerelease">Include prerelease packages</label>
         </div>

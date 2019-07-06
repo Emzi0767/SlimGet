@@ -79,7 +79,7 @@ namespace SlimGet.Models
         public string Description { get; set; }
     }
 
-    public sealed class GallerySearchListingModel
+    public sealed class GallerySearchListModel
     {
         public int TotalCount { get; }
         public IEnumerable<GalleryPackageListItemModel> Items { get; }
@@ -89,7 +89,7 @@ namespace SlimGet.Models
         public bool IncludePrerelease => this.SearchQuery.Prerelease;
         public GallerySearchModel SearchQuery { get; }
 
-        public GallerySearchListingModel(int total, IEnumerable<GalleryPackageListItemModel> items, int next, int prev, GallerySearchModel searchQuery)
+        public GallerySearchListModel(int total, IEnumerable<GalleryPackageListItemModel> items, int next, int prev, GallerySearchModel searchQuery)
         {
             this.TotalCount = total;
             this.Items = items;

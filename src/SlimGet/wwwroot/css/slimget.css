@@ -441,6 +441,7 @@ p.navigation > .navigation-pipe
 {
     font-size: 14pt;
     display: flex;
+    flex-direction: row;
 }
 
 .search-form > form > .search-query-group > input,
@@ -454,7 +455,7 @@ p.navigation > .navigation-pipe
     line-height: 28pt;
 
     vertical-align: top;
-    flex-direction: row;
+    border-radius: 0;
 
     transition: all 0.2s;
 }

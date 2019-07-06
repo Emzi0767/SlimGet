@@ -69,7 +69,7 @@ namespace SlimGet.Controllers
             var count = await dbpackages.CountAsync(cancellationToken);
             var next = skip + 20 <= count ? skip + 20 : -1;
 
-            return this.View("Packages", new GallerySearchListingModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20)), next, skip - 20, null));
+            return this.View("Packages", new GallerySearchListModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20)), next, skip - 20, null));
         }
 
         [HttpGet, SlimGetRoute(Routing.GalleryPackageRouteName)]
@@ -127,7 +127,7 @@ namespace SlimGet.Controllers
             var count = await dbpackages.CountAsync(cancellationToken);
             var next = skip + 20 <= count ? skip + 20 : -1;
 
-            return this.View("Packages", new GallerySearchListingModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20), prerelease), next, skip - 20, search));
+            return this.View("Packages", new GallerySearchListModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20), prerelease), next, skip - 20, search));
         }
 
         [HttpGet, SlimGetRoute(Routing.GalleryAboutRouteName)]
