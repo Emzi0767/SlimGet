@@ -37,15 +37,82 @@ namespace SlimGet.Controllers
         [SlimGetRoute(Routing.InheritRoute), HttpGet]
         public IActionResult Index()
         {
-            var packagePublish = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.PublishPackageRouteName, this.HttpContext).ToUri(), "PackagePublish", "2.0.0");
-            var symbolPackagePublish = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.PublishSymbolsRouteName, this.HttpContext).ToUri(), "SymbolPackagePublish", "4.9.0");
-            var searchQuery = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.SearchQueryRouteName, this.HttpContext).ToUri(), "SearchQueryService", "", "3.0.0-beta", "3.0.0-rc");
-            var searchAutocomplete = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.SearchAutocompleteRouteName, this.HttpContext).ToUri(), "SearchAutocompleteService", "", "3.0.0-beta", "3.0.0-rc");
-            var registrationsBase = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.Plain }).ToUri(), "RegistrationsBase", "", "3.0.0-beta", "3.0.0-rc");
-            var registrationsBaseGz = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.GZip }).ToUri(), "RegistrationsBase", "3.4.0");
-            var registrationsBaseSemVer2 = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new { mode = RegistrationsContentMode.SemVer2 }).ToUri(), "RegistrationsBase", "3.6.0");
-            var packageDetailsUriTemplate = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.GalleryPackageRouteName, this.HttpContext, new { id = "{id}", version = "{version}" }).Replace("%7B", "{").Replace("%7D", "}").ToUri(), "PackageDetailsUriTemplate", "5.1.0");
-            var packageBaseAddress = this.CreateResourceModels(this.Url.AbsoluteUrl(Routing.DownloadPackageRouteName, this.HttpContext).ToUri(), "PackageBaseAddress", "3.0.0");
+            var packagePublish = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.PublishPackageRouteName, this.HttpContext).ToUri(),
+                "PackagePublish",
+                "2.0.0");
+
+            var symbolPackagePublish = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.PublishSymbolsRouteName, this.HttpContext).ToUri(),
+                "SymbolPackagePublish",
+                "4.9.0");
+
+            var searchQuery = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.SearchQueryRouteName, this.HttpContext).ToUri(),
+                "SearchQueryService",
+                "", "3.0.0-beta", "3.0.0-rc");
+
+            var searchAutocomplete = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.SearchAutocompleteRouteName, this.HttpContext).ToUri(),
+                "SearchAutocompleteService",
+                "", "3.0.0-beta", "3.0.0-rc");
+
+            var registrationsBase = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new
+                {
+                    mode = RegistrationsContentMode.Plain
+                }).ToUri(),
+                "RegistrationsBase",
+                "", "3.0.0-beta", "3.0.0-rc");
+
+            var registrationsBaseGz = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new
+                {
+                    mode = RegistrationsContentMode.GZip
+                }).ToUri(),
+                "RegistrationsBase",
+                "3.4.0");
+
+            var registrationsBaseSemVer2 = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.RegistrationsRouteName, this.HttpContext, new
+                {
+                    mode = RegistrationsContentMode.SemVer2
+                }).ToUri(),
+                "RegistrationsBase",
+                "3.6.0");
+
+            var packageDetailsUriTemplate = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.GalleryPackageRouteName, this.HttpContext, new
+                {
+                    id = "{id}",
+                    version = "{version}"
+                }).Replace("%7B", "{").Replace("%7D", "}").ToUri(),
+                "PackageDetailsUriTemplate",
+                "5.1.0");
+
+            var packageBaseAddress = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.DownloadPackageRouteName, this.HttpContext).ToUri(),
+                "PackageBaseAddress",
+                "3.0.0");
+
+            var packageMetadata = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.RegistrationsIndexRouteName, this.HttpContext, new
+                {
+                    mode = RegistrationsContentMode.Plain,
+                    id = "{id-lower}"
+                }).Replace("%7B", "{").Replace("%7D", "}").ToUri(),
+                "PackageDisplayMetadataUriTemplate",
+                "3.0.0-rc");
+
+            var packageVersionMetadata = this.CreateResourceModels(
+                this.Url.AbsoluteUrl(Routing.RegistrationsLeafRouteName, this.HttpContext, new
+                {
+                    mode = RegistrationsContentMode.Plain,
+                    id = "{id-lower}",
+                    version = "{version-lower}"
+                }).Replace("%7B", "{").Replace("%7D", "}").ToUri(),
+                "PackageVersionDisplayMetadataUriTemplate",
+                "3.0.0-rc");
 
             var resources = packagePublish
                 .Concat(symbolPackagePublish)
@@ -55,7 +122,9 @@ namespace SlimGet.Controllers
                 .Concat(registrationsBaseGz)
                 .Concat(registrationsBaseSemVer2)
                 .Concat(packageDetailsUriTemplate)
-                .Concat(packageBaseAddress);
+                .Concat(packageBaseAddress)
+                .Concat(packageMetadata)
+                .Concat(packageVersionMetadata);
 
             var index = new FeedIndexModel("3.0.0", resources);
             return this.Json(index);
