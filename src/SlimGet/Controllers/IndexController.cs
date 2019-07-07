@@ -62,7 +62,7 @@ namespace SlimGet.Controllers
                 {
                     mode = RegistrationsContentMode.Plain
                 }).ToUri(),
-                "RegistrationsBase",
+                "RegistrationsBaseUrl",
                 "", "3.0.0-beta", "3.0.0-rc");
 
             var registrationsBaseGz = this.CreateResourceModels(
@@ -70,7 +70,7 @@ namespace SlimGet.Controllers
                 {
                     mode = RegistrationsContentMode.GZip
                 }).ToUri(),
-                "RegistrationsBase",
+                "RegistrationsBaseUrl",
                 "3.4.0");
 
             var registrationsBaseSemVer2 = this.CreateResourceModels(
@@ -78,8 +78,8 @@ namespace SlimGet.Controllers
                 {
                     mode = RegistrationsContentMode.SemVer2
                 }).ToUri(),
-                "RegistrationsBase",
-                "3.6.0");
+                "RegistrationsBaseUrl",
+                "3.6.0", "Versioned");
 
             var packageDetailsUriTemplate = this.CreateResourceModels(
                 this.Url.AbsoluteUrl(Routing.GalleryPackageRouteName, this.HttpContext, new
