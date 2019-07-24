@@ -1,4 +1,6 @@
-# SlimGet
+<p align="center"><img src="logo/slimget-logo.png" width="240" height="240"></p>
+<h1 align="center">SlimGet</h1>
+
 SlimGet is a lightweight implementation of a NuGet and symbol server, powered by ASP.NET Core 2.2, designed to be ran
 in Docker. It's the software powering my NuGet feed at [nuget.emzi0767.com](https://nuget.emzi0767.com/).
 

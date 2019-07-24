@@ -28,7 +28,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{46ACF8
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.TokenManager", "src\SlimGet.TokenManager\SlimGet.TokenManager.csproj", "{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimGet.TokenManager", "src\SlimGet.TokenManager\SlimGet.TokenManager.csproj", "{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logo", "logo", "{0E5E4BCD-578F-4944-96F3-F53AD40E7D80}"
+	ProjectSection(SolutionItems) = preProject
+		logo\slimget-cube-basic.svg = logo\slimget-cube-basic.svg
+		logo\slimget-cube-blue.prod.svg = logo\slimget-cube-blue.prod.svg
+		logo\slimget-cube-blue.svg = logo\slimget-cube-blue.svg
+		logo\slimget-cube-light.prod.svg = logo\slimget-cube-light.prod.svg
+		logo\slimget-cube-light.svg = logo\slimget-cube-light.svg
+		logo\slimget-cube-outline-dark.prod.svg = logo\slimget-cube-outline-dark.prod.svg
+		logo\slimget-cube-outline-dark.svg = logo\slimget-cube-outline-dark.svg
+		logo\slimget-cube-outline-light.prod.svg = logo\slimget-cube-outline-light.prod.svg
+		logo\slimget-cube-outline-light.svg = logo\slimget-cube-outline-light.svg
+		logo\slimget-cube-outline-semidark.prod.svg = logo\slimget-cube-outline-semidark.prod.svg
+		logo\slimget-cube-outline-semidark.svg = logo\slimget-cube-outline-semidark.svg
+		logo\slimget-logo.png = logo\slimget-logo.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +82,7 @@ Global
 		{C417DFF2-B341-4ABC-B096-D066CE7DDDED} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{5C92A559-D48C-43DA-BE42-50A46A1E07DA} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A} = {A53ED2F0-B059-473B-9399-B673F37716AA}
+		{0E5E4BCD-578F-4944-96F3-F53AD40E7D80} = {D976F83A-29BC-4713-891C-97E697646464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6B73761-3D26-4D42-BB4A-B02D57B5A6AB}

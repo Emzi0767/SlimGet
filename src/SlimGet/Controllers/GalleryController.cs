@@ -50,6 +50,11 @@ namespace SlimGet.Controllers
             var pkgCount = await this.Database.Packages.CountAsync(cancellationToken).ConfigureAwait(false);
             var verCount = await this.Database.PackageVersions.CountAsync(cancellationToken).ConfigureAwait(false);
 
+            this.ViewBag.OgTitle = "SlimGet Gallery";
+            this.ViewBag.OgDescription = "SlimGet is a slim, lightweight NuGet package and debug symbol server.";
+            this.ViewBag.OgImage = this.Url.AbsoluteContentUrl("~/images/slimget-cube-light.png", this.HttpContext);
+            this.ViewBag.OgUrl = this.Url.AbsoluteUrl(Routing.GalleryIndexRouteName, this.HttpContext).ToUri();
+
             return this.View(new GalleryIndexModel(pkgCount, verCount));
         }
 
@@ -68,6 +73,11 @@ namespace SlimGet.Controllers
 
             var count = await dbpackages.CountAsync(cancellationToken);
             var next = skip + 20 <= count ? skip + 20 : -1;
+
+            this.ViewBag.OgTitle = "SlimGet Gallery Package Listing";
+            this.ViewBag.OgDescription = "SlimGet is a slim, lightweight NuGet package and debug symbol server.";
+            this.ViewBag.OgImage = this.Url.AbsoluteContentUrl("~/images/slimget-cube-light.png", this.HttpContext);
+            this.ViewBag.OgUrl = this.Url.AbsoluteUrl(Routing.GalleryListRouteName, this.HttpContext).ToUri();
 
             return this.View("Packages", new GallerySearchListModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20)), next, skip - 20, null));
         }
@@ -94,6 +104,17 @@ namespace SlimGet.Controllers
 
             if (dbversion == null)
                 return this.NotFound();
+
+            this.ViewBag.OgTitle = $"{dbpackage.Id} {dbversion.Version}";
+            this.ViewBag.OgDescription = string.IsNullOrWhiteSpace(dbpackage.Description)
+                ? (string.IsNullOrWhiteSpace(dbpackage.Summary)
+                    ? "This package has no description."
+                    : dbpackage.Summary)
+                : dbpackage.Description;
+            this.ViewBag.OgImage = string.IsNullOrWhiteSpace(dbpackage.IconUrl)
+                ? this.Url.AbsoluteContentUrl("~/images/slimget-cube-light.png", this.HttpContext)
+                : dbpackage.IconUrl.ToUri();
+            this.ViewBag.OgUrl = this.Url.AbsoluteUrl(Routing.GalleryPackageRouteName, this.HttpContext, new { id = dbpackage.Id, version = dbversion.Version }).ToUri();
 
             return this.View(this.PreparePackage(dbpackage, dbversion));
         }
@@ -127,6 +148,11 @@ namespace SlimGet.Controllers
             var count = await dbpackages.CountAsync(cancellationToken);
             var next = skip + 20 <= count ? skip + 20 : -1;
 
+            this.ViewBag.OgTitle = "SlimGet Gallery Search";
+            this.ViewBag.OgDescription = $"Search results for: {search.Query}";
+            this.ViewBag.OgImage = this.Url.AbsoluteContentUrl("~/images/slimget-cube-light.png", this.HttpContext);
+            this.ViewBag.OgUrl = this.Url.AbsoluteUrl(Routing.GallerySearchRouteName, this.HttpContext, new { q = search.Query, pre = search.Prerelease }).ToUri();
+
             return this.View("Packages", new GallerySearchListModel(count, this.PreparePackages(dbpackages.Skip(skip).Take(20), prerelease), next, skip - 20, search));
         }
 
@@ -136,6 +162,11 @@ namespace SlimGet.Controllers
             var feedUrl = this.Url.AbsoluteUrl(Routing.FeedIndexRouteName, this.HttpContext);
             var symbolUrl = this.Url.AbsoluteUrl(Routing.DownloadSymbolsRouteName, this.HttpContext);
             var symbolPushUrl = this.Url.AbsoluteUrl(Routing.PublishSymbolsRouteName, this.HttpContext);
+
+            this.ViewBag.OgTitle = "About SlimGet Gallery";
+            this.ViewBag.OgDescription = "SlimGet is a slim, lightweight NuGet package and debug symbol server.";
+            this.ViewBag.OgImage = this.Url.AbsoluteContentUrl("~/images/slimget-cube-light.png", this.HttpContext);
+            this.ViewBag.OgUrl = this.Url.AbsoluteUrl(Routing.GalleryAboutRouteName, this.HttpContext).ToUri();
 
             return this.View(new GalleryAboutModel(
                 new Uri(feedUrl),

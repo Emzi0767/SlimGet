@@ -1,0 +1,10 @@
+<svg width="640" height="640" version="1.1" viewBox="0 0 169.33 169.33" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(0 -127.67)">
+        <path d="m6.35 251.24v-77.814l78.308-39.406 78.325 39.414v77.814l-78.308 39.406z" fill="#004880"/>
+        <path d="m162.98 173.43v77.814m0 0-78.308 39.406m-0.01667-156.63 78.325 39.414m0 0-78.308 39.406m-0.01667-78.819-78.308 39.406m0 0v77.814m0 0 78.325 39.414m0 0v-77.814m-78.325-39.414 78.325 39.414" fill="#004880" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="8.4667"/>
+        <rect transform="matrix(.89291 .45023 -.89291 .45023 0 0)" x="221.41" y="126.61" width="48.618" height="48.618" fill="#fff"/>
+        <rect transform="matrix(.89291 .45023 -.89291 .45023 0 0)" x="225.97" y="131.17" width="10.635" height="10.635" fill="#004880"/>
+        <rect transform="matrix(.89291 .45023 -.89291 .45023 0 0)" x="241.16" y="146.36" width="24.309" height="24.309" fill="#004880"/>
+        <rect transform="matrix(.89291 .45023 -.89291 .45023 0 0)" x="207.73" y="112.94" width="10.635" height="10.635" fill="#fff"/>
+    </g>
+</svg>

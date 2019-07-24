@@ -48,6 +48,17 @@ namespace SlimGet
         public static string AbsoluteUrl(this IUrlHelper url, string routeName, HttpContext ctx, object @params)
             => url.RouteUrl(routeName, @params, ctx.Request.Scheme);
 
+        public static Uri AbsoluteContentUrl(this IUrlHelper url, string contentPath, HttpContext ctx)
+        {
+            var cturl = url.Content(contentPath);
+            var ub = new UriBuilder(url.AbsoluteUrl(Routing.GalleryIndexRouteName, ctx))
+            {
+                Path = cturl
+            };
+
+            return ub.Uri;
+        }
+
         public static Uri ToUri(this string s)
             => new Uri(s);
 

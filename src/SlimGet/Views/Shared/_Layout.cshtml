@@ -23,6 +23,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>@ViewData["Title"]</title>
 
+    <opengraph
+        og-title="@this.ViewBag.OgTitle"
+        og-description="@this.ViewBag.OgDescription"
+        og-site-name="SlimGet"
+        og-url="@this.ViewBag.OgUrl"
+        og-image="@this.ViewBag.OgImage"
+        og-type="website"
+        og-colour-theme="#004880" />
+
     <environment include="Development">
         <link rel="stylesheet" href="~/css/font-awesome.css" />
         <link rel="stylesheet" href="~/css/slimget.css" />
@@ -43,7 +52,7 @@
 <body>
     <div class="slimget-header" id="header">
         <div class="slimget-header-inner">
-            <a href="@Url.RouteUrl(Routing.GalleryIndexRouteName)" class="slimget">SlimGet</a>
+            <a href="@Url.RouteUrl(Routing.GalleryIndexRouteName)" class="slimget"><img src="~/images/slimget-cube-blue.png" class="slimget-logo-mini" /> SlimGet</a>
             <a href="@Url.RouteUrl(Routing.GalleryListRouteName)" class="nav-link">Packages</a>
             <a href="@Url.RouteUrl(Routing.GalleryAboutRouteName)" class="nav-link">About</a>
         </div>
