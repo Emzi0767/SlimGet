@@ -41,7 +41,7 @@
                 }
             </div>@*
             *@<div class="details-id">
-                <div class="details-id-id">@this.Model.Id</div>
+                <div class="details-id-id">@this.Html.Raw(this.Model.Id.Replace(".", ".<wbr>"))</div>
                 <div class="details-id-version">@this.Model.Version.ToNormalizedString()</div>
                 <div class="details-id-title">@this.Model.Title</div>
             </div>

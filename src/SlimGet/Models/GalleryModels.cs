@@ -119,7 +119,7 @@ namespace SlimGet.Models
         //public string SymbolsUrl { get; set; }
         public IEnumerable<GalleryPackageDependencyGroupModel> DependencyGroups { get; set; }
         public string OwnerId { get; set; }
-        public IEnumerable<(string version, long downloads, DateTimeOffset publishedAt)> AllVersions { get; set; }
+        public IEnumerable<(string version, NuGetVersion nugetVersion, long downloads, DateTimeOffset publishedAt)> AllVersions { get; set; }
     }
 
     public sealed class GalleryPackageDependencyGroupModel

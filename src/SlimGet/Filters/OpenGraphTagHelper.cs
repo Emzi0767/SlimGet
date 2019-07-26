@@ -23,7 +23,9 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace SlimGet.Filters
 {
-    [HtmlTargetElement("opengraph", Attributes = "og-title,og-type,og-image,og-url,og-description,og-colour-theme,og-site-name")]
+    [HtmlTargetElement("opengraph",
+        Attributes = "og-title,og-site-name",
+        TagStructure = TagStructure.WithoutEndTag)]
     public sealed class OpenGraphTagHelper : TagHelper
     {
         [HtmlAttributeName("og-title")]

@@ -53,8 +53,13 @@
     <div class="slimget-header" id="header">
         <div class="slimget-header-inner">
             <a href="@Url.RouteUrl(Routing.GalleryIndexRouteName)" class="slimget"><img src="~/images/slimget-cube-blue.png" class="slimget-logo-mini" /> SlimGet</a>
-            <a href="@Url.RouteUrl(Routing.GalleryListRouteName)" class="nav-link">Packages</a>
-            <a href="@Url.RouteUrl(Routing.GalleryAboutRouteName)" class="nav-link">About</a>
+            <input type="checkbox" id="menu-collapser" class="slimget-header-collapser" />
+            <label for="menu-collapser" class="slimget-header-collapser menu-opened"><i class="fas fa-times"></i> Menu</label>
+            <label for="menu-collapser" class="slimget-header-collapser menu-closed"><i class="fas fa-bars"></i> Menu</label>
+            <div class="slimget-header-menu">
+                <a href="@Url.RouteUrl(Routing.GalleryListRouteName)" class="nav-link">Packages</a>@*
+                *@<a href="@Url.RouteUrl(Routing.GalleryAboutRouteName)" class="nav-link">About</a>
+            </div>
         </div>
     </div>
 

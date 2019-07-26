@@ -232,7 +232,9 @@ namespace SlimGet.Controllers
                 // figure out symbols
                 DependencyGroups = this.PrepareDependencyGroups(dbversion),
                 OwnerId = dbpackage.OwnerId,
-                AllVersions = dbpackage.Versions.Select(x => (x.Version, x.DownloadCount, new DateTimeOffset(x.PublishedAt.Value)))
+                AllVersions = dbpackage.Versions
+                    .Select(x => (x.Version, x.NuGetVersion, x.DownloadCount, new DateTimeOffset(x.PublishedAt.Value)))
+                    .OrderByDescending(x => x.Version)
             };
 
         private IEnumerable<GalleryPackageDependencyGroupModel> PrepareDependencyGroups(PackageVersion dbversion)
