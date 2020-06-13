@@ -132,10 +132,10 @@ namespace SlimGet.Controllers
                     .Include(x => x.Authors);
 
             if (!string.IsNullOrWhiteSpace(search.Query))
-                dbpackages = dbpackages.Where(x => (EF.Functions.Similarity(x.Id, query) >= 0.35 ||
-                        EF.Functions.Similarity(x.Description, query) >= 0.2 ||
-                        EF.Functions.Similarity(x.Title, query) >= 0.2 ||
-                        x.Tags.Any(y => EF.Functions.Similarity(y.Tag, query) >= 0.35)) &&
+                dbpackages = dbpackages.Where(x => (EF.Functions.TrigramsSimilarity(x.Id, query) >= 0.35 ||
+                        EF.Functions.TrigramsSimilarity(x.Description, query) >= 0.2 ||
+                        EF.Functions.TrigramsSimilarity(x.Title, query) >= 0.2 ||
+                        x.Tags.Any(y => EF.Functions.TrigramsSimilarity(y.Tag, query) >= 0.35)) &&
                     x.Versions.Any(y => (!y.IsPrerelase || prerelease) && y.IsListed));
 
             else

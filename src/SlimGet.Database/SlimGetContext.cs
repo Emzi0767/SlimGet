@@ -502,7 +502,7 @@ namespace SlimGet.Services
 
             modelBuilder.Entity<PackageBinary>()
                 .HasIndex(x => x.Hash)
-                .ForNpgsqlHasMethod("hash")
+                .HasMethod("hash")
                 .HasName("ix_binary_hash");
 
             modelBuilder.Entity<PackageBinary>()
@@ -586,12 +586,12 @@ namespace SlimGet.Services
 
             modelBuilder.Entity<PackageSymbols>()
                 .HasIndex(x => x.Identifier)
-                .ForNpgsqlHasMethod("hash")
+                .HasMethod("hash")
                 .HasName("ix_symbols_id");
 
             modelBuilder.Entity<PackageSymbols>()
                 .HasIndex(x => x.Signature)
-                .ForNpgsqlHasMethod("hash")
+                .HasMethod("hash")
                 .HasName("ix_symbols_sig");
 
             modelBuilder.Entity<PackageSymbols>()

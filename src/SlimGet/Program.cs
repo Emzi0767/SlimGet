@@ -30,10 +30,7 @@ namespace SlimGet
     public class Program
     {
         public static void Main(string[] args)
-        {
-            NpgsqlMonkeyPatch.TryPatch();
-            CreateWebHostBuilder(args).Build().Run();
-        }
+            => CreateWebHostBuilder(args).Build().Run();
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
             => WebHost.CreateDefaultBuilder(args)

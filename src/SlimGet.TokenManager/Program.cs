@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net.Mail;
 using System.Reflection;
 using System.Threading.Tasks;
+using Emzi0767;
+using Emzi0767.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SlimGet.Data;
