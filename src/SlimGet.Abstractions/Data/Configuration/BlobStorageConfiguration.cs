@@ -14,13 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace SlimGet.Data.Configuration
 {
-    public sealed class StorageConfiguration
+    /// <summary>
+    /// Represents configuration options for any additional blob storage.
+    /// </summary>
+    public sealed class BlobStorageConfiguration
     {
-        public DatabaseConfiguration PostgreSQL { get; set; }
-        public RedisConfiguration Redis { get; set; }
-        public FileSystemConfiguration FileSystem { get; set; }
-        public PackageStorageConfiguration Packages { get; set; }
+        /// <summary>
+        /// Gets or sets the type of blob storage provider.
+        /// </summary>
+        [Required]
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the physical path of the package storage.
+        /// </summary>
+        [Required]
+        public string StoragePath { get; set; }
     }
 }

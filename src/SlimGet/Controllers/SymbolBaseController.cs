@@ -33,8 +33,14 @@ namespace SlimGet.Controllers
     [SlimGetRoute(Routing.DownloadSymbolsRouteName), ApiController, AllowAnonymous, ServiceFilter(typeof(RequireSymbolsEnabled))]
     public sealed class SymbolBaseController : NuGetControllerBase
     {
-        public SymbolBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
-            : base(db, redis, fs, storcfg, logger)
+        public SymbolBaseController(
+            SlimGetContext db,
+            RedisService redis,
+            IFileSystemService fs,
+            IOptions<BlobStorageConfiguration> blobstoreOpts,
+            IOptions<PackageStorageConfiguration> packageOpts,
+            ILoggerFactory logger)
+            : base(db, redis, fs, blobstoreOpts, packageOpts, logger)
         { }
 
         [SlimGetRoute(Routing.InheritRoute), HttpGet]
@@ -43,11 +49,11 @@ namespace SlimGet.Controllers
 
         [SlimGetRoute(Routing.DownloadSymbols2StageIndexRouteName), HttpGet]
         public IActionResult Index2()
-            => this.Content("", "text/plain", Utilities.UTF8);
+            => this.Content("", "text/plain", AbstractionUtilities.UTF8);
 
         [SlimGetRoute(Routing.DownloadSymbols1StageIndexRouteName), HttpGet]
         public IActionResult PingMe()
-            => this.Content("", "text/plain", Utilities.UTF8);
+            => this.Content("", "text/plain", AbstractionUtilities.UTF8);
 
         [SlimGetRoute(Routing.DownloadSymbols1StageRouteName), SlimGetRoute(Routing.DownloadSymbols2StageRouteName), HttpGet]
         public async Task<IActionResult> Symbols(string file, string sig, string file2, CancellationToken cancellationToken)

@@ -25,15 +25,15 @@ namespace SlimGet.Services
 {
     internal sealed class FileSystemService : IFileSystemService
     {
-        private FileSystemConfiguration Configuration { get; }
+        private BlobStorageConfiguration Configuration { get; }
         private DirectoryInfo StorageRoot { get; }
         private DirectoryInfo PackageRoot { get; }
         private DirectoryInfo Temporary { get; }
         private ILogger<FileSystemService> Logger { get; }
 
-        public FileSystemService(IOptions<StorageConfiguration> sconf, ILoggerFactory logger)
+        public FileSystemService(IOptions<BlobStorageConfiguration> blobstoreOpts, ILoggerFactory logger)
         {
-            this.Configuration = sconf.Value.FileSystem;
+            this.Configuration = blobstoreOpts.Value;
             this.Logger = logger.CreateLogger<FileSystemService>();
 
             this.StorageRoot = new DirectoryInfo(this.Configuration.StoragePath);

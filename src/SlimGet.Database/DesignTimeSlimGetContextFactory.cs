@@ -15,8 +15,9 @@
 // limitations under the License.
 
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Design;
-using Newtonsoft.Json;
 using SlimGet.Data.Configuration;
 using SlimGet.Services;
 
@@ -25,24 +26,26 @@ namespace SlimGet.Data
     public sealed class DesignTimeSlimGetContextFactory : IDesignTimeDbContextFactory<SlimGetContext>
     {
         public SlimGetContext CreateDbContext(string[] args)
-            => new SlimGetContext(new ConnectionStringProvider(new DesignTimeDatabaseConfigurationProvider()));
+            => new SlimGetContext(
+                ConnectionStringProvider.Create(
+                    new DesignTimeDatabaseConfigurationProvider().GetDatabaseConfiguration()));
     }
 
-    public sealed class DesignTimeDatabaseConfigurationProvider : IDatabaseConfigurationProvider
+    public sealed class DesignTimeDatabaseConfigurationProvider
     {
-        public IDatabaseConfiguration GetDatabaseConfiguration()
+        public DatabaseConfiguration GetDatabaseConfiguration()
         {
             var json = "{}";
             using (var fs = File.OpenRead("slimget.json"))
-            using (var sr = new StreamReader(fs, Utilities.UTF8))
+            using (var sr = new StreamReader(fs, AbstractionUtilities.UTF8))
                 json = sr.ReadToEnd();
 
-            return JsonConvert.DeserializeObject<SlimGetConfiguration>(json).Storage.PostgreSQL;
+            return JsonSerializer.Deserialize<SlimGetConfiguration>(json).Storage.Database;
         }
 
         private sealed class SlimGetConfiguration
         {
-            [JsonProperty("Storage")]
+            [JsonPropertyName("Storage")]
             public StorageConfiguration Storage { get; set; }
         }
     }

@@ -18,23 +18,17 @@
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="../SlimGet.Common.targets" />
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Version>1.0.0</Version>
-    <FileVersion>$(Version).0</FileVersion>
-    <ProductVersion>$(Version).0</ProductVersion>
     <RootNamespace>SlimGet.Tools</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Emzi0767.Common" Version="2.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SlimGet.AuthenticationTokens\SlimGet.AuthenticationTokens.csproj" />
     <ProjectReference Include="..\SlimGet.Database\SlimGet.Database.csproj" />
+    <ProjectReference Include="..\SlimGet.Abstractions\SlimGet.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

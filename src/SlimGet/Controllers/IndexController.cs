@@ -30,8 +30,14 @@ namespace SlimGet.Controllers
     [SlimGetRoute(Routing.FeedIndexRouteName), ApiController, AllowAnonymous]
     public sealed class IndexController : NuGetControllerBase
     {
-        public IndexController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
-            : base(db, redis, fs, storcfg, logger)
+        public IndexController(
+            SlimGetContext db,
+            RedisService redis,
+            IFileSystemService fs,
+            IOptions<BlobStorageConfiguration> blobstoreOpts,
+            IOptions<PackageStorageConfiguration> packageOpts,
+            ILoggerFactory logger)
+            : base(db, redis, fs, blobstoreOpts, packageOpts, logger)
         { }
 
         [SlimGetRoute(Routing.InheritRoute), HttpGet]

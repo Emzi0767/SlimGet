@@ -3,12 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Emzi0767;
 using Emzi0767.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using SlimGet.Data;
+using SlimGet.Data.Configuration;
 using SlimGet.Data.Database;
 using SlimGet.Services;
 
@@ -16,10 +17,9 @@ namespace SlimGet.Tools
 {
     public sealed class Program
     {
-
         public static void Main(string[] args)
         {
-            var configEnv = Environment.GetEnvironmentVariable("SLIMGET_CONFIGURATION_FILE") ?? "slimget.json";
+            var configEnv = Environment.GetEnvironmentVariable("SLIMGET__CONFIGURATION") ?? "slimget.json";
             Console.WriteLine("Loading config from '{0}'", configEnv);
 
             var json = "{}";
@@ -27,7 +27,7 @@ namespace SlimGet.Tools
             using (var sr = new StreamReader(fs))
                 json = sr.ReadToEnd();
 
-            var config = JsonConvert.DeserializeObject<Configuration>(json);
+            var config = JsonSerializer.Deserialize<SlimGetConfiguration>(json);
 
             Console.WriteLine("Executing configuration utility");
             var program = new Entrypoint(config);
@@ -47,15 +47,12 @@ namespace SlimGet.Tools
         private SlimGetContext Database { get; }
         private TokenService Tokens { get; }
 
-        public Entrypoint(Configuration config)
+        public Entrypoint(SlimGetConfiguration config)
         {
             this.Database = new SlimGetContext(
-                new ConnectionStringProvider(
-                    new DatabaseConfigurationProvider(config.Storage.PostgreSQL)));
+                ConnectionStringProvider.Create(config.Storage.Database));
 
-            this.Tokens = new TokenService(
-                new TokenConfigurationProvider(config.Server),
-                new Utf8EncodingProvider());
+            this.Tokens = TokenService.Create(config.Security);
         }
 
         public async Task ExecuteProgramAsync(string[] args)

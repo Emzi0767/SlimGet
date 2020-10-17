@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimGet", "src\SlimGet\SlimGet.csproj", "{F6A1FF33-E241-4C45-BE9F-C76729A2B7FD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A53ED2F0-B059-473B-9399-B673F37716AA}"
+	ProjectSection(SolutionItems) = preProject
+		src\SlimGet.Common.targets = src\SlimGet.Common.targets
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "meta", "meta", "{D976F83A-29BC-4713-891C-97E697646464}"
 	ProjectSection(SolutionItems) = preProject
@@ -46,6 +49,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logo", "logo", "{0E5E4BCD-5
 		logo\slimget-logo.png = logo\slimget-logo.png
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.Abstractions", "src\SlimGet.Abstractions\SlimGet.Abstractions.csproj", "{2069B1E9-D7A0-4148-9BFA-079D0E626F47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +77,10 @@ Global
 		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2069B1E9-D7A0-4148-9BFA-079D0E626F47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2069B1E9-D7A0-4148-9BFA-079D0E626F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2069B1E9-D7A0-4148-9BFA-079D0E626F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2069B1E9-D7A0-4148-9BFA-079D0E626F47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +92,7 @@ Global
 		{5C92A559-D48C-43DA-BE42-50A46A1E07DA} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{0E5E4BCD-578F-4944-96F3-F53AD40E7D80} = {D976F83A-29BC-4713-891C-97E697646464}
+		{2069B1E9-D7A0-4148-9BFA-079D0E626F47} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6B73761-3D26-4D42-BB4A-B02D57B5A6AB}

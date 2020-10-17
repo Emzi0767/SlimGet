@@ -37,8 +37,14 @@ namespace SlimGet.Controllers
     [SlimGetRoute(Routing.RegistrationsRouteName), ApiController, AllowAnonymous]
     public class RegistrationsBaseController : NuGetControllerBase
     {
-        public RegistrationsBaseController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
-            : base(db, redis, fs, storcfg, logger)
+        public RegistrationsBaseController(
+            SlimGetContext db,
+            RedisService redis,
+            IFileSystemService fs,
+            IOptions<BlobStorageConfiguration> blobstoreOpts,
+            IOptions<PackageStorageConfiguration> packageOpts,
+            ILoggerFactory logger)
+            : base(db, redis, fs, blobstoreOpts, packageOpts, logger)
         { }
 
         [SlimGetRoute(Routing.InheritRoute), HttpGet]

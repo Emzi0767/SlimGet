@@ -29,10 +29,10 @@ namespace SlimGet.Services
         private IDatabaseAsync Database { get; }
         private PackageKeyProvider KeyProvider { get; }
 
-        public RedisService(IOptions<StorageConfiguration> scfg, PackageKeyProvider keyProvider)
+        public RedisService(IOptions<CacheConfiguration> cacheOpts, PackageKeyProvider keyProvider)
         {
             this.KeyProvider = keyProvider;
-            var rcfg = scfg.Value.Redis;
+            var rcfg = cacheOpts.Value;
             this.Multiplexer = ConnectionMultiplexer.Connect(new ConfigurationOptions
             {
                 EndPoints = { new DnsEndPoint(rcfg.Hostname, rcfg.Port) },

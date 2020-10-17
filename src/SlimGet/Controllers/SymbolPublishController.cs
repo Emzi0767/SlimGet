@@ -34,8 +34,15 @@ namespace SlimGet.Controllers
     {
         private PackageProcessingService Packages { get; }
 
-        public SymbolPublishController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger, PackageProcessingService pkgParser)
-            : base(db, redis, fs, storcfg, logger)
+        public SymbolPublishController(
+            SlimGetContext db,
+            RedisService redis,
+            IFileSystemService fs,
+            IOptions<BlobStorageConfiguration> blobstoreOpts,
+            IOptions<PackageStorageConfiguration> packageOpts,
+            ILoggerFactory logger,
+            PackageProcessingService pkgParser)
+            : base(db, redis, fs, blobstoreOpts, packageOpts, logger)
         {
             this.Packages = pkgParser;
         }

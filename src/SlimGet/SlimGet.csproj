@@ -18,23 +18,20 @@
 -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <Import Project="../SlimGet.Common.targets" />
+
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <LangVersion>8.0</LangVersion>
-    <Version>1.2.0</Version>
-    <FileVersion>$(Version).0</FileVersion>
-    <ProductVersion>$(Version).0</ProductVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.447" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.6.0" />
-    <PackageReference Include="NuGet.Packaging" Version="5.6.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.1.55" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.7.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SlimGet.Abstractions\SlimGet.Abstractions.csproj" />
     <ProjectReference Include="..\SlimGet.Database\SlimGet.Database.csproj" />
     <ProjectReference Include="..\SlimGet.AuthenticationTokens\SlimGet.AuthenticationTokens.csproj" />
     <ProjectReference Include="..\SlimGet.PdbParser\SlimGet.PdbParser.csproj" />

@@ -1,3 +1,4 @@
+#if DEBUG
 // This file is a part of SlimGet project.
 //
 // Copyright 2019 Emzi0767
@@ -83,7 +84,7 @@ namespace SlimGet.Controllers
             }
 
             await this.Database.SaveChangesAsync().ConfigureAwait(false);
-            return this.Content(this.Tokens.EncodeToken(atok), "text/plain", Utilities.UTF8);
+            return this.Content(this.Tokens.EncodeToken(atok), "text/plain", AbstractionUtilities.UTF8);
         }
 
         [SlimGetRoute(Routing.DevelopmentWhoamiRouteName), HttpGet, Authorize(AuthenticationSchemes = TokenAuthenticationHandler.AuthenticationSchemeName)]
@@ -92,11 +93,11 @@ namespace SlimGet.Controllers
 
         [SlimGetRoute(Routing.DevelopmentUrlPerComponentsRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Test(string genController, string genAction)
-            => this.Content(this.Url.AbsoluteUrl(genAction, genController, this.HttpContext), "text/plain", Utilities.UTF8);
+            => this.Content(this.Url.AbsoluteUrl(genAction, genController, this.HttpContext), "text/plain", AbstractionUtilities.UTF8);
 
         [SlimGetRoute(Routing.DevelopmentUrlPerNameRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Test(string routeName)
-            => this.Content(this.Url.AbsoluteUrl(routeName, this.HttpContext), "text/plain", Utilities.UTF8);
+            => this.Content(this.Url.AbsoluteUrl(routeName, this.HttpContext), "text/plain", AbstractionUtilities.UTF8);
 
         [SlimGetRoute(Routing.DevelopmentEvalRouteName), HttpPost]
         public async Task<IActionResult> Evaluate([FromBody] string code)
@@ -122,7 +123,7 @@ namespace SlimGet.Controllers
                     sb.AppendLine($"Error at {ls.StartLinePosition.Line:#,##0}, {ls.StartLinePosition.Character:#,##0}: {xd.GetMessage()}");
                 }
 
-                return this.Content(sb.ToString(), "text/plain", Utilities.UTF8);
+                return this.Content(sb.ToString(), "text/plain", AbstractionUtilities.UTF8);
             }
 
             Exception rex = null;
@@ -141,12 +142,12 @@ namespace SlimGet.Controllers
             this.Response.Headers.Add("X-Execution-Time", sw2.ElapsedMilliseconds.ToString("#,##0"));
 
             if (rex != null)
-                return this.Content($"Execution failed with exception\n{rex.GetType()}: {rex.Message}\n{rex.StackTrace}", "text/plain", Utilities.UTF8);
+                return this.Content($"Execution failed with exception\n{rex.GetType()}: {rex.Message}\n{rex.StackTrace}", "text/plain", AbstractionUtilities.UTF8);
 
             if (css.ReturnValue != null)
             {
                 this.Response.Headers.Add("X-Result-Type", css.ReturnValue.GetType().ToString());
-                return this.Content(css.ReturnValue.ToString(), "text/plain", Utilities.UTF8);
+                return this.Content(css.ReturnValue.ToString(), "text/plain", AbstractionUtilities.UTF8);
             }
 
             return this.NoContent();
@@ -173,3 +174,4 @@ namespace SlimGet.Controllers
         }
     }
 }
+#endif

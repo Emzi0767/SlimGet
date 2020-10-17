@@ -14,14 +14,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace SlimGet.Data.Configuration
 {
-    public sealed class RedisConfiguration
+    /// <summary>
+    /// Represents configuration for cache backend.
+    /// </summary>
+    public sealed class CacheConfiguration
     {
+        /// <summary>
+        /// Gets or sets the type of the implementation.
+        /// </summary>
+        [Required]
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the hostname to connect to.
+        /// </summary>
+        [Required]
         public string Hostname { get; set; }
+
+        /// <summary>
+        /// Gets or sets the port to connect to.
+        /// </summary>
+        [Required]
         public int Port { get; set; }
+
+        /// <summary>
+        /// Gets or sets the database index to use.
+        /// </summary>
         public int Index { get; set; }
+
+        /// <summary>
+        /// Gets or sets the password to authenticate with.
+        /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to use SSL for the connection.
+        /// </summary>
         public bool UseSsl { get; set; }
     }
 }

@@ -21,11 +21,17 @@
   <Import Project="../SlimGet.Common.targets" />
 
   <PropertyGroup>
-    <RootNamespace>SlimGet.Data</RootNamespace>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SlimGet.Abstractions\SlimGet.Abstractions.csproj" />
+    <PackageReference Include="Emzi0767.Common" Version="2.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.9" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+    <PackageReference Include="Humanizer.Core" Version="2.8.26" />
+    <PackageReference Include="NuGet.Packaging" Version="5.7.0" />
   </ItemGroup>
 
 </Project>

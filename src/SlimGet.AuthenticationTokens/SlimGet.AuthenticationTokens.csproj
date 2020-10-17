@@ -18,18 +18,18 @@
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="../SlimGet.Common.targets" />
+
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Version>1.0.0</Version>
-    <FileVersion>$(Version).0</FileVersion>
-    <ProductVersion>$(Version).0</ProductVersion>
-    <RootNamespace>SlimGet.Services</RootNamespace>
+    <RootNamespace>SlimGet.Internal</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SlimGet.Abstractions\SlimGet.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

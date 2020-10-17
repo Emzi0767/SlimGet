@@ -17,7 +17,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +24,6 @@ namespace SlimGet
 {
     public static class Utilities
     {
-        public static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         public static string VersionString { get; }
 
         static Utilities()

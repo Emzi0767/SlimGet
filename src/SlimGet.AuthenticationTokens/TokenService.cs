@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using System.Text;
+using Microsoft.Extensions.Options;
 using SlimGet.Data;
 using SlimGet.Data.Configuration;
 
@@ -15,15 +15,15 @@ namespace SlimGet.Services
     public sealed class TokenService
     {
         private byte[] TokenHmacKey { get; }
-        private Encoding TextEncoding { get; }
 
-        public TokenService(ITokenConfigurationProvider tcfgProvider, IEncodingProvider encProvider)
+        public TokenService(IOptions<SecurityConfiguration> tokenOpts)
+            : this(tokenOpts.Value)
+        { }
+
+        private TokenService(SecurityConfiguration tkc)
         {
-            this.TextEncoding = encProvider.TextEncoding;
-
-            var tkc = tcfgProvider.GetTokenConfiguration();
             using (var sha512 = SHA512.Create())
-                this.TokenHmacKey = sha512.ComputeHash(this.TextEncoding.GetBytes(tkc.TokenHmacKey));
+                this.TokenHmacKey = sha512.ComputeHash(AbstractionUtilities.UTF8.GetBytes(tkc.TokenKey));
         }
 
         public string EncodeToken(AuthenticationToken token)
@@ -92,11 +92,11 @@ namespace SlimGet.Services
 
         private byte[] CreateTokenStamp(long issued, string userId)
         {
-            var len = this.TextEncoding.GetByteCount(userId) + Unsafe.SizeOf<long>();
+            var len = AbstractionUtilities.UTF8.GetByteCount(userId) + Unsafe.SizeOf<long>();
             var stamp = new byte[len];
 
             BinaryPrimitives.WriteInt64LittleEndian(stamp, issued);
-            this.TextEncoding.GetBytes(userId, 0, userId.Length, stamp, 8);
+            AbstractionUtilities.UTF8.GetBytes(userId, 0, userId.Length, stamp, 8);
 
             return stamp;
         }
@@ -122,6 +122,9 @@ namespace SlimGet.Services
                 ArrayPool<byte>.Shared.Return(salt, true);
             }
         }
+
+        public static TokenService Create(SecurityConfiguration tkc)
+            => new TokenService(tkc);
     }
 }
 #pragma warning restore IDE0046 // Convert to conditional expression

@@ -80,7 +80,7 @@ namespace SlimGet.Filters
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
-            AuthenticationSchemeSelector.HandleChallenge(this.Context);
+            AuthenticationHandlerSelector.HandleChallenge(this.Context);
             return Task.CompletedTask;
         }
     }

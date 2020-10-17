@@ -15,29 +15,50 @@
 // limitations under the License.
 
 using System;
-using Newtonsoft.Json;
 
-namespace SlimGet.Models
+namespace SlimGet.Data
 {
+    /// <summary>
+    /// Simplified error model, for non-debugging purposes.
+    /// </summary>
     public class SimpleErrorModel
     {
-        [JsonProperty("request_id", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the ID of the request.
+        /// </summary>
         public string RequestId { get; }
 
+        /// <summary>
+        /// Creates a new error model.
+        /// </summary>
+        /// <param name="reqId">ID of the request.</param>
         public SimpleErrorModel(string reqId)
         {
             this.RequestId = reqId;
         }
     }
 
+    /// <summary>
+    /// Detailed error model, for use in development or debugging scenarios only. Should not be used in production.
+    /// </summary>
     public sealed class DeveloperErrorModel : SimpleErrorModel
     {
-        [JsonProperty("path", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the path at which the error occured.
+        /// </summary>
         public string Path { get; }
 
-        [JsonProperty("exception", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the details of the exception that occured.
+        /// </summary>
         public ExceptionModel Exception { get; }
 
+        /// <summary>
+        /// Creates a new detailed exception model.
+        /// </summary>
+        /// <param name="reqId">ID of the request.</param>
+        /// <param name="path">Path where the exception occured.</param>
+        /// <param name="ex">Exception thrown by the handler.</param>
         public DeveloperErrorModel(string reqId, string path, Exception ex)
             : base(reqId)
         {
@@ -48,20 +69,35 @@ namespace SlimGet.Models
         }
     }
 
+    /// <summary>
+    /// Contains full detail of the exception that occured.
+    /// </summary>
     public sealed class ExceptionModel
     {
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the type of the exception.
+        /// </summary>
         public string Type { get; }
 
-        [JsonProperty("message", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the message the exception provided.
+        /// </summary>
         public string Message { get; }
 
-        [JsonProperty("stack_trace", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the stack trace of the exception.
+        /// </summary>
         public string StackTrace { get; }
 
-        [JsonProperty("inner_exception", NullValueHandling = NullValueHandling.Include)]
+        /// <summary>
+        /// Gets the nested exception, if applicable.
+        /// </summary>
         public ExceptionModel InnerException { get; }
 
+        /// <summary>
+        /// Creates a new exception model from a given exception.
+        /// </summary>
+        /// <param name="ex">Exception to create a model from.</param>
         public ExceptionModel(Exception ex)
         {
             if (ex == null)

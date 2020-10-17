@@ -18,10 +18,10 @@ using System.IO;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SlimGet.Data.Configuration;
 
@@ -30,50 +30,61 @@ namespace SlimGet
     public class Program
     {
         public static void Main(string[] args)
-            => CreateWebHostBuilder(args).Build().Run();
+            => CreateHostBuilder(args).Build().Run();
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
-            => WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseKestrel(kopts =>
-                {
-                    var kcfg = kopts.ApplicationServices.GetService<IOptions<ServerConfiguration>>().Value;
-                    kopts.AddServerHeader = false;
-
-                    if (kcfg != null && kcfg.Listen != null && kcfg.Listen.Length > 0)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+            => Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => webBuilder
+                    .UseStartup<Startup>()
+                    .UseKestrel(kopts =>
                     {
-                        var scfg = kcfg.SslCertificate;
-                        var lcfg = kcfg.Listen;
+                        kopts.AddServerHeader = false;
+                        var kcfg = kopts.ApplicationServices.GetService<IOptions<HttpConfiguration>>().Value;
 
-                        var cpwd = "";
-                        using (var fs = File.OpenRead(scfg.PasswordFile))
-                        using (var sr = new StreamReader(fs, Utilities.UTF8))
-                            cpwd = sr.ReadToEnd();
-
-                        var cert = new X509Certificate2(scfg.Location, cpwd);
-                        foreach (var endpoint in lcfg)
+                        if (kcfg == null || kcfg.Listen == null || kcfg.Listen.Length <= 0)
                         {
-                            if (endpoint.UseSsl && (kcfg == null || scfg == null || string.IsNullOrWhiteSpace(scfg.Location) || string.IsNullOrWhiteSpace(scfg.PasswordFile)))
+                            kopts.Listen(new IPEndPoint(IPAddress.Any, 5000), lopts => lopts.Protocols = HttpProtocols.Http1);
+                            return;
+                        }
+
+                        kopts.Limits.MaxRequestBodySize = kcfg.MaxRequestSizeBytes;
+                        foreach (var endpoint in kcfg.Listen)
+                        {
+                            if (endpoint.UseSsl &&
+                                (string.IsNullOrWhiteSpace(endpoint.CertificateFile) ||
+                                !File.Exists(endpoint.CertificateFile) ||
+                                string.IsNullOrWhiteSpace(endpoint.CertificatePasswordFile) ||
+                                !File.Exists(endpoint.CertificatePasswordFile)))
                                 continue;
 
-                            kopts.Listen(new IPEndPoint(IPAddress.Parse(endpoint.IpAddress), endpoint.Port), lopts =>
+                            if (endpoint.UseSsl)
                             {
-                                if (endpoint.UseSsl)
+                                var cff = new FileInfo(endpoint.CertificateFile);
+                                var cpf = new FileInfo(endpoint.CertificatePasswordFile);
+
+                                var cert = new byte[cff.Length];
+                                var cpwd = "";
+
+                                using (var fsc = cff.OpenRead())
+                                    fsc.Read(cert, 0, cert.Length);
+
+                                using (var fsp = cpf.OpenRead())
+                                using (var sr = new StreamReader(fsp, AbstractionUtilities.UTF8))
+                                    cpwd = sr.ReadToEnd();
+
+                                var x509 = new X509Certificate2(cert, cpwd);
+
+                                kopts.Listen(new IPEndPoint(IPAddress.Parse(endpoint.Address), endpoint.Port), lopts =>
                                 {
                                     lopts.Protocols = HttpProtocols.Http1AndHttp2;
-                                    lopts.UseHttps(cert, sopts => sopts.SslProtocols = SslProtocols.Tls12);
-                                }
-                                else
-                                {
-                                    lopts.Protocols = HttpProtocols.Http1;
-                                }
-                            });
+                                    lopts.UseHttps(x509, sopts => sopts.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13);
+                                });
+                            }
+                            else
+                            {
+                                kopts.Listen(new IPEndPoint(IPAddress.Parse(endpoint.Address), endpoint.Port), lopts => lopts.Protocols = HttpProtocols.Http1);
+                            }
                         }
-                    }
-                    else
-                    {
-                        kopts.Listen(new IPEndPoint(IPAddress.Any, 5000), lopts => lopts.Protocols = HttpProtocols.Http1);
-                    }
-                });
+                    }));
     }
 }

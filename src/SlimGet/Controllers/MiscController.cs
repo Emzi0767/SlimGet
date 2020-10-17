@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using SlimGet.Models;
 using SlimGet.Services;
@@ -30,11 +31,11 @@ namespace SlimGet.Controllers
     [SlimGetRoute(Routing.MiscApiRouteName), AllowAnonymous]
     public class MiscController : Controller
     {
-        private IHostingEnvironment Environment { get; }
+        private IWebHostEnvironment Environment { get; }
         private SlimGetContext Database { get; }
         private TokenService Tokens { get; }
 
-        public MiscController(IHostingEnvironment env, SlimGetContext db, TokenService tokens)
+        public MiscController(IWebHostEnvironment env, SlimGetContext db, TokenService tokens)
         {
             this.Environment = env;
             this.Database = db;
@@ -55,19 +56,6 @@ namespace SlimGet.Controllers
             this.Database.Tokens.Remove(tok);
             await this.Database.SaveChangesAsync().ConfigureAwait(false);
             return this.NoContent();
-        }
-
-        [SlimGetRoute(Routing.MiscErrorRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            var jsonopts = new JsonSerializerSettings { Formatting = Formatting.Indented };
-
-            this.Response.StatusCode = 500;
-            if (!this.Environment.IsDevelopment())
-                return this.Json(new SimpleErrorModel(Activity.Current?.Id ?? this.HttpContext.TraceIdentifier), jsonopts);
-
-            var exHandler = this.HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            return this.Json(new DeveloperErrorModel(Activity.Current?.Id ?? this.HttpContext.TraceIdentifier, exHandler?.Path, exHandler?.Error), jsonopts);
         }
     }
 }

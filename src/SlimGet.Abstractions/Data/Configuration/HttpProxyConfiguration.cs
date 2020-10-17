@@ -14,11 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace SlimGet.Data.Configuration
 {
-    public class CertificateConfiguration
+    /// <summary>
+    /// Represents configuration for HTTP proxies.
+    /// </summary>
+    public sealed class HttpProxyConfiguration
     {
-        public string Location { get; set; }
-        public string PasswordFile { get; set; }
+        /// <summary>
+        /// Gets or sets whether forward header reading is enabled;
+        /// </summary>
+        [Required]
+        public bool Enable { get; set; }
+
+        /// <summary>
+        /// Gets or sets the forward limit for the headers.
+        /// </summary>
+        public int? Limit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the networks the headers are trusted from.
+        /// </summary>
+        public string[] Networks { get; set; }
     }
 }

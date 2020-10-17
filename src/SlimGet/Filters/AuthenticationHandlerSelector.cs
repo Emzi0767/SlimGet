@@ -21,7 +21,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace SlimGet.Filters
 {
-    public static class AuthenticationSchemeSelector
+    public static class AuthenticationHandlerSelector
     {
         public const string AuthenticationSchemeName = "SelectorAuthenticationScheme";
 

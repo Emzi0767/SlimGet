@@ -14,7 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Microsoft.Extensions.Options;
 using Npgsql;
+using SlimGet.Data.Configuration;
 
 namespace SlimGet.Services
 {
@@ -22,9 +24,12 @@ namespace SlimGet.Services
     {
         public string ConnectionString { get; }
 
-        public ConnectionStringProvider(IDatabaseConfigurationProvider dbcfgProvider)
+        public ConnectionStringProvider(IOptions<DatabaseConfiguration> cfg)
+            : this(cfg.Value)
+        { }
+
+        private ConnectionStringProvider(DatabaseConfiguration dbc)
         {
-            var dbc = dbcfgProvider.GetDatabaseConfiguration();
             var csb = new NpgsqlConnectionStringBuilder
             {
                 Host = dbc.Hostname,
@@ -33,10 +38,13 @@ namespace SlimGet.Services
                 Username = dbc.Username,
                 Password = dbc.Password,
                 SslMode = dbc.UseSsl ? SslMode.Require : SslMode.Disable,
-                TrustServerCertificate = dbc.UseSsl && dbc.AlwaysTrustServerCertificate
+                TrustServerCertificate = dbc.UseSsl && dbc.TrustServerCertificate
             };
 
             this.ConnectionString = csb.ConnectionString;
         }
+
+        public static ConnectionStringProvider Create(DatabaseConfiguration dbc)
+            => new ConnectionStringProvider(dbc);
     }
 }

@@ -33,8 +33,14 @@ namespace SlimGet.Controllers
     [SlimGetRoute(Routing.SearchRouteName), ApiController, AllowAnonymous]
     public class SearchController : NuGetControllerBase
     {
-        public SearchController(SlimGetContext db, RedisService redis, IFileSystemService fs, IOptions<StorageConfiguration> storcfg, ILoggerFactory logger)
-            : base(db, redis, fs, storcfg, logger)
+        public SearchController(
+            SlimGetContext db,
+            RedisService redis,
+            IFileSystemService fs,
+            IOptions<BlobStorageConfiguration> blobstoreOpts,
+            IOptions<PackageStorageConfiguration> packageOpts,
+            ILoggerFactory logger)
+            : base(db, redis, fs, blobstoreOpts, packageOpts, logger)
         { }
 
         [SlimGetRoute(Routing.SearchQueryRouteName), HttpGet]

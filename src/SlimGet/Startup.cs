@@ -16,47 +16,88 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using SlimGet.Data;
 using SlimGet.Data.Configuration;
 using SlimGet.Filters;
-using SlimGet.Models;
 using SlimGet.Services;
 
 namespace SlimGet
 {
-    public class Startup
+    public sealed class Startup
     {
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
-            var envConfigLocation = Environment.GetEnvironmentVariable("SLIMGET_CONFIGURATION_FILE");
-            var configLocation = envConfigLocation ?? "slimget.json";
+            // Configuration loading
+            // Given an object structure like
+            // CONFIG:
+            // prop: bool
+            // listen: endpoint[]
+            // 
+            // ENDPOINT:
+            // address: string
+            // port: int
+            //
+            // Array indexes are treated as keys
+            // To set /prop via:
+            // - envvars: SLIMGET__PROP=true (note double underscore)
+            // - cmdline: --prop=false
+            //
+            // To set /listen/0/* via:
+            // - envvars (note double underscores):
+            //   SLIMGET__LISTEN__0__ADDRESS=0.0.0.0
+            //   SLIMGET__LISTEN__0__PORT=5000
+            // - cmdline:
+            //   --listen:0:address=127.0.0.1
+            //   --listen:0:port=5000
+            //
+            // Supported configuration sources, in order of precedence (first is lowest priority - meaning higher 
+            // priority will override its values):
+            // 1. appsettings.json
+            // 2. appsettings.*.json (* is env, i.e. development, production, or staging)
+            // 3. *.json (specified via SLIMGET__CONFIGURATION; defaults to slimget.json)
+            // 4. Environment variables
+            // 5. Command line
 
+            // For explanation on L78 and L79, see
+            // https://github.com/dotnet/runtime/issues/40911
+            // Load envvars and cmdline switches
             var cfg = new ConfigurationBuilder()
                 .AddConfiguration(configuration)
-                .AddJsonFile(configLocation, false)
+                //.AddEnvironmentVariables("SLIMGET__")
+                .AddEnvironmentVariables("SLIMGET:")
+                .AddCommandLine(Environment.GetCommandLineArgs())
                 .Build();
 
-            this.Configuration = cfg;
+            // Load file config
+            var cfgf = new ConfigurationBuilder()
+                .AddJsonFile(cfg.GetSection("Configuration")?.Value ?? "slimget.json", optional: true)
+                .Build();
+
+            // Prepend file config so it has lower priority
+            this.Configuration = new ConfigurationBuilder()
+                .AddConfiguration(cfgf)
+                .AddConfiguration(cfg)
+                .Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .Configure<StorageConfiguration>(opts => this.Configuration.GetSection("Storage").Bind(opts))
-                .Configure<ServerConfiguration>(opts => this.Configuration.GetSection("Server").Bind(opts));
-
+            // HSTS
             services.AddHsts(opts =>
             {
                 opts.Preload = true;
@@ -64,10 +105,45 @@ namespace SlimGet
                 opts.MaxAge = TimeSpan.FromDays(365);
             });
 
-            services.AddSingleton<IEncodingProvider, EncodingProvider>()
-                .AddSingleton<ITokenConfigurationProvider, TokenConfigurationProvider>()
-                .AddSingleton<IDatabaseConfigurationProvider, DatabaseConfigurationProvider>()
-                .AddSingleton<ConnectionStringProvider>()
+            // Configuration
+            services.AddOptions<SlimGetConfiguration>()
+                .Bind(this.Configuration)
+                .ValidateDataAnnotations();
+
+            services.AddOptions<StorageConfiguration>()
+                .Bind(this.Configuration.GetSection("Storage"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<DatabaseConfiguration>()
+                .Bind(this.Configuration.GetSection("Storage:Database"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<CacheConfiguration>()
+                .Bind(this.Configuration.GetSection("Storage:Cache"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<BlobStorageConfiguration>()
+                .Bind(this.Configuration.GetSection("Storage:Blobs"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<PackageStorageConfiguration>()
+                .Bind(this.Configuration.GetSection("Storage:Packages"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<HttpConfiguration>()
+                .Bind(this.Configuration.GetSection("Http"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<HttpProxyConfiguration>()
+                .Bind(this.Configuration.GetSection("Http:Proxy"))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<SecurityConfiguration>()
+                .Bind(this.Configuration.GetSection("Security"))
+                .ValidateDataAnnotations();
+
+            // Other services
+            services.AddSingleton<ConnectionStringProvider>()
                 .AddSingleton<PackageKeyProvider>()
                 .AddDbContext<SlimGetContext>(ServiceLifetime.Transient)
                 .AddSingleton<RedisService>()
@@ -79,49 +155,95 @@ namespace SlimGet
                 .AddSingleton<RequireSymbolsEnabled>()
                 .AddSingleton<DownloadCountTransferService>();
 
-            services.AddAuthentication(AuthenticationSchemeSelector.AuthenticationSchemeName)
-                .AddPolicyScheme(AuthenticationSchemeSelector.AuthenticationSchemeName, AuthenticationSchemeSelector.AuthenticationSchemeName, AuthenticationSchemeSelector.ConfigureSelector)
+            // Authentication/authorization
+            services.AddAuthentication(AuthenticationHandlerSelector.AuthenticationSchemeName)
+                .AddPolicyScheme(
+                    AuthenticationHandlerSelector.AuthenticationSchemeName,
+                    AuthenticationHandlerSelector.AuthenticationSchemeName,
+                    AuthenticationHandlerSelector.ConfigureSelector)
                 .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(TokenAuthenticationHandler.AuthenticationSchemeName, null)
                 .AddScheme<BypassAuthenticationOptions, BypassAuthenticationHandler>(BypassAuthenticationHandler.AuthenticationSchemeName, null);
 
-            services.AddMvc(mvcopts =>
+            // MVC
+            services.AddControllersWithViews(mvcopts =>
             {
                 mvcopts.Filters.Add(new ServerHeaderAppender());
                 mvcopts.Filters.Add(new NuGetHeaderProcessor());
 
                 mvcopts.InputFormatters.Add(new RawTextBodyFormatter());
-
-                mvcopts.EnableEndpointRouting = false;
-            })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IOptions<HttpProxyConfiguration> httpProxyOpts)
         {
-            _ = app.ApplicationServices.GetRequiredService<DownloadCountTransferService>();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(this.HandlePipelineException)
+                    .UseStatusCodePages(this.RenderStatusCode)
+                    .UseHsts();
+            }
 
-            app.UseExceptionHandler($"{Routing.MiscApiRoute}/{Routing.MiscErrorRoute}")
-                .UseStatusCodePages(this.RenderStatusCodeAsync)
+            var httpProxy = httpProxyOpts.Value;
+            var forwardConfig = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = httpProxy.Enable ? ForwardedHeaders.All : ForwardedHeaders.None,
+                ForwardLimit = httpProxy.Limit
+            };
+            if (httpProxy.Enable)
+                foreach (var scidr in httpProxy.Networks)
+                {
+                    var cidr = scidr.AsSpan();
+                    var ix = cidr.IndexOf('/');
+                    var ip = IPAddress.Parse(cidr.Slice(0, ix));
+                    var sz = cidr.Slice(ix + 1).ParseAsInt();
+
+                    forwardConfig.KnownNetworks.Add(new IPNetwork(ip, sz));
+                }
+
+            // Typically, this will not run on HTTPS, HTTP will be used in staging for debugging
+            //app.UseHttpsRedirection()
+            app.UseForwardedHeaders(forwardConfig)
                 .UseStaticFiles()
+                .UseRouting()
                 .UseAuthentication()
+                .UseAuthorization()
                 .UseFlushGZip()
-                .UseMvc(routes => { });
-
-            if (!env.IsDevelopment())
-                app.UseHsts();
-
-            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            using (var db = scope.ServiceProvider.GetRequiredService<SlimGetContext>())
-                db.Database.Migrate();
+                .UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
-        private async Task RenderStatusCodeAsync(StatusCodeContext ctx)
-        {
-            var json = JsonConvert.SerializeObject(new SimpleErrorModel(Activity.Current?.Id ?? ctx.HttpContext.TraceIdentifier), Formatting.Indented);
+        private Task RenderStatusCode(StatusCodeContext ctx)
+            => this.RunHandlerAsync(ctx.HttpContext);
 
-            ctx.HttpContext.Response.ContentType = "application/json";
-            await ctx.HttpContext.Response.WriteAsync(json, Utilities.UTF8).ConfigureAwait(false);
+        private void HandlePipelineException(IApplicationBuilder app)
+            => app.Run(this.RunHandlerAsync);
+
+        private async Task RunHandlerAsync(HttpContext ctx)
+        {
+            ctx.Response.ContentType = "application/json";
+
+            SimpleErrorModel error;
+            var reqid = Activity.Current.Id ?? ctx.TraceIdentifier;
+            var env = ctx.RequestServices.GetService<IWebHostEnvironment>();
+            var exhpf = ctx.Features.Get<IExceptionHandlerPathFeature>();
+            if (env.IsDevelopment() && exhpf?.Error != null)
+            {
+                ctx.Response.StatusCode = 500;
+                error = new DeveloperErrorModel(reqid, ctx.Request.Path, exhpf.Error);
+            }
+            else
+            {
+                error = new SimpleErrorModel(reqid);
+            }
+
+            await JsonSerializer.SerializeAsync(ctx.Response.Body, error, AbstractionUtilities.SnakeCaseJsonOptions);
         }
     }
 }

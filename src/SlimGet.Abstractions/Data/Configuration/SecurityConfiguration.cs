@@ -14,12 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
-namespace SlimGet.Services
+namespace SlimGet.Data.Configuration
 {
-    public class EncodingProvider : IEncodingProvider
+    /// <summary>
+    /// Represents configuration for various security components.
+    /// </summary>
+    public sealed class SecurityConfiguration
     {
-        public Encoding TextEncoding => Utilities.UTF8;
+        /// <summary>
+        /// Gets or sets the identifier of the token provider service.
+        /// </summary>
+        [Required]
+        public string TokenProvider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the key used to sign tokens.
+        /// </summary>
+        [Required]
+        public string TokenKey { get; set; }
     }
 }

@@ -14,13 +14,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace SlimGet.Data.Configuration
 {
-    public class ServerConfiguration : ITokenConfiguration
+    /// <summary>
+    /// Represents HTTP configuration.
+    /// </summary>
+    public class HttpConfiguration
     {
-        public CertificateConfiguration SslCertificate { get; set; }
-        public ListenEndpointConfiguration[] Listen { get; set; }
+        /// <summary>
+        /// Gets or sets the proxy parsing settings for the server.
+        /// </summary>
+        [Required]
+        public HttpProxyConfiguration Proxy { get; set; }
+
+        /// <summary>
+        /// Gets or sets all the defined HTTP endpoints.
+        /// </summary>
+        [Required]
+        public HttpEndpointConfiguration[] Listen { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum HTTP request size.
+        /// </summary>
+        [Required]
         public long MaxRequestSizeBytes { get; set; }
-        public string TokenHmacKey { get; set; }
     }
 }

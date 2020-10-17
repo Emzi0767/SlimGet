@@ -17,16 +17,17 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace SlimGet.Filters
 {
     public class RequireDevelopmentEnvironment : IAuthorizationFilter
     {
-        private IHostingEnvironment Environment { get; }
+        private IWebHostEnvironment Environment { get; }
         private ILogger<RequireDevelopmentEnvironment> Logger { get; }
 
-        public RequireDevelopmentEnvironment(IHostingEnvironment env, ILoggerFactory logger)
+        public RequireDevelopmentEnvironment(IWebHostEnvironment env, ILoggerFactory logger)
         {
             this.Environment = env;
             this.Logger = logger.CreateLogger<RequireDevelopmentEnvironment>();
@@ -37,7 +38,7 @@ namespace SlimGet.Filters
             if (!this.Environment.IsDevelopment())
             {
                 this.Logger.LogError("Attempted to access development endpoint in non-development environment");
-                context.Result = new UnauthorizedResult();
+                context.Result = new NotFoundResult();
             }
         }
     }
