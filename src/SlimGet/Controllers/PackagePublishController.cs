@@ -30,7 +30,10 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.PublishPackageRouteName), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed))]
+    [SlimGetRoute(Routing.PublishPackageRouteName)]
+    [ApiController]
+    [Authorize]
+    [ServiceFilter(typeof(RequireWritableFeed))]
     public sealed class PackagePublishController : NuGetControllerBase
     {
         private PackageProcessingService Packages { get; }

@@ -30,7 +30,10 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.DownloadSymbolsRouteName), ApiController, AllowAnonymous, ServiceFilter(typeof(RequireSymbolsEnabled))]
+    [SlimGetRoute(Routing.DownloadSymbolsRouteName)]
+    [ApiController]
+    [AllowAnonymous]
+    [ServiceFilter(typeof(RequireSymbolsEnabled))]
     public sealed class SymbolBaseController : NuGetControllerBase
     {
         public SymbolBaseController(

@@ -27,7 +27,9 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.FeedIndexRouteName), ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.FeedIndexRouteName)]
+    [ApiController]
+    [AllowAnonymous]
     public sealed class IndexController : NuGetControllerBase
     {
         public IndexController(
@@ -41,7 +43,7 @@ namespace SlimGet.Controllers
         { }
 
         [SlimGetRoute(Routing.InheritRoute), HttpGet]
-        public IActionResult Index()
+        public ActionResult<FeedIndexModel> Index()
         {
             var packagePublish = this.CreateResourceModels(
                 this.Url.AbsoluteUrl(Routing.PublishPackageRouteName, this.HttpContext).ToUri(),
@@ -132,8 +134,7 @@ namespace SlimGet.Controllers
                 .Concat(packageMetadata)
                 .Concat(packageVersionMetadata);
 
-            var index = new FeedIndexModel("3.0.0", resources);
-            return this.Json(index);
+            return new FeedIndexModel("3.0.0", resources);
         }
 
         private IEnumerable<FeedResourceModel> CreateResourceModels(Uri baseUrl, string type, params string[] versions)

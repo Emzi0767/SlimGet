@@ -34,7 +34,9 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.RegistrationsRouteName), ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.RegistrationsRouteName)]
+    [ApiController]
+    [AllowAnonymous]
     public class RegistrationsBaseController : NuGetControllerBase
     {
         public RegistrationsBaseController(
@@ -52,7 +54,7 @@ namespace SlimGet.Controllers
             => this.NotFound();
 
         [SlimGetRoute(Routing.RegistrationsIndexRouteName), HttpGet]
-        public async Task<IActionResult> Index(string id, RegistrationsContentMode mode, CancellationToken cancellationToken)
+        public async Task<ActionResult<RegistrationsIndexModel>> Index(string id, RegistrationsContentMode mode, CancellationToken cancellationToken)
         {
             var useGz = mode == RegistrationsContentMode.GZip || mode == RegistrationsContentMode.SemVer2;
             var useSemVer2 = mode == RegistrationsContentMode.SemVer2;
@@ -77,11 +79,11 @@ namespace SlimGet.Controllers
                 .OrderBy(x => x.NuGetVersion)
                 .ToList();
 
-            return this.Json(this.PrepareIndex(mode, dbpackage, dbversions));
+            return this.PrepareIndex(mode, dbpackage, dbversions);
         }
 
         [SlimGetRoute(Routing.RegistrationsPageRouteName), HttpGet]
-        public async Task<IActionResult> Page(string id, string minVersion, string maxVersion, RegistrationsContentMode mode, CancellationToken cancellationToken)
+        public async Task<ActionResult<RegistrationsPageModel>> Page(string id, string minVersion, string maxVersion, RegistrationsContentMode mode, CancellationToken cancellationToken)
         {
             var useGz = mode == RegistrationsContentMode.GZip || mode == RegistrationsContentMode.SemVer2;
             var useSemVer2 = mode == RegistrationsContentMode.SemVer2;
@@ -110,11 +112,11 @@ namespace SlimGet.Controllers
             if (dbversions.Count > 64)
                 return this.BadRequest(new { message = "Too wide version range." });
 
-            return this.Json(this.PreparePage(mode, dbpackage, dbversions, (minVersion, maxVersion), true));
+            return this.PreparePage(mode, dbpackage, dbversions, (minVersion, maxVersion), true);
         }
 
         [SlimGetRoute(Routing.RegistrationsLeafRouteName), HttpGet]
-        public async Task<IActionResult> Leaf(string id, string version, RegistrationsContentMode mode, CancellationToken cancellationToken)
+        public async Task<ActionResult<RegistrationsLeafModel>> Leaf(string id, string version, RegistrationsContentMode mode, CancellationToken cancellationToken)
         {
             var useGz = mode == RegistrationsContentMode.GZip || mode == RegistrationsContentMode.SemVer2;
             var useSemVer2 = mode == RegistrationsContentMode.SemVer2;
@@ -138,7 +140,7 @@ namespace SlimGet.Controllers
             if (dbversion == null)
                 return this.NotFound();
 
-            return this.Json(this.PrepareLeaf(mode, dbpackage, dbversion));
+            return this.PrepareLeaf(mode, dbpackage, dbversion);
         }
 
         private RegistrationsLeafModel PrepareLeaf(RegistrationsContentMode mode, Package dbpackage, PackageVersion dbversion)

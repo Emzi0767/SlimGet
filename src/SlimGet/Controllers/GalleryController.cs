@@ -32,7 +32,8 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.GalleryRouteName), AllowAnonymous]
+    [SlimGetRoute(Routing.GalleryRouteName)]
+    [AllowAnonymous]
     public class GalleryController : Controller
     {
         private PackageStorageConfiguration PackageStorageConfiguration { get; }

@@ -165,13 +165,23 @@ namespace SlimGet
                 .AddScheme<BypassAuthenticationOptions, BypassAuthenticationHandler>(BypassAuthenticationHandler.AuthenticationSchemeName, null);
 
             // MVC
-            services.AddControllersWithViews(mvcopts =>
-            {
-                mvcopts.Filters.Add(new ServerHeaderAppender());
-                mvcopts.Filters.Add(new NuGetHeaderProcessor());
+            services
+                .AddControllersWithViews(mvcopts =>
+                {
+                    mvcopts.Filters.Add(new ServerHeaderAppender());
+                    mvcopts.Filters.Add(new NuGetHeaderProcessor());
 
-                mvcopts.InputFormatters.Add(new RawTextBodyFormatter());
-            });
+                    mvcopts.InputFormatters.Add(new RawTextBodyFormatter());
+                })
+                .AddJsonOptions(o =>
+                {
+                    var jsonOpts = o.JsonSerializerOptions;
+
+                    jsonOpts.Converters.Add(new NullHandlingJsonConverterFactory());
+
+                    jsonOpts.IgnoreNullValues = true;
+                    jsonOpts.IgnoreReadOnlyProperties = false;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -243,7 +253,7 @@ namespace SlimGet
                 error = new SimpleErrorModel(reqid);
             }
 
-            await JsonSerializer.SerializeAsync(ctx.Response.Body, error, AbstractionUtilities.SnakeCaseJsonOptions);
+            await JsonSerializer.SerializeAsync(ctx.Response.Body, error, AbstractionUtilities.DefaultJsonOptions);
         }
     }
 }

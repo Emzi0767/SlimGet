@@ -14,19 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
+using System;
 using System.Text.Json.Serialization;
+using SlimGet.Data;
 
-namespace SlimGet.Models
+namespace SlimGet.Attributes
 {
-    public sealed class PackageVersionList
-    {
-        [JsonPropertyName("versions")]
-        public IEnumerable<string> Versions { get; }
-
-        public PackageVersionList(IEnumerable<string> versions)
-        {
-            this.Versions = versions;
-        }
-    }
+    /// <summary>
+    /// Overrides the default converter for the class, using <see cref="NullHandlingJsonConverter{T}"/> instead.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public sealed class JsonOverrideConverterAttribute : JsonAttribute
+    { }
 }

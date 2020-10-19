@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,9 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.DevelopmentRouteName), ApiController, ServiceFilter(typeof(RequireDevelopmentEnvironment))]
+    [SlimGetRoute(Routing.DevelopmentRouteName)]
+    [ApiController]
+    [ServiceFilter(typeof(RequireDevelopmentEnvironment))]
     public class DevelopmentController : Controller
     {
         private SlimGetContext Database { get; }
@@ -88,8 +91,8 @@ namespace SlimGet.Controllers
         }
 
         [SlimGetRoute(Routing.DevelopmentWhoamiRouteName), HttpGet, Authorize(AuthenticationSchemes = TokenAuthenticationHandler.AuthenticationSchemeName)]
-        public IActionResult Whoami()
-            => this.Json(this.HttpContext.User.Claims.ToDictionary(x => x.Type, x => x.Value));
+        public ActionResult<IDictionary<string, string>> Whoami()
+            => this.HttpContext.User.Claims.ToDictionary(x => x.Type, x => x.Value);
 
         [SlimGetRoute(Routing.DevelopmentUrlPerComponentsRouteName), HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Test(string genController, string genAction)

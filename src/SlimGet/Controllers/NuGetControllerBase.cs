@@ -22,7 +22,7 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    public abstract class NuGetControllerBase : Controller
+    public abstract class NuGetControllerBase : ControllerBase
     {
         protected SlimGetContext Database { get; }
         protected RedisService Redis { get; }

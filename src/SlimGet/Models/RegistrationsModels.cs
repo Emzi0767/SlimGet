@@ -17,63 +17,79 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using SlimGet.Attributes;
+using SlimGet.Data;
 
 namespace SlimGet.Models
 {
+    [JsonOverrideConverter]
     public sealed class RegistrationsLeafModel
     {
-        [JsonProperty("@id", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("@id")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string LeafUrl { get; set; }
 
-        [JsonProperty("catalogEntry", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("catalogEntry")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public CatalogEntryModel CatalogEntry { get; set; }
 
-        [JsonProperty("listed")]
+        [JsonPropertyName("listed")]
         public bool IsListed { get; set; }
 
-        [JsonProperty("packageContent", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("packageContent")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string ContentUrl { get; set; }
 
         [JsonIgnore]
         public DateTimeOffset PublishedAt { get; set; }
-        [JsonProperty("published")]
+        [JsonPropertyName("published")]
         public string PublishedAtString => this.PublishedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz");
 
-        [JsonProperty("registration", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("registration")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string RegistrationIndexUrl { get; set; }
     }
 
+    [JsonOverrideConverter]
     public sealed class RegistrationsPageModel
     {
-        [JsonProperty("@id", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("@id")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string PageUrl { get; set; }
 
-        [JsonProperty("count")]
+        [JsonPropertyName("count")]
         public int Count { get; set; }
 
-        [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("items")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public IEnumerable<RegistrationsLeafModel> Items { get; set; }
 
-        [JsonProperty("lower", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("lower")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string MinVersion { get; set; }
 
-        [JsonProperty("upper", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("upper")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string MaxVersion { get; set; }
 
-        [JsonProperty("parent", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("parent")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string IndexUrl { get; set; }
     }
 
+    [JsonOverrideConverter]
     public sealed class RegistrationsIndexModel
     {
-        [JsonProperty("count")]
+        [JsonPropertyName("count")]
         public int Count { get; set; }
 
-        [JsonProperty("items", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("items")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public IEnumerable<RegistrationsPageModel> Pages { get; set; }
     }
 
+    [JsonOverrideConverter]
     public sealed class CatalogEntryModel
     {
         // This is related to NuGet Catalog which is effectively a complete
@@ -82,97 +98,127 @@ namespace SlimGet.Models
         // As I do not want to implement the catalog, we'll be feeding it
         // registrations URL
 
-        [JsonProperty("@id", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("@id")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string CatalogUrl { get; set; }
 
-        [JsonProperty("authors", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("authors")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public IEnumerable<string> Authors { get; set; }
 
-        [JsonProperty("dependencyGroups", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("dependencyGroups")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public IEnumerable<DependencyGroupModel> DependencyGroups { get; set; }
 
-        [JsonProperty("deprecation", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("deprecation")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public DeprecationInfoModel Deprecation { get; set; }
 
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string Description { get; set; }
 
-        [JsonProperty("iconUrl", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("iconUrl")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string IconUrl { get; set; }
 
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("id")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string Id { get; set; }
 
-        [JsonProperty("licenseUrl", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("licenseUrl")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string LicenseUrl { get; set; }
 
-        // ???????
-        [JsonProperty("licenseExpression", NullValueHandling = NullValueHandling.Ignore)]
+        // SPDX license id
+        // https://spdx.org/licenses/
+        [JsonPropertyName("licenseExpression")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string LicenseExpression { get; set; }
 
-        [JsonProperty("listed", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("listed")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public bool IsListed { get; set; }
 
-        [JsonProperty("minClientVersion", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("minClientVersion")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string MinimumClientVersion { get; set; }
 
-        [JsonProperty("projectUrl", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("projectUrl")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string ProjectUrl { get; set; }
 
         [JsonIgnore]
         public DateTimeOffset PublishedAt { get; set; }
-        [JsonProperty("published", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("published")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string PublishedAtString => this.PublishedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz");
 
-        [JsonProperty("requireLicenseAcceptance", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("requireLicenseAcceptance")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public bool RequiresLicenseAcceptance { get; set; }
 
-        [JsonProperty("summary", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("summary")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string Summary { get; set; }
 
-        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("tags")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public IEnumerable<string> Tags { get; set; }
 
-        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("title")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string Title { get; set; }
 
-        [JsonProperty("version", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("version")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string Version { get; set; }
     }
 
+    [JsonOverrideConverter]
     public sealed class DependencyGroupModel
     {
-        [JsonProperty("targetFramework", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("targetFramework")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string Framework { get; set; }
 
-        [JsonProperty("dependencies", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("dependencies")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public IEnumerable<DependencyModel> Dependencies { get; set; }
     }
 
+    [JsonOverrideConverter]
     public sealed class DependencyModel
     {
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("id")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public string Id { get; set; }
 
-        [JsonProperty("range", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("range")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string VersionRange { get; set; }
 
         // You think the client is smart enough to figure this out on its own?
-        [JsonProperty("registration", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("registration")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string RegistrationUrl { get; set; }
     }
 
+    [JsonOverrideConverter]
     public sealed class DeprecationInfoModel
     {
         [JsonIgnore]
         public IEnumerable<DeprecationReason> Reasons { get; set; }
-        [JsonProperty("reasons", NullValueHandling = NullValueHandling.Include)]
+        [JsonPropertyName("reasons")]
+        [JsonNullHandling(JsonNullHandling.Include)]
         public IEnumerable<string> ReasonStrings => this.Reasons.Select(x => x.ToString());
 
-        [JsonProperty("message", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("message")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public string Message { get; set; }
 
-        [JsonProperty("alternatePackage", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("alternatePackage")]
+        [JsonNullHandling(JsonNullHandling.Ignore)]
         public DependencyModel AlternatePackage { get; set; }
     }
 

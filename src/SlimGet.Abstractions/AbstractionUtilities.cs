@@ -59,20 +59,28 @@ namespace SlimGet
         /// </summary>
         public static JsonSerializerOptions DefaultJsonOptions { get; } = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = true,
+            IgnoreReadOnlyProperties = false
         };
 
         /// <summary>
         /// Gets the PascalCase JSON naming serializer options.
         /// </summary>
-        public static JsonSerializerOptions PascalCaseJsonOptions { get; } = new JsonSerializerOptions();
+        public static JsonSerializerOptions PascalCaseJsonOptions { get; } = new JsonSerializerOptions
+        {
+            IgnoreNullValues = false,
+            IgnoreReadOnlyProperties = false
+        };
 
         /// <summary>
         /// Gets the snake_case JSON naming serializer options.
         /// </summary>
         public static JsonSerializerOptions SnakeCaseJsonOptions { get; } = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = new SnakeCaseNamingPolicy()
+            PropertyNamingPolicy = new SnakeCaseNamingPolicy(),
+            IgnoreNullValues = false,
+            IgnoreReadOnlyProperties = false
         };
 
         static AbstractionUtilities()

@@ -29,7 +29,11 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.PublishSymbolsRouteName), ApiController, Authorize, ServiceFilter(typeof(RequireWritableFeed)), ServiceFilter(typeof(RequireSymbolsEnabled))]
+    [SlimGetRoute(Routing.PublishSymbolsRouteName)]
+    [ApiController]
+    [Authorize]
+    [ServiceFilter(typeof(RequireWritableFeed))]
+    [ServiceFilter(typeof(RequireSymbolsEnabled))]
     public class SymbolPublishController : NuGetControllerBase
     {
         private PackageProcessingService Packages { get; }

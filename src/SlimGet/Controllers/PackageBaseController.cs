@@ -29,7 +29,9 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.DownloadPackageRouteName), ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.DownloadPackageRouteName)]
+    [ApiController]
+    [AllowAnonymous]
     public class PackageBaseController : NuGetControllerBase
     {
         public PackageBaseController(
@@ -47,7 +49,7 @@ namespace SlimGet.Controllers
             => this.NotFound();
 
         [SlimGetRoute(Routing.DownloadPackageIndexRouteName), HttpGet]
-        public async Task<IActionResult> EnumerateVersions(string id, CancellationToken cancellationToken)
+        public async Task<ActionResult<PackageVersionList>> EnumerateVersions(string id, CancellationToken cancellationToken)
         {
             var pkg = await this.Database.Packages.Include(x => x.Versions)
                 .FirstOrDefaultAsync(x => x.IdLowercase == id, cancellationToken);
@@ -55,7 +57,7 @@ namespace SlimGet.Controllers
             if (pkg == null)
                 return this.NotFound();
 
-            return this.Json(new PackageVersionList(pkg.Versions.Select(x => x.Version)));
+            return this.Ok(new PackageVersionList(pkg.Versions.Select(x => x.Version)));
         }
 
         [SlimGetRoute(Routing.DownloadPackageContentsRouteName), HttpGet]

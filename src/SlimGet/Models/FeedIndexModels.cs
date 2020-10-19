@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace SlimGet.Models
 {
@@ -25,19 +25,19 @@ namespace SlimGet.Models
         /// <summary>
         /// Gets the base URL of the resource.
         /// </summary>
-        [JsonProperty("@id")]
+        [JsonPropertyName("@id")]
         public Uri BaseUrl { get; }
 
         /// <summary>
         /// Gets the type of the resource.
         /// </summary>
-        [JsonProperty("@type")]
+        [JsonPropertyName("@type")]
         public string Type { get; }
 
         /// <summary>
         /// Gets the human-readable comment for the resource.
         /// </summary>
-        [JsonProperty("comment")]
+        [JsonPropertyName("comment")]
         public string Comment { get; }
 
         public FeedResourceModel(Uri baseUrl, string type, string comment)
@@ -56,13 +56,13 @@ namespace SlimGet.Models
         /// <summary>
         /// Gets the version of the feed index.
         /// </summary>
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public string Version { get; }
 
         /// <summary>
         /// Gets the services available in the feed.
         /// </summary>
-        [JsonProperty("resources")]
+        [JsonPropertyName("resources")]
         public IEnumerable<FeedResourceModel> Resources { get; }
 
         // @context

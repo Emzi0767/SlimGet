@@ -14,19 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using System.Reflection;
 
-namespace SlimGet.Models
+namespace SlimGet.Data
 {
-    public sealed class PackageVersionList
+    internal sealed class JsonPropertyModel
     {
-        [JsonPropertyName("versions")]
-        public IEnumerable<string> Versions { get; }
+        public PropertyInfo Property { get; }
+        public string Name { get; }
+        public JsonNullHandling NullHandling { get; }
 
-        public PackageVersionList(IEnumerable<string> versions)
+        public JsonPropertyModel(PropertyInfo prop, string name, JsonNullHandling nullHandling)
         {
-            this.Versions = versions;
+            this.Property = prop;
+            this.Name = name;
+            this.NullHandling = nullHandling;
         }
     }
 }

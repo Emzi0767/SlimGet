@@ -30,7 +30,9 @@ using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.SearchRouteName), ApiController, AllowAnonymous]
+    [SlimGetRoute(Routing.SearchRouteName)]
+    [ApiController]
+    [AllowAnonymous]
     public class SearchController : NuGetControllerBase
     {
         public SearchController(
@@ -44,7 +46,7 @@ namespace SlimGet.Controllers
         { }
 
         [SlimGetRoute(Routing.SearchQueryRouteName), HttpGet]
-        public async Task<IActionResult> Search([FromQuery] SearchQueryModel search, CancellationToken cancellationToken)
+        public async Task<ActionResult<SearchResponseModel>> Search([FromQuery] SearchQueryModel search, CancellationToken cancellationToken)
         {
             var semver2 = search.SemVerLevel == "2.0.0";
             var prerelease = search.Prerelease;
@@ -69,7 +71,7 @@ namespace SlimGet.Controllers
 
             var count = await dbpackages.CountAsync(cancellationToken).ConfigureAwait(false);
 
-            return this.Json(this.PrepareResponse(dbpackages, count, prerelease, search.Skip, search.Take));
+            return this.PrepareResponse(dbpackages, count, prerelease, search.Skip, search.Take);
         }
 
         [SlimGetRoute(Routing.SearchAutocompleteRouteName), HttpGet]
@@ -94,7 +96,7 @@ namespace SlimGet.Controllers
 
                 var count = await dbids.CountAsync(cancellationToken).ConfigureAwait(false);
 
-                return this.Json(new SearchAutocompleteResponseModel
+                return this.Ok(new SearchAutocompleteResponseModel
                 {
                     TotalResultCount = count,
                     Results = dbids
@@ -110,7 +112,7 @@ namespace SlimGet.Controllers
                     (x.Package.SemVerLevel == SemVerLevel.Unknown || semver2))
                 .Select(x => x.Version);
 
-                return this.Json(new SearchEnumerateResponseModel { Versions = dbversions });
+                return this.Ok(new SearchEnumerateResponseModel { Versions = dbversions });
             }
         }
 

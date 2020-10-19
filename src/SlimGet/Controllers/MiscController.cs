@@ -14,30 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using SlimGet.Models;
 using SlimGet.Services;
 
 namespace SlimGet.Controllers
 {
-    [SlimGetRoute(Routing.MiscApiRouteName), AllowAnonymous]
-    public class MiscController : Controller
+    [SlimGetRoute(Routing.MiscApiRouteName)]
+    [AllowAnonymous]
+    public class MiscController : ControllerBase
     {
-        private IWebHostEnvironment Environment { get; }
         private SlimGetContext Database { get; }
         private TokenService Tokens { get; }
 
-        public MiscController(IWebHostEnvironment env, SlimGetContext db, TokenService tokens)
+        public MiscController(SlimGetContext db, TokenService tokens)
         {
-            this.Environment = env;
             this.Database = db;
             this.Tokens = tokens;
         }
