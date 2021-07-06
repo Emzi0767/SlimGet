@@ -72,7 +72,7 @@ namespace SlimGet
             // 4. Environment variables
             // 5. Command line
 
-            // For explanation on L78 and L79, see
+            // For explanation on L80 and L81, see
             // https://github.com/dotnet/runtime/issues/40911
             // Load envvars and cmdline switches
             var cfg = new ConfigurationBuilder()

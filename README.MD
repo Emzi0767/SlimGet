@@ -375,9 +375,9 @@ cloned SlimGet source code to.
 Lots of effort went into making this, and sometimes even related software.
 
 If you feel like I'm doing a good job, or just want to throw money at me, you can do so through any of the following:
-- [PayPal](https://paypal.me/Emzi0767/5USD)
+- [PayPal](https://paypal.me/Emzi0767/50USD)
 - [Ko-Fi](https://ko-fi.com/emzi0767)
-- [Patreon](https://patreon.com/emzi0767)
+- [GitHub sponsors](https://github.com/sponsors/Emzi0767)
 
 ## Other questions
 If you have other questions or would like to talk in general, feel free to visit my Discord server.

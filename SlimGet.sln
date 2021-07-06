@@ -49,7 +49,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logo", "logo", "{0E5E4BCD-5
 		logo\slimget-logo.png = logo\slimget-logo.png
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimGet.Abstractions", "src\SlimGet.Abstractions\SlimGet.Abstractions.csproj", "{2069B1E9-D7A0-4148-9BFA-079D0E626F47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimGet.Abstractions", "src\SlimGet.Abstractions\SlimGet.Abstractions.csproj", "{2069B1E9-D7A0-4148-9BFA-079D0E626F47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{48A0C333-FD9B-4008-8E7B-AC92F0AE9D7B}"
+	ProjectSection(SolutionItems) = preProject
+		.github\FUNDING.yml = .github\FUNDING.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +98,7 @@ Global
 		{13D2A93E-AAA3-42CA-BFB1-5602C2DF318A} = {A53ED2F0-B059-473B-9399-B673F37716AA}
 		{0E5E4BCD-578F-4944-96F3-F53AD40E7D80} = {D976F83A-29BC-4713-891C-97E697646464}
 		{2069B1E9-D7A0-4148-9BFA-079D0E626F47} = {A53ED2F0-B059-473B-9399-B673F37716AA}
+		{48A0C333-FD9B-4008-8E7B-AC92F0AE9D7B} = {D976F83A-29BC-4713-891C-97E697646464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6B73761-3D26-4D42-BB4A-B02D57B5A6AB}
